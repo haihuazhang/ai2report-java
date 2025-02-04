@@ -1,0 +1,9 @@
+{
+    "applications": {
+        "report-display": {
+            "additionalInformation": "SAPUI5.Component=report",
+            "applicationType": "URL",
+            "url": "../resources/report"
+        }
+    }
+}

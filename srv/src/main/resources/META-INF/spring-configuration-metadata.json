@@ -1,0 +1,27 @@
+{
+  "groups": [
+    {
+      "name": "",
+      "type": "customer.aireport.util.AIReportProperties",
+      "sourceType": "customer.aireport.util.AIReportProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "prompt-prefix-for-json",
+      "type": "java.lang.String",
+      "sourceType": "customer.aireport.util.AIReportProperties"
+    },
+    {
+      "name": "prompt-prefix-for-report",
+      "type": "java.lang.String",
+      "sourceType": "customer.aireport.util.AIReportProperties"
+    },
+    {
+      "name": "prompt-prefix-for-report-name",
+      "type": "java.lang.String",
+      "sourceType": "customer.aireport.util.AIReportProperties"
+    }
+  ],
+  "hints": []
+}

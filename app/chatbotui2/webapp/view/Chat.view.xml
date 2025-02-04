@@ -1,0 +1,151 @@
+<mvc:View
+    xmlns:core="sap.ui.core"
+    controllerName="chatbotui2.controller.Chat"
+    displayBlock="true"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:webc="sap.ui.webc.main"
+    xmlns:f="sap.f"
+    xmlns:custom="chatbotui2.control"
+    core:require="{
+        LayoutManager: 'chatbotui2/util/LayoutManager',
+		ChatFormatter: 'chatbotui2/formatter/ChatFormatter'
+	}"
+    xmlns:layout="sap.ui.layout"
+    height="100%"
+>
+    <webc:Toast
+        id="steamingEnabledToast"
+        duration="2000"
+        placement="TopCenter"
+    />
+
+    <f:DynamicPage
+        id="chatPage"
+        class="sapUiContentPadding chatPage"
+        showFooter="true"
+    >
+        <!-- DynamicPage Title -->
+        <f:title>
+            <f:DynamicPageTitle>
+                <f:heading>
+                    <Title text="{title}" />
+                </f:heading>
+                <f:actions>
+                    <!-- <Label text="Enable streaming:"></Label>
+					<Switch state="{streamingEnabled}" change="onStreamingEnabledChange"></Switch> -->
+                    <ToolbarSeparator />
+                    <Button
+                        icon="sap-icon://delete"
+                        press="onDeleteChat"
+                        type="Transparent"
+                    />
+                </f:actions>
+                <f:navigationActions>
+                    <!-- Use the LayoutModel directly -->
+                    <Button
+                        icon="sap-icon://exit-full-screen"
+                        press="getModel('appLayout').exitFullScreen()"
+                        visible="{= ${appLayout>/isFullScreen} }"
+                        type="Transparent"
+                    />
+
+                    <!-- Use the LayoutManager -->
+                    <Button
+                        icon="sap-icon://full-screen"
+                        press="LayoutManager.getInstance().setMidColumnFullScreen()"
+                        visible="{= !${appLayout>/isFullScreen} }"
+                        type="Transparent"
+                    />
+                </f:navigationActions>
+            </f:DynamicPageTitle>
+        </f:title>
+        <!-- DynamicPage Header -->
+        <f:header>
+            <f:DynamicPageHeader pinnable="false">
+                <layout:HorizontalLayout>
+                    <layout:VerticalLayout class="sapUiMediumMarginEnd">
+                        <!-- <ObjectAttribute title="Title" text="{title}"/> -->
+                        <MessageStrip
+                            text="{i18n>Text01}"
+                            type="Success"
+                            showIcon="true"
+                            showCloseButton="false"
+                            class="sapUiMediumMarginBottom"
+                        />
+                    </layout:VerticalLayout>
+                    <!-- <layout:VerticalLayout class="sapUiMediumMarginEnd">
+						<ObjectAttribute title="Personality" text="{= ${personality/name} || 'none' }">
+							<customData>
+								<core:CustomData value="{personality_ID}"></core:CustomData>
+							</customData>
+						</ObjectAttribute>
+					</layout:VerticalLayout> -->
+                </layout:HorizontalLayout>
+            </f:DynamicPageHeader>
+        </f:header>
+        <f:content>
+            <VBox class="sapUiMediumMarginBottom">
+                <List
+                    id="messageList"
+                    showNoData="false"
+                    showSeparators="Inner"
+                    items="{ path: 'records', sorter: { path: 'createdAt', descending: false }, parameters:{$expand : 'report'}}"
+                >
+                    <custom:ChatMessageListItem
+                        message="{content}"
+                        sender="{role}"
+                        date="{createdAt}"
+                    >
+                        <custom:avatar>
+                            <Avatar
+                                displaySize="S"
+                                src="{ path: 'role', formatter: 'ChatFormatter.senderIcon' }"
+                                displayShape="Square"
+                                backgroundColor="Transparent"
+                            />
+                        </custom:avatar>
+
+                        <custom:adopt>
+                            <Button
+                                class="sapUiTinyMarginBegin"
+                                type="Emphasized"
+                                icon="sap-icon://thumb-up"
+                                text="{i18n>Button03}"
+                                press="onBtnAdoptPress"
+                                busyIndicatorDelay="0"
+                                visible="{= ${isAdopted} === false &amp;&amp; %{role} === 'assistant' }"
+                            />
+                        </custom:adopt>
+                        <custom:display>
+                            <Button
+                                class="sapUiTinyMarginBegin"
+                                type="Emphasized"
+                                icon="sap-icon://display"
+                                text="{i18n>Button04}"
+                                press="onBtnDisplayPress"
+                                busyIndicatorDelay="0"
+                                visible="{= ${isAdopted} === true &amp;&amp; %{role} === 'assistant' }"
+                            />
+                        </custom:display>
+                    </custom:ChatMessageListItem>
+                </List>
+                <Text
+                    id="listEndMarker"
+                    text=""
+                    visible="true"
+                />
+            </VBox>
+        </f:content>
+        <!-- DynamicPage Footer -->
+        <f:footer>
+            <OverflowToolbar>
+                <FeedInput
+                    id="newMessageInput"
+                    post="onPostMessage"
+                    showIcon="false"
+                />
+            </OverflowToolbar>
+        </f:footer>
+    </f:DynamicPage>
+</mvc:View>

@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "module": "es2022",
+    "skipLibCheck": true,
+    "preserveConstEnums": true,
+    "sourceMap": false,
+    "allowJs": true,
+    "strict": true,
+    "strictNullChecks": false,
+    "strictPropertyInitialization": false,
+    "allowSyntheticDefaultImports": true,
+    "rootDir": "./webapp",
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "moduleResolution": "node",
+    "typeRoots": ["./node_modules/@types", "./node_modules/@sapui5/ts-types-esm"],
+    "paths": {
+      "chatbotui2/*": ["./webapp/*"]
+    }
+  },
+  "include": ["./webapp/**/*"]
+}

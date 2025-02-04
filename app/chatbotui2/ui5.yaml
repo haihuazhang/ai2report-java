@@ -1,0 +1,69 @@
+specVersion: "2.6"
+metadata:
+  name: chatbotui2
+type: application
+framework:
+  name: SAPUI5
+  version: "1.110.0"
+  libraries:
+    - name: sap.m
+    - name: sap.f
+    - name: sap.ui.core
+    - name: sap.ui.unified
+    - name: sap.suite.ui.commons
+    - name: sap.tnt
+    - name: sap.uxap
+    - name: sap.ui.unified
+    - name: sap.ui.webc.main
+    - name: sap.ui.comp
+    - name: sap.ui.testrecorder
+    - name: themelib_sap_horizon
+    - name: themelib_sap_fiori_3
+builder:
+  customTasks:
+    - name: ui5-tooling-modules-task
+      afterTask: replaceVersion
+      configuration:
+        verbose: true
+        prependPathMappings: true
+        addToNamespace: true
+    - name: ui5-tooling-transpile-task
+      afterTask: replaceVersion
+      configuration: &transpileConfig
+        removeConsoleStatements: true
+        transpileAsync: true
+        transpileTypeScript: true
+    - name: ui5-task-zipper
+      afterTask: uglify
+      configuration:
+        includeDependencies: false
+        archiveName: chatbotui2
+        additionalFiles:
+          - xs-app.json
+server:
+  customMiddleware:
+    - name: ui5-middleware-cfdestination
+      afterMiddleware: compression
+      configuration:
+        debug: true
+        port: 1096
+        xsappJson: xs-app.dev.json
+        destinations:
+          - name: "srv-api"
+            url: "http://localhost:3001"
+    - name: ui5-middleware-livereload
+      afterMiddleware: compression
+      configuration:
+        debug: true
+        extraExts: "xml,json,properties"
+        port: 35729
+        path: "webapp"
+    - name: ui5-tooling-transpile-middleware
+      afterMiddleware: compression
+      configuration: *transpileConfig
+    - name: ui5-tooling-modules-middleware
+      afterMiddleware: compression
+      configuration:
+        verbose: true
+        prependPathMappings: true
+        addToNamespace: true

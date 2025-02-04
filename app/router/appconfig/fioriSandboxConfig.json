@@ -1,0 +1,116 @@
+{
+  "services": {
+    "LaunchPage": {
+      "adapter": {
+        "config": {
+          "catalogs": [],
+          "groups": [
+            {
+              "id": "Report",
+              "title": "AI Report Utils",
+              "isPreset": true,
+              "isVisible": true,
+              "isGroupLocked": false,
+              "tiles": [
+                {
+                  "id": "Report",
+                  "tileType": "sap.ushell.ui.tile.StaticTile",
+                  "properties": {
+                    "title": "AI Reports",
+                    "targetURL": "#report-display"
+                  }
+                },
+                {
+                  "id": "ChatBotUI2",
+                  "tileType": "sap.ushell.ui.tile.StaticTile",
+                  "properties": {
+                    "title": "Chat with AI Bot2",
+                    "targetURL": "#chatbotui2-display"
+                  }
+                },
+                {
+                  "id": "Parameters",
+                  "tileType": "sap.ushell.ui.tile.StaticTile",
+                  "properties": {
+                    "title": "Maintain Parameters",
+                    "targetURL": "#parameter-display"
+                  }
+                }
+
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "NavTargetResolution": {
+      "config": {
+        "enableClientSideTargetResolution": true
+      }
+    },
+    "ClientSideTargetResolution": {
+      "adapter": {
+        "config": {
+          "inbounds": {
+            "ChatBotUI": {
+              "semanticObject": "chatbotui",
+              "action": "display",
+              "title": "Chat with AI",
+              "signature": {
+                "parameters": {},
+                "additionalParameters": "allowed"
+              },
+              "resolutionResult": {
+                "applicationType": "SAPUI5",
+                "additionalInformation": "SAPUI5.Component=chatbotui",
+                "url": "chat-bot-ui/webapp"
+              }
+            },
+            "Report": {
+              "semanticObject": "report",
+              "action": "display",
+              "title": "Report",
+              "signature": {
+                "parameters": {},
+                "additionalParameters": "allowed"
+              },
+              "resolutionResult": {
+                "applicationType": "SAPUI5",
+                "additionalInformation": "SAPUI5.Component=report",
+                "url": "report/webapp"
+              }
+            },
+            "ChatBotUI2": {
+              "semanticObject": "chatbotui2",
+              "action": "display",
+              "title": "Chat with AI2",
+              "signature": {
+                "parameters": {},
+                "additionalParameters": "allowed"
+              },
+              "resolutionResult": {
+                "applicationType": "SAPUI5",
+                "additionalInformation": "SAPUI5.Component=chatbotui2",
+                "url": "chatbotui2/webapp"
+              }
+            },
+            "Parameter": {
+              "semanticObject": "parameter",
+              "action": "display",
+              "title": "Parameter",
+              "signature": {
+                "parameters": {},
+                "additionalParameters": "allowed"
+              },
+              "resolutionResult": {
+                "applicationType": "SAPUI5",
+                "additionalInformation": "SAPUI5.Component=parameters",
+                "url": "parameters/webapp"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

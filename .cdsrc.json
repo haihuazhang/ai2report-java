@@ -1,0 +1,17 @@
+{
+  "sql": {
+    "native_hana_associations": false
+  },
+  "requires": {
+    "db": "hana",
+    "[hybrid]": {
+      "auth": "xsuaa"
+    },
+    "[production]": {
+      "auth": "xsuaa",
+      "db": "hana"
+    },
+    "destinations": true,
+    "html5-repo": true
+  }
+}

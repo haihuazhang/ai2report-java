@@ -1,0 +1,79 @@
+{
+  "services": {
+    "LaunchPage": {
+      "adapter": {
+        "config": {
+          "catalogs": [],
+          "groups": [
+            {
+              "id": "Report",
+              "title": "AI Report Utils",
+              "isPreset": true,
+              "isVisible": true,
+              "isGroupLocked": false,
+              "tiles": [
+                {
+                  "id": "ChatBotUI",
+                  "tileType": "sap.ushell.ui.tile.StaticTile",
+                  "properties": {
+                    "title": "Chat with AI Bot",
+                    "targetURL": "#chatbotui-display"
+                  }
+                },
+                {
+                  "id": "Report",
+                  "tileType": "sap.ushell.ui.tile.StaticTile",
+                  "properties": {
+                    "title": "AI Reports",
+                    "targetURL": "#report-display"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "NavTargetResolution": {
+      "config": {
+        "enableClientSideTargetResolution": true
+      }
+    },
+    "ClientSideTargetResolution": {
+      "adapter": {
+        "config": {
+          "inbounds": {
+            "ChatBotUI": {
+              "semanticObject": "chatbotui",
+              "action": "display",
+              "title": "Chat with AI",
+              "signature": {
+                "parameters": {},
+                "additionalParameters": "allowed"
+              },
+              "resolutionResult": {
+                "applicationType": "SAPUI5",
+                "additionalInformation": "SAPUI5.Component=chatbotui",
+                "url": "chat-bot-ui/webapp"
+              }
+            },
+            "Report": {
+              "semanticObject": "report",
+              "action": "display",
+              "title": "Report",
+              "signature": {
+                "parameters": {},
+                "additionalParameters": "allowed"
+              },
+              "resolutionResult": {
+                "applicationType": "SAPUI5",
+                "additionalInformation": "SAPUI5.Component=report",
+                "url": "report/webapp"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

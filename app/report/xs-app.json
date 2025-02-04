@@ -1,0 +1,19 @@
+{
+  "welcomeFile": "/index.html",
+  "authenticationMethod": "route",
+  "routes": [
+    {
+      "source": "^/odata/v4/ai2report/(.*)$",
+      "authenticationType": "xsuaa",
+      "csrfProtection": false,
+      "target": "/odata/v4/ai2report/$1",
+      "destination": "aireport-srv-api"
+    },
+    {
+      "source": "^(.*)$",
+      "target": "$1",
+      "service": "html5-apps-repo-rt",
+      "authenticationType": "xsuaa"
+    }
+  ]
+}

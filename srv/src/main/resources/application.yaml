@@ -1,0 +1,48 @@
+---
+management:
+  endpoint:
+    health:
+      show-components: always
+      probes:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health
+  health:
+    defaults:
+      enabled: false
+    ping:
+      enabled: true
+    db:
+      enabled: true
+aireport:
+  prompt-prefix-for-report: prompt_report_ 
+  prompt-prefix-for-report-name: prompt_repname_
+  prompt-prefix-for-json: prompt_json_
+
+---
+spring:
+  config:
+    activate:
+      on-profile: default
+  # sql:
+    # init:
+      # schema-locations: classpath:schema.sql
+  web.resources.static-locations: file:./app/
+cds:
+  security:
+    mock:
+      users:
+        admin:
+          password: admin
+          roles:
+          - admin
+          # "roles[0]": admin
+        user:
+          password: user
+  data-source:
+    auto-config:
+      enabled: true
+
+

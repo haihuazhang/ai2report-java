@@ -1,0 +1,75 @@
+<mvc:View controllerName="chatbotui.controller.View1" xmlns:core="sap.ui.core" xmlns:mvc="sap.ui.core.mvc" xmlns:f="sap.f"
+	displayBlock="true" xmlns="sap.m" xmlns:l="sap.ui.layout">
+		<Page title="{i18n>Title01}">
+	<f:DynamicPage stickySubheaderProvider="iconTabBar" class="sapUiNoContentPadding">
+		<!-- <f:title>
+			<f:DynamicPageTitle>
+				<f:heading>
+					<Title text="AI with Fiori"/>
+				</f:heading>
+			</f:DynamicPageTitle>
+		</f:title> -->
+		<f:content>
+			<l:Splitter busy="{ui>/busy1}" busyIndicatorDelay="0"  >
+				<VBox>
+					<l:HorizontalLayout class="sapUiContentPadding">
+						<Text width="1em"/>
+						<Button class="sapUiTinyMarginBegin" width="12em" type="Emphasized" icon="sap-icon://create" text="{i18n>Button01}" press="onNewChat"/>
+					</l:HorizontalLayout>
+					<List items="{ui>/chatbot/chatlist}" headerText="{i18n>Text02}" growing="true" growingThreshold="10" growingScrollToLoad="false">
+						<StandardListItem title="{ui>createdAt}" description="{ui>title}" press="onStandardListItemPress" type="Navigation"/>
+					</List>
+					<layoutData>
+						<l:SplitterLayoutData size="250px" resizable="false"/>
+					</layoutData>
+				</VBox>
+				
+				<VBox class="chat-bot-ui" visible="{ui>/visible2}" >
+					<ScrollContainer height="100%" width="100%" vertical="true" focusable="true">
+						<MessageStrip text="{i18n>Text01}" type="Success" showIcon="true" showCloseButton="false"
+							class="sapUiMediumMarginBottom"></MessageStrip>
+						<VBox items="{ui>/chatbot/messages}">
+							<VBox>
+								<HBox visible="{= ${ui>role} === 'assistant'}" direction="Row" class="sapUiSmallMarginTopBottom">
+									<HBox backgroundDesign="Solid" class="chatBubble sapUiResponsivePadding">
+										<core:Icon decorative="true" src="sap-icon://ai" class="sapUiTinyMarginEnd"/>
+										<Text text="{ui>content}"/>
+										<Text width="2rem"/>
+										<Button class="sapUiTinyMarginBegin" type="Emphasized" icon="sap-icon://thumb-up" text="{i18n>Button03}" press="onBtnAdoptPress"
+											busyIndicatorDelay="0" visible="{ui>visible0}"/>
+										<Button class="sapUiTinyMarginBegin" type="Emphasized" icon="sap-icon://display" text="{i18n>Button04}" press="onBtnDisplayPress"
+											busyIndicatorDelay="0" visible="{ui>visible1}"/>
+									</HBox>
+								</HBox>
+								<HBox visible="{= ${ui>role} === 'user'}" direction="RowReverse" class="sapUiSmallMarginTopBottom">
+									<HBox direction="RowReverse" backgroundDesign="Solid" class="chatBubble sapUiResponsivePadding sapThemeBrand-asBackgroundColor">
+										<core:Icon decorative="true" src="sap-icon://customer" class="sapUiTinyMarginBegin sapThemeTextInverted"/>
+										<Text class="sapThemeTextInverted" text="{ui>content}"/>
+									</HBox>
+								</HBox>
+							</VBox>
+						</VBox>
+					</ScrollContainer>
+					<HBox class="sapUiSmallMarginTop">
+						<TextArea value="{ui>/chatbot/txtInput}" width="100%" growing="true" editable="{= !${ui>/busy}}" busyIndicatorDelay="0">
+							<layoutData>
+								<FlexItemData growFactor="1"/>
+							</layoutData>
+						</TextArea>
+						<Button class="sapUiTinyMarginBegin" type="Emphasized" icon="sap-icon://paper-plane" text="{i18n>Button02}" press="onBtnChatbotSendPress"
+							busy="{ui>/busy}" busyIndicatorDelay="0"/>
+					</HBox>
+					<layoutData>
+						<l:SplitterLayoutData size="auto"/>
+					</layoutData>
+				</VBox>
+			</l:Splitter>
+		</f:content>
+	</f:DynamicPage>
+		<footer>
+			<OverflowToolbar id="otbFooter">
+				<Button type="Accept" text="{i18n>Button05}" press="onBtnParameter"/>
+			</OverflowToolbar>
+		</footer>
+	</Page>
+</mvc:View>
