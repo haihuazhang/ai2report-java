@@ -2,10 +2,10 @@ using {pwc.hand.ai2report as ai} from '../db/ai';
 
 service ChatService @(path: '/ai2report') {
 
-    entity Chats            as projection on ai.Chats
-        actions {
-            action newRecord(content : String) returns Records;
-        }
+    // entity Chats            as projection on ai.Chats
+    //     actions {
+    //         action newRecord(content : String) returns Records;
+    //     }
 
     entity Records          as projection on ai.Records
         actions {
@@ -17,8 +17,10 @@ service ChatService @(path: '/ai2report') {
             action generateProgram();
             @Core.OperationAvailable: in.isPCLGenerated
             action generatePCL();
+            action generateCDS();
             action verify();
-            action createProject() returns Boolean;
+            action createProject()             returns Boolean;
+            action newRecord(content : String) returns Records;
         }
 
     @cds.query.limit.default: 100
@@ -28,12 +30,35 @@ service ChatService @(path: '/ai2report') {
     @cds.query.limit.default: 100
     entity Pcls             as projection on ai.PCLs;
 
+    @cds.query.limit.max    : 1000
+    @cds.query.limit.default: 100
+    entity CDSEntity        as projection on ai.CDSEntity;
+
     entity Parameters       as projection on ai.Parameters;
     entity SingleCheck      as projection on ai.SingleCheck;
     entity ProgramGenerated as projection on ai.ProgramGenerated;
     entity Category         as projection on ai.Category;
     entity FieldType        as projection on ai.FieldType;
-    action newChat() returns Chats;
+
+    @odata.draft.enabled
+    entity Files            as projection on ai.Files
+        actions {
+            action storeEmbeddings()  returns String;
+            action deleteEmbeddings() returns String;
+        };
+
+    entity Knowledges       as
+        projection on ai.Knowledges
+        excluding {
+            embeddings
+        };
+
+    @odata.draft.enabled
+    entity RagCategory      as projection on ai.RagCategory;
+
+    action similitarySearch(question : String, category : String, top : Integer, threshold : Decimal(5, 2)) returns array of Knowledges;
+
+// action newChat() returns Chats;
 
 }
 
@@ -54,14 +79,14 @@ annotate ChatService.Category {
 
 annotate ChatService.ReportFields {
     category   @Common: {
-        Text           : category.desc,
+        Text           : categoryNav.desc,
         TextArrangement: #TextOnly,
         ValueListWithFixedValues,
         ValueList      : {
             CollectionPath: 'Category',
             Parameters    : [{
                 $Type            : 'Common.ValueListParameterInOut',
-                LocalDataProperty: 'category_code',
+                LocalDataProperty: 'category',
                 ValueListProperty: 'code'
             }]
         }
@@ -307,7 +332,7 @@ annotate ChatService.ReportFields with @UI: {
     Identification: [
         {
             $Type: 'UI.DataField',
-            Value: category_code,
+            Value: category,
             Label: '{i18n>Category}',
         },
         {
@@ -375,7 +400,7 @@ annotate ChatService.ReportFields with @UI: {
         },
         {
             $Type: 'UI.DataField',
-            Value: category_code,
+            Value: category,
             Label: '{i18n>Category}',
         },
         {
@@ -439,14 +464,14 @@ annotate ChatService.ReportFields with @UI: {
 
 annotate ChatService.Pcls {
     category @Common: {
-        Text           : category.desc,
+        Text           : categoryNav.desc,
         TextArrangement: #TextOnly,
         ValueListWithFixedValues,
         ValueList      : {
             CollectionPath: 'Category',
             Parameters    : [{
                 $Type            : 'Common.ValueListParameterInOut',
-                LocalDataProperty: 'category_code',
+                LocalDataProperty: 'category',
                 ValueListProperty: 'code'
             }]
         }
@@ -478,7 +503,7 @@ annotate ChatService.Pcls with @UI: {LineItem: [
     },
     {
         $Type: 'UI.DataField',
-        Value: category_code,
+        Value: category,
         Label: '{i18n>Category}',
     },
     {
@@ -503,24 +528,18 @@ annotate ChatService.Pcls with @(UI.PresentationVariant: {
 
 
 annotate ChatService.Parameters with {
-    value       @UI: {MultiLineText};
+    // value       @UI: {MultiLineText};
     description @UI: {MultiLineText};
 };
 
 
 annotate ChatService.Parameters @odata.draft.enabled;
 
-
 annotate ChatService.Parameters with @(UI.LineItem: [
     {
         $Type: 'UI.DataField',
         Label: 'name',
         Value: name,
-    },
-    {
-        $Type: 'UI.DataField',
-        Label: 'value',
-        Value: value,
     },
     {
         $Type: 'UI.DataField',
@@ -545,10 +564,266 @@ annotate ChatService.Parameters with @(
             }
         ],
     },
-    UI.Facets                     : [{
-        $Type : 'UI.ReferenceFacet',
-        ID    : 'GeneratedFacet1',
-        Label : 'Description Information',
-        Target: '@UI.FieldGroup#GeneratedGroup1'
-    }]
+    UI.Facets                     : [
+        {
+            $Type : 'UI.ReferenceFacet',
+            ID    : 'GeneratedFacet1',
+            Label : 'Description Information',
+            Target: '@UI.FieldGroup#GeneratedGroup1'
+        },
+        {
+            $Type : 'UI.ReferenceFacet',
+            ID    : 'GeneratedFacet2',
+            Label : 'Value Information',
+            Target: 'items/@UI.LineItem'
+        }
+    ]
 );
+
+annotate ChatService.ParameterItems with @(
+    HeaderInfo : {
+        $Type         : 'UI.HeaderInfoType',
+        TypeName      : 'Item',
+        TypeNamePlural: 'Item',
+    },
+    UI.LineItem: [
+        {
+            $Type: 'UI.DataField',
+            Label: 'name',
+            Value: name,
+        },
+        {
+            $Type: 'UI.DataField',
+            Label: 'language',
+            Value: language,
+        },
+    ]
+);
+
+
+annotate ChatService.Files with @(
+    odata.draft.enabled,
+    UI.FieldGroup #FileDetails: {
+        $Type: 'UI.FieldGroupType',
+        Data : [
+            {
+                $Type: 'UI.DataField',
+                Value: category,
+                Label: 'File Category',
+            },
+            {
+                $Type: 'UI.DataField',
+                Value: fileName,
+                Label: 'File Name',
+            },
+            {
+                $Type: 'UI.DataField',
+                Value: fileContent,
+                Label: 'File Content',
+            },
+            {
+                $Type: 'UI.DataField',
+                Value: mediaType,
+                Label: 'Media Type',
+            },
+            {
+                $Type: 'UI.DataField',
+                Value: isGenerated,
+                Label: 'isGenerateEmbedding',
+            },
+        ],
+    },
+    UI.FieldGroup #Knowledges : {
+        $Type: 'UI.FieldGroupType',
+        Data : [],
+    },
+    UI.SelectionFields        : [category, ],
+);
+
+annotate ChatService.Files with @(
+    UI.FieldGroup #GeneratedGroup: {
+        $Type: 'UI.FieldGroupType',
+        Data : [
+            {
+                $Type: 'UI.DataField',
+                Label: 'category',
+                Value: category,
+            },
+            {
+                $Type: 'UI.DataField',
+                Label: 'fileName',
+                Value: fileName,
+            },
+            {
+                $Type: 'UI.DataField',
+                Label: 'mediaType',
+                Value: mediaType,
+            },
+            {
+                $Type: 'UI.DataField',
+                Label: 'isGeneratedEmbedding',
+                Value: isGenerated,
+            },
+            {
+                $Type: 'UI.DataField',
+                Label: 'fileContent',
+                Value: fileContent,
+            },
+        ],
+    },
+    UI.Facets                    : [
+        {
+            $Type : 'UI.CollectionFacet',
+            Label : 'File Overview',
+            ID    : 'fileObject',
+            Facets: [{
+                $Type : 'UI.ReferenceFacet',
+                Label : 'File Details',
+                ID    : 'FileDetails',
+                Target: '@UI.FieldGroup#FileDetails',
+            }, ],
+        },
+        {
+            $Type : 'UI.ReferenceFacet',
+            Label : 'Knowledges',
+            ID    : 'Knowledges',
+            Target: 'knowledges/@UI.LineItem#Knowledges1',
+        },
+    ],
+    UI.LineItem                  : [
+        {
+            $Type: 'UI.DataField',
+            Label: 'File Category',
+            Value: category,
+        },
+        {
+            $Type: 'UI.DataField',
+            Label: 'File Name',
+            Value: fileName,
+        },
+        {
+            $Type: 'UI.DataField',
+            Label: 'Media Type',
+            Value: mediaType,
+        },
+        {
+            $Type: 'UI.DataField',
+            Label: 'isGenerateEmbedding',
+            Value: isGenerated,
+        },
+        {
+            $Type : 'UI.DataFieldForAction',
+            Action: 'ChatService.storeEmbeddings',
+            Label : 'Generate Embeddings'
+        },
+        {
+            $Type : 'UI.DataFieldForAction',
+            Action: 'ChatService.deleteEmbeddings',
+            Label : 'Delete Embeddings'
+        }
+    ],
+) actions {
+    @Common.SideEffects: {TargetProperties: ['in/isGenerated'], }
+    storeEmbeddings;
+    @Common.SideEffects: {TargetProperties: ['in/isGenerated'], }
+    deleteEmbeddings;
+};
+
+annotate ChatService.Files with {
+    isGenerated @Common.FieldControl: #ReadOnly
+};
+
+annotate ChatService.Files with {
+    category @(
+        Common.FieldControl            : #Mandatory,
+        Common.ValueList               : {
+            $Type         : 'Common.ValueListType',
+            CollectionPath: 'RagCategory',
+            Parameters    : [{
+                $Type            : 'Common.ValueListParameterInOut',
+                LocalDataProperty: category,
+                ValueListProperty: 'code',
+            }, ],
+            Label         : 'Category Help',
+        },
+        Common.ValueListWithFixedValues: true,
+        Common.Label                   : 'category',
+    )
+};
+
+annotate ChatService.Knowledges with @(
+    UI.CreateHidden         : true,
+    UI.DeleteHidden         : true,
+
+    UI.LineItem #Knowledges : [
+        {
+            $Type: 'UI.DataField',
+            Value: file_ID,
+            Label: 'file_ID',
+        },
+        {
+            $Type: 'UI.DataField',
+            Value: category,
+            Label: 'category',
+        },
+        {
+            $Type: 'UI.DataField',
+            Value: content,
+            Label: 'content',
+        },
+    ],
+    UI.LineItem #Knowledges1: [
+        {
+            $Type: 'UI.DataField',
+            Value: file_ID,
+            Label: 'FileID',
+        },
+        {
+            $Type: 'UI.DataField',
+            Value: category,
+            Label: 'File Category',
+        },
+        {
+            $Type: 'UI.DataField',
+            Value: content,
+            Label: 'File Content',
+        },
+        {
+            $Type: 'UI.DataField',
+            Value: isGeneratedEmbedding,
+            Label: 'isGenerateEmbedding',
+        },
+        {
+            $Type : 'UI.DataFieldForAction',
+            Action: 'ChatService.EntityContainer/similitarySearch',
+            Label : 'Search Embeddings'
+        },
+    ],
+);
+
+annotate ChatService.Knowledges with {
+    file @Common.FieldControl: #ReadOnly
+};
+
+annotate ChatService.Knowledges with {
+    category @Common.FieldControl: #ReadOnly
+};
+
+annotate ChatService.Knowledges with {
+    content @Common.FieldControl: #ReadOnly
+};
+
+annotate ChatService.Files with {
+    mediaType @Common.FieldControl: #ReadOnly
+};
+
+annotate ChatService.Files with {
+    size @Common.FieldControl: #ReadOnly
+};
+
+annotate ChatService.RagCategory with {
+    code @Common.Text: {
+        $value                : desc,
+        ![@UI.TextArrangement]: #TextOnly,
+    }
+};

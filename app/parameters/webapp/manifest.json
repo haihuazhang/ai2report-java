@@ -106,6 +106,11 @@
           "pattern": "Parameters({key}):?query:",
           "name": "ParametersObjectPage",
           "target": "ParametersObjectPage"
+        },
+        {
+          "pattern": "Parameters({key})/items({key2}):?query:",
+          "name": "ParameterItemsObjectPage",
+          "target": "ParameterItemsObjectPage"
         }
       ],
       "targets": {
@@ -136,6 +141,24 @@
             "settings": {
               "editableHeaderContent": false,
               "contextPath": "/Parameters",
+              "navigation": {
+                "items": {
+                  "detail": {
+                    "route": "ParameterItemsObjectPage"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "ParameterItemsObjectPage": {
+          "type": "Component",
+          "id": "ParameterItemsObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/Parameters/items",
               "content": {
                 "body": {
                   "sections": {

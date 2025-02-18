@@ -22,8 +22,8 @@
           "apiEndpoint": "https://api.cf.us10-001.hana.ondemand.com",
           "org": "57115f0etrial",
           "space": "dev",
-          "instance": "aifs-dest",
-          "key": "aifs-dest-key",
+          "instance": "aireport-destination",
+          "key": "aireport-destination-key",
           "resolved": false
         },
         "kind": "destinations",
@@ -37,8 +37,8 @@
           "apiEndpoint": "https://api.cf.us10-001.hana.ondemand.com",
           "org": "57115f0etrial",
           "space": "dev",
-          "instance": "aireport-uaa",
-          "key": "aireport-uaa-key",
+          "instance": "aireport-auth",
+          "key": "aireport-auth-key",
           "resolved": false
         },
         "kind": "xsuaa-auth",
