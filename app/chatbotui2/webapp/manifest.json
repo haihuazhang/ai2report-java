@@ -22,7 +22,7 @@
     },
     "dataSources": {
       "default": {
-        "uri": "odata/v4/ai2report/",
+        "uri": "/odata/v4/ai2report/",
         "type": "OData",
         "settings": {
           "odataVersion": "4.0",

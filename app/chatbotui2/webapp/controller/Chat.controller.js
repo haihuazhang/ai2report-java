@@ -1,17 +1,11 @@
 sap.ui.define([
     "./BaseController",
-    "sap/ui/base/Event",
     "../util/Helper",
-    "sap/ui/model/odata/v4/Context",
-    "sap/ui/model/odata/v4/ODataListBinding",
-    "../model/UserModel",
-    "sap/m/List",
     "../service/ChatService",
-    "sap/ui/webc/main/Toast",
     "../service/NewMessageHandler",
     "../util/UIHelper",
     "sap/ushell/Container"
-], function (BaseController, UI5Event, Helper, Context, ODataListBinding, UserModel, List, ChatService, Toast, NewMessageHandler, UIHelper, Container) {
+], function (BaseController,Helper, ChatService, NewMessageHandler, UIHelper, Container) {
     "use strict";
 
     return BaseController.extend("chatbotui2.controller.Chat", {

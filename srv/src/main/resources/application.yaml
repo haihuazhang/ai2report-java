@@ -17,9 +17,9 @@ management:
     db:
       enabled: true
 aireport:
-  prompt-prefix-for-report: prompt_report_ 
-  prompt-prefix-for-report-name: prompt_repname_
-  prompt-prefix-for-json: prompt_json_
+  prompt-prefix-for-report: prompt_report
+  prompt-prefix-for-report-name: prompt_repname
+  prompt-prefix-for-json: prompt_json
 
 ---
 spring:

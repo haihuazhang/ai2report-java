@@ -21,6 +21,7 @@ service ChatService @(path: '/ai2report') {
             action verify();
             action createProject()             returns Boolean;
             action newRecord(content : String) returns Records;
+            action appendToChatRecord() returns Records;
         }
 
     @cds.query.limit.default: 100

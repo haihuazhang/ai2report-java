@@ -1,0 +1,192 @@
+<core:FragmentDefinition
+    xmlns:html="http://www.w3.org/1999/xhtml"
+    displayBlock="true"
+    xmlns:mvc="sap.ui.core.mvc"
+    xmlns="sap.m"
+    xmlns:webc="sap.ui.webc.main"
+    xmlns:f="sap.f"
+    xmlns:custom="report.control"
+    core:require="{
+        LayoutManager: 'report/util/LayoutManager',
+		ChatFormatter: 'report/formatter/ChatFormatter'
+	}"
+    xmlns:layout="sap.ui.layout"
+    xmlns:core="sap.ui.core"
+    height="100%"
+>
+    <Dialog id="_IDGenDialog1" title="{i18n>AIConversationTitle}" contentHeight="100%"
+        contentWidth="200%"
+        verticalScrolling="true"
+        resizable="true"
+        class="dialogToRight"
+    >
+        <Page id="chatPage" class="sapUiContentPadding chatPage" showFooter="true"
+            floatingFooter="false" showHeader="false">
+            <!-- <headerContent> -->
+            <!-- <webc:Toast
+                    id="steamingEnabledToast"
+                    duration="2000"
+                    placement="TopCenter"
+                /> -->
+
+            <!-- <f:DynamicPage
+            id="chatPage"
+            class="sapUiContentPadding chatPage"
+            showFooter="true"
+            fitContent="true"
+        >
+
+            <f:title>
+                <f:DynamicPageTitle id="_IDGenDynamicPageTitle">
+                    <f:heading>
+                
+                    </f:heading>
+                    <f:actions>
+
+                        <ToolbarSeparator id="_IDGenToolbarSeparator" />
+                        <Button id="_IDGenButton"
+                            icon="sap-icon://delete"
+                            press="onDeleteChat"
+                            type="Transparent"
+                        />
+                    </f:actions>
+                    <f:navigationActions>
+
+                        <Button id="_IDGenButton1"
+                            icon="sap-icon://exit-full-screen"
+                            press="getModel('appLayout').exitFullScreen()"
+                            visible="{= ${appLayout>/isFullScreen} }"
+                            type="Transparent"
+                        />
+
+
+                        <Button id="_IDGenButton2"
+                            icon="sap-icon://full-screen"
+                            press="LayoutManager.getInstance().setMidColumnFullScreen()"
+                            visible="{= !${appLayout>/isFullScreen} }"
+                            type="Transparent"
+                        />
+                    </f:navigationActions>
+                </f:DynamicPageTitle>
+            </f:title>
+
+            <f:header>
+                <f:DynamicPageHeader id="_IDGenDynamicPageHeader" pinnable="false">
+
+                </f:DynamicPageHeader>
+            </f:header>
+            <f:content>
+  
+            </f:content>
+
+            <f:footer>
+
+            </f:footer>
+        </f:DynamicPage> -->
+
+
+            <!-- <Text id="_IDGenTitle" text="{Text}" /> -->
+            <!-- <layout:HorizontalLayout id="_IDGenHorizontalLayout">
+                    <layout:VerticalLayout id="_IDGenVerticalLayout"
+                        class="sapUiMediumMarginEnd">
+                        <MessageStrip id="_IDGenMessageStrip"
+                            text="{i18n>Text01}"
+                            type="Success"
+                            showIcon="true"
+                            showCloseButton="false"
+                            class="sapUiMediumMarginBottom"
+                        />
+                    </layout:VerticalLayout>
+
+                </layout:HorizontalLayout> -->
+            <!-- </headerContent> -->
+
+            <content>
+                <VBox id="_IDGenVBox" class="sapUiMediumMarginBottom">
+                    <List
+                        id="messageList"
+                        showNoData="false"
+                        showSeparators="Inner"
+                        items="{ 
+                            path: 'records', 
+                            sorter: { path: 'createdAt', descending: false },
+                            filters: {
+                                path: 'role',
+                                operator: 'NE',
+                                value1: 'system'
+                            },
+                            parameters: {
+                                $$updateGroupId: 'changes'
+                            }
+                        }"
+                    >
+                        <custom:ChatMessageListItem id="_IDGenChatMessageListItem"
+                            message="{content}"
+                            sender="{role}"
+                            date="{createdAt}"
+                        >
+                            <custom:avatar>
+                                <Avatar id="_IDGenAvatar"
+                                    displaySize="S"
+                                    src="{ path: 'role', formatter: 'ChatFormatter.senderIcon' }"
+                                    displayShape="Square"
+                                    backgroundColor="Transparent"
+                                />
+                            </custom:avatar>
+
+                            <custom:adopt>
+                                <Button id="_IDGenButton3"
+                                    class="sapUiTinyMarginBegin"
+                                    type="Emphasized"
+                                    icon="sap-icon://thumb-up"
+                                    text="{i18n>Button03}"
+                                    press="onBtnAdoptPress"
+                                    busyIndicatorDelay="0"
+                                    visible="{= %{role} === 'assistant' }"
+                                />
+                                <!-- ${isAdopted} === false &amp;&amp; -->
+                            </custom:adopt>
+                            <custom:display>
+                                <!-- <Button id="_IDGenButton4"
+                                    class="sapUiTinyMarginBegin"
+                                    type="Emphasized"
+                                    icon="sap-icon://display"
+                                    text="{i18n>Button04}"
+                                    press="onBtnDisplayPress"
+                                    busyIndicatorDelay="0"
+                                    visible="{= ${isAdopted} === true &amp;&amp; %{role} === 'assistant' }"
+                                /> -->
+                            </custom:display>
+                        </custom:ChatMessageListItem>
+                    </List>
+                    <Text
+                        id="listEndMarker"
+                        text=""
+                        visible="true"
+                    />
+                </VBox>
+
+
+            </content>
+            <footer>
+                <OverflowToolbar id="_IDGenOverflowToolbar">
+                    <FeedInput
+                        id="newMessageInput"
+                        post="onPostMessage"
+                        showIcon="false"
+                        growing="true"
+                    />
+                </OverflowToolbar>
+            </footer>
+        </Page>
+        <buttons>
+            <Button id="_IDGenButton2" text="Sync changes to chat list"
+                press="onPressSyncChangesToChatList"></Button>
+            <Button id="_IDGenButton4" text="Close"
+                press="onAIConversationClose"></Button>
+        </buttons>
+        <endButton>
+
+        </endButton>
+    </Dialog>
+</core:FragmentDefinition>

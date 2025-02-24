@@ -17,7 +17,7 @@
     },
     "dataSources": {
       "mainService": {
-        "uri": "odata/v4/ai2report/",
+        "uri": "/odata/v4/ai2report/",
         "type": "OData",
         "settings": {
           "annotations": [],
@@ -82,7 +82,8 @@
         "settings": {
           "operationMode": "Server",
           "autoExpandSelect": true,
-          "earlyRequests": true
+          "earlyRequests": true,
+          "updateGroupId": "update"
         }
       },
       "@i18n": {
@@ -91,7 +92,11 @@
       }
     },
     "resources": {
-      "css": []
+      "css": [
+        {
+          "uri": "css/style.css"
+        }
+      ]
     },
     "routing": {
       "config": {},
@@ -150,6 +155,19 @@
                 "fields": {
                   "detail": {
                     "route": "ReportFieldsObjectPage"
+                  }
+                }
+              },
+              "content": {
+                "header": {
+                  "actions": {
+                    "AIConversation": {
+                      "press": "report.ext.AIConversation.AIConversation.onPressAIConversation",
+                      "visible": true,
+                      "enabled": true,
+                      "requiresSelection": false,
+                      "text": "{@i18n>chatWithAi}"
+                    }
                   }
                 }
               }

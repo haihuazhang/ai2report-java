@@ -186,7 +186,7 @@ resources:
       service-plan: application
       path: ./xs-security.json
       config:
-        xsappname: aireport-${org}-${space}
+        xsappname: aireport
         tenant-mode: dedicated
   - name: aireport-destination
     type: org.cloudfoundry.managed-service
