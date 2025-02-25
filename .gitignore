@@ -26,7 +26,7 @@ hs_err*
 *.tgz
 *.iml
 
-.vscode
+.vscode/settings.json
 .idea
 .reloadtrigger
 *MakeFile*.mta
@@ -34,6 +34,9 @@ hs_err*
 /resources/**
 *.ts1*
 *.ts2*
+
+# added by cds
+.cdsrc-private.json
 
 # added by cds
 .cdsrc-private.json

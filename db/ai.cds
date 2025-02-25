@@ -41,6 +41,10 @@ entity Reports : cuid, managed {
     Text                  : String(255); // Summary or textual description of the report
     DevClass              : String(30); // Development class related to the report
     TrKorr                : String(20); // Transport request number for the report
+    CDS1                  : LargeString;
+    CDS2                  : LargeString;
+    CDS3                  : LargeString;
+    CDS4                  : LargeString;
     // jsonPCL            : LargeString; // JSON string containing PCL or structured data for the report
     records               : Composition of many Records
                                 on records.report = $self;
@@ -48,9 +52,9 @@ entity Reports : cuid, managed {
                                 on fields.report = $self; // Composition of report fields for detailed data
     pcls                  : Composition of many PCLs
                                 on pcls.report = $self; // Composition of PCLs for detailed data
-    cdsNav:  Composition of many CDSEntity
-                             on cdsNav.report = $self;
-   
+    cdsNav                : Composition of many CDSEntity
+                                on cdsNav.report = $self;
+
     isProgramGeneratedNav : Association to ProgramGenerated
                                 on isProgramGeneratedNav.code = isProgramGenerated;
 }
@@ -92,13 +96,13 @@ entity PCLs : cuid, managed {
     expectedResult : String; //
 }
 
-entity CDSEntity : cuid,managed {
-    report         : Association to Reports; // Reference to the associated report
+entity CDSEntity : cuid, managed {
+    report   : Association to Reports; // Reference to the associated report
     category : String(1); // 1 2 3 4
-    CDS1 : LargeString;
-    CDS2 : LargeString;
-    CDS3 : LargeString;
-    CDS4 : LargeString;
+    CDS1     : LargeString;
+    CDS2     : LargeString;
+    CDS3     : LargeString;
+    CDS4     : LargeString;
 }
 
 

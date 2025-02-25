@@ -1,0 +1,203 @@
+{
+  "_version": "1.65.0",
+  "sap.app": {
+    "id": "capragapp",
+    "type": "application",
+    "i18n": "i18n/i18n.properties",
+    "applicationVersion": {
+      "version": "0.0.1"
+    },
+    "title": "{{appTitle}}",
+    "description": "{{appDescription}}",
+    "resources": "resources.json",
+    "sourceTemplate": {
+      "id": "@sap/generator-fiori:lrop",
+      "version": "1.16.3",
+      "toolsId": "0f6cc8b2-46fd-439d-9bb5-50f25d1e19a5"
+    },
+    "dataSources": {
+      "mainService": {
+        "uri": "/odata/v4/ai2report/",
+        "type": "OData",
+        "settings": {
+          "annotations": [],
+          "odataVersion": "4.0"
+        }
+      }
+    },
+    "crossNavigation": {
+      "inbounds": {
+        "capragapp-Display": {
+          "semanticObject": "capragapp",
+          "action": "display",
+          "title": "Rag",
+          "signature": {
+            "parameters": {},
+            "additionalParameters": "allowed"
+          }
+        }
+      }
+    }
+  },
+  "sap.ui": {
+    "technology": "UI5",
+    "icons": {
+      "icon": "",
+      "favIcon": "",
+      "phone": "",
+      "phone@2": "",
+      "tablet": "",
+      "tablet@2": ""
+    },
+    "deviceTypes": {
+      "desktop": true,
+      "tablet": true,
+      "phone": true
+    }
+  },
+  "sap.ui5": {
+    "flexEnabled": true,
+    "dependencies": {
+      "minUI5Version": "1.132.1",
+      "libs": {
+        "sap.m": {},
+        "sap.ui.core": {},
+        "sap.fe.templates": {}
+      }
+    },
+    "contentDensities": {
+      "compact": true,
+      "cozy": true
+    },
+    "models": {
+      "i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "settings": {
+          "bundleName": "capragapp.i18n.i18n"
+        }
+      },
+      "": {
+        "dataSource": "mainService",
+        "preload": true,
+        "settings": {
+          "operationMode": "Server",
+          "autoExpandSelect": true,
+          "earlyRequests": true
+        }
+      },
+      "@i18n": {
+        "type": "sap.ui.model.resource.ResourceModel",
+        "uri": "i18n/i18n.properties"
+      }
+    },
+    "resources": {
+      "css": []
+    },
+    "routing": {
+      "config": {},
+      "routes": [
+        {
+          "pattern": ":?query:",
+          "name": "FilesList",
+          "target": "FilesList"
+        },
+        {
+          "pattern": "Files({key}):?query:",
+          "name": "FilesObjectPage",
+          "target": "FilesObjectPage"
+        },
+        {
+          "pattern": "Files({key})/knowledges({key2}):?query:",
+          "name": "KnowledgesObjectPage",
+          "target": "KnowledgesObjectPage"
+        }
+      ],
+      "targets": {
+        "FilesList": {
+          "type": "Component",
+          "id": "FilesList",
+          "name": "sap.fe.templates.ListReport",
+          "options": {
+            "settings": {
+              "contextPath": "/Files",
+              "variantManagement": "Page",
+              "navigation": {
+                "Files": {
+                  "detail": {
+                    "route": "FilesObjectPage"
+                  }
+                }
+              },
+              "controlConfiguration": {
+                "@com.sap.vocabularies.UI.v1.LineItem": {
+                  "tableSettings": {
+                    "type": "ResponsiveTable"
+                  },
+                  "columns": {
+                    "DataField::category": {
+                      "width": "10em"
+                    },
+                    "DataField::isGenerated": {
+                      "width": "15em"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "FilesObjectPage": {
+          "type": "Component",
+          "id": "FilesObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/Files",
+              "navigation": {
+                "knowledges": {
+                  "detail": {
+                    "route": "KnowledgesObjectPage"
+                  }
+                }
+              },
+              "controlConfiguration": {
+                "knowledges/@com.sap.vocabularies.UI.v1.LineItem#Knowledges1": {
+                  "columns": {
+                    "DataField::category": {
+                      "width": "10em"
+                    },
+                    "DataField::file_ID": {
+                      "width": "20em"
+                    },
+                    "DataField::isGeneratedEmbedding": {
+                      "width": "15em"
+                    },
+                    "DataField::content": {
+                      "width": "20em"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "KnowledgesObjectPage": {
+          "type": "Component",
+          "id": "KnowledgesObjectPage",
+          "name": "sap.fe.templates.ObjectPage",
+          "options": {
+            "settings": {
+              "editableHeaderContent": false,
+              "contextPath": "/Files/knowledges"
+            }
+          }
+        }
+      }
+    }
+  },
+  "sap.fiori": {
+    "registrationIds": [],
+    "archeType": "transactional"
+  }
+}

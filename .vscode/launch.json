@@ -1,0 +1,109 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Attach to Remote Program",
+            "request": "attach",
+            "hostName": "127.0.0.1",
+            "port": "8000"
+        },
+    
+        {
+            "name": "Launch Approuter",
+            "program": "${workspaceFolder}/app/router/node_modules/@sap/approuter/approuter.js",
+            "request": "launch",
+            "skipFiles": [
+                "<node_internals>/**"
+            ],
+            "type": "node",
+            "localRoot": "${workspaceFolder}/app/router"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-Application<ai-fs>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "customer.aireport.Application",
+            "projectName": "aireport",
+            "args": "",
+            "preLaunchTask": "cds_bind"
+        },
+        {
+            "name": "Start report",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/app\\report",
+            "runtimeExecutable": "npx",
+            "windows": {
+                "runtimeExecutable": "npx.cmd"
+            },
+            "runtimeArgs": [
+                "fiori",
+                "run"
+            ],
+            "args": [
+                "--open",
+                "test/flpSandbox.html#report-tile"
+            ],
+            "console": "internalConsole",
+            "internalConsoleOptions": "openOnSessionStart",
+            "outputCapture": "std",
+            "env": {
+                "DEBUG": "--inspect",
+                "FIORI_TOOLS_URL_PARAMS": "sap-ui-xx-viewCache=false"
+            }
+        },
+        {
+            "name": "Start report Local",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/app\\report",
+            "runtimeExecutable": "npx",
+            "windows": {
+                "runtimeExecutable": "npx.cmd"
+            },
+            "runtimeArgs": [
+                "fiori",
+                "run"
+            ],
+            "args": [
+                "--config",
+                "./ui5-local.yaml",
+                "--open",
+                "test/flpSandbox.html#report-tile"
+            ],
+            "console": "internalConsole",
+            "internalConsoleOptions": "openOnSessionStart",
+            "outputCapture": "std",
+            "env": {
+                "FIORI_TOOLS_URL_PARAMS": "sap-ui-xx-viewCache=false"
+            }
+        },
+        {
+            "name": "Start report Mock",
+            "type": "node",
+            "request": "launch",
+            "cwd": "${workspaceFolder}/app\\report",
+            "runtimeExecutable": "npx",
+            "windows": {
+                "runtimeExecutable": "npx.cmd"
+            },
+            "runtimeArgs": [
+                "fiori",
+                "run"
+            ],
+            "args": [
+                "--config",
+                "./ui5-mock.yaml",
+                "--open",
+                "test/flpSandbox.html#report-tile"
+            ],
+            "console": "internalConsole",
+            "internalConsoleOptions": "openOnSessionStart",
+            "outputCapture": "std",
+            "env": {
+                "FIORI_TOOLS_URL_PARAMS": "sap-ui-xx-viewCache=false"
+            }
+        }
+    ]
+}

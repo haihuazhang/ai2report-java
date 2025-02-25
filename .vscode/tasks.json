@@ -1,0 +1,16 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "cds_bind",
+            "type": "shell",
+            // "command": "npx cds bind -2 batchimportcat-cds-db --exec set"
+            // "command":"cds bind --exec '--' node -e 'console.log(process.env.VCAP_SERVICES)'",
+            "command":"cds bind --exec '--' node ./writecfenv.js ",
+            // "command":"cds bind -2 batchimportcat-cds-db ; echo %VCAP_SERVICE% > ./default-env.json",
+            "isBackground": false
+        }
+    ]
+}

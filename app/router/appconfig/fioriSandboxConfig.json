@@ -35,6 +35,14 @@
                     "title": "Maintain Parameters",
                     "targetURL": "#parameter-display"
                   }
+                },
+                {
+                  "id": "RAG",
+                  "tileType": "sap.ushell.ui.tile.StaticTile",
+                  "properties": {
+                    "title": "Maintain Knowledges",
+                    "targetURL": "#capragapp-display"
+                  }
                 }
 
               ]
@@ -106,6 +114,20 @@
                 "applicationType": "SAPUI5",
                 "additionalInformation": "SAPUI5.Component=parameters",
                 "url": "parameters/webapp"
+              }
+            },
+            "RAG": {
+              "semanticObject": "capragapp",
+              "action": "display",
+              "title": "Maintain Knowledges",
+              "signature": {
+                "parameters": {},
+                "additionalParameters": "allowed"
+              },
+              "resolutionResult": {
+                "applicationType": "SAPUI5",
+                "additionalInformation": "SAPUI5.Component=capragapp",
+                "url": "cap-rag-app/webapp"
               }
             }
           }
