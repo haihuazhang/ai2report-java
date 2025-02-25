@@ -46,7 +46,7 @@ This project must be run with VSCode/Cursor.
 ## Deployment
 
 - Deploy the application to the SAP BTP Cloud Foundry Environment.
- - Run command: mbt build
- - Run command: cf deploy mta_archives/aireport_1.0.0.mtar
+  - Run command: mbt build
+  - Run command: cf deploy mta_archives/aireport_1.0.0.mtar
 
 
