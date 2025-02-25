@@ -45,10 +45,13 @@ import cds.gen.chatservice.ChatService;
 import cds.gen.chatservice.ChatService_;
 import cds.gen.chatservice.ParameterItems;
 import cds.gen.chatservice.ParameterItems_;
+import cds.gen.chatservice.Pcls;
+import cds.gen.chatservice.Pcls_;
 import cds.gen.chatservice.ReportsNewRecordContext;
 import cds.gen.chatservice.RecordsAdoptContext;
 import cds.gen.chatservice.Reports;
 import cds.gen.chatservice.ReportsAppendToChatRecordContext;
+import cds.gen.chatservice.ReportsGeneratePCLContext;
 import cds.gen.chatservice.Reports_;
 import cds.gen.chatservice.Records;
 import cds.gen.chatservice.Records_;
@@ -479,14 +482,15 @@ public class AIServiceHandler implements EventHandler {
                 Select.from(ReportFields_.class).where(b -> b.report_ID().eq(reportsUUID)));
         List<ReportFields> fields = fieldsResult.listOf(ReportFields.class);
 
-        // 转换为JSON（参考代码块378-394行）
+        // ReportFields 转换为JSON
         ObjectMapper mapper = new ObjectMapper();
         String fieldsJson;
         try {
             fieldsJson = mapper.writeValueAsString(fields.stream()
                     .map(f -> new FieldSummary(f.getCategory(), f.getTabFdPos(), f.getParamText(), f.getFieldType(),
                             f.getDisplay(), f.getEnterable(), f.getObligatory(), f.getValueHelp(), f.getToEntityText(),
-                            f.getToEntity(), f.getToFieldText(), f.getToField(), f.getIsKey(), f.getRequiresCalculation(),
+                            f.getToEntity(), f.getToFieldText(), f.getToField(), f.getIsKey(),
+                            f.getRequiresCalculation(),
                             f.getCaculationLogic(), f.getValueHelpTable(), f.getValueHelpField(), f.getSeq()))
                     .collect(Collectors.toList()));
         } catch (JsonProcessingException e) {
@@ -509,6 +513,152 @@ public class AIServiceHandler implements EventHandler {
 
         // appendToChatRecordContext.setCompleted();
         appendToChatRecordContext.setResult(result.single(Records.class));
+    }
+
+    public void generatePCL(ReportsGeneratePCLContext generatePCLContext) {
+        // Get Report Entity
+        CqnSelect selectReport = generatePCLContext.getCqn();
+        CqnAnalyzer cqnAnalyzer = CqnAnalyzer.create(generatePCLContext.getModel());
+        AnalysisResult analysisResult = cqnAnalyzer.analyze(selectReport);
+        Map<String, Object> rootKeys = analysisResult.rootKeys();
+        String reportsUUID = (String) rootKeys.get("ID");
+        Boolean isActive = (Boolean) rootKeys.get("IsActiveEntity");
+
+        // Get ReportFields Entity
+        CqnSelect selectReportFields = Select.from(ReportFields_.class).where(b -> b.report_ID().eq(reportsUUID));
+        Result resultReportFields = aiService.run(selectReportFields);
+        List<ReportFields> reportFields = resultReportFields.listOf(ReportFields.class);
+
+        // ReportFields 转换为JSON
+        ObjectMapper mapper = new ObjectMapper();
+        String fieldsJson;
+        try {
+            fieldsJson = mapper.writeValueAsString(reportFields.stream()
+                    .map(f -> new FieldSummary(f.getCategory(), f.getTabFdPos(), f.getParamText(), f.getFieldType(),
+                            f.getDisplay(), f.getEnterable(), f.getObligatory(), f.getValueHelp(), f.getToEntityText(),
+                            f.getToEntity(), f.getToFieldText(), f.getToField(), f.getIsKey(),
+                            f.getRequiresCalculation(),
+                            f.getCaculationLogic(), f.getValueHelpTable(), f.getValueHelpField(), f.getSeq()))
+                    .collect(Collectors.toList()));
+        } catch (JsonProcessingException e) {
+            // throw new ServiceException(ErrorStatuses.SERVER_ERROR, "JSON转换失败");
+            throw new ServiceException(ErrorStatuses.BAD_REQUEST, "JSON转换失败", e);
+        }
+
+        Locale locale = generatePCLContext.getParameterInfo().getLocale();
+        if (locale == null) {
+            locale = Locale.of("zh");
+        }
+        final String localString = locale.getLanguage();
+
+        // Get Function PCL
+        CqnSelect selectFunctionPCL = Select.from(ParameterItems_.class)
+                .where(b -> b.name().eq(aiReportProperties.getFunctionForPCL()).and(b.language().eq(localString)));
+
+        Result resultFunctionPCL = aiService.run(selectFunctionPCL);
+        OpenAiChatCompletionFunction function;
+        if (resultFunctionPCL.rowCount() > 0) {
+            ParameterItems paramFunctionPCL = resultFunctionPCL.single(ParameterItems.class);
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                // Parse JSON from Parameters Table
+                function = objectMapper.readValue(paramFunctionPCL.getValue(),
+                        OpenAiChatCompletionFunction.class);
+
+            } catch (JsonProcessingException e) {
+                // TODO Auto-generated catch block
+                // e.printStackTrace();
+                function = new OpenAiChatCompletionFunction();
+                throw new ServiceException(ErrorStatuses.BAD_REQUEST, "Error_When_Parsing_PCL_Parameter", e);
+            }
+        } else {
+            function = new OpenAiChatCompletionFunction();
+            throw new ServiceException(ErrorStatuses.BAD_REQUEST, "Maintain_Parameter",
+                    aiReportProperties.getFunctionForPCL() + localString);
+
+        }
+
+        // Get Prompt PCL
+        CqnSelect selectPromptPCL = Select.from(ParameterItems_.class)
+                .where(b -> b.name().eq(aiReportProperties.getPromptPrefixForPCL()).and(b.language().eq(localString)));
+        Result resultPromptPCL = aiService.run(selectPromptPCL);
+        ParameterItems paramPromptPCL = resultPromptPCL.single(ParameterItems.class);
+
+        // Call AI to Get PCL
+        OpenAiClient aiClient = AIUtil.getAiClientbyModelUsingBTPDestination(GPT_4O);
+        OpenAiChatCompletionTool tool = new OpenAiChatCompletionTool();
+        tool.setType(FUNCTION).setFunction(function);
+        OpenAiChatCompletionParameters reportFunctionParam = new OpenAiChatCompletionParameters();
+        reportFunctionParam
+                .addMessages(
+                        new OpenAiChatMessage.OpenAiChatUserMessage().addText(paramPromptPCL.getValue() + fieldsJson))
+                .setTools(List.of(tool));
+        OpenAiChatCompletionOutput aiResultforReportJSON = aiClient.chatCompletion(reportFunctionParam);
+        
+        // Process PCL
+
+        // 先删除原先的PCL
+        aiService.run(Delete.from(Pcls_.class).where(b -> b.report_ID().eq(reportsUUID)));
+
+        List<Pcls> pclsList = new ArrayList<Pcls>();
+
+        aiResultforReportJSON.getChoices().forEach(choice -> {
+            if (choice.getFinishReason().equals("tool_calls")) {
+                String pclJson = choice.getMessage().getToolCalls().get(0).getFunction().getArguments();
+                // String title =
+                ObjectMapper objectMapper = new ObjectMapper();
+                try {
+                    System.out.println("Raw JSON from AI: " + pclJson); // 添加日志
+                    JsonNode rootNode = objectMapper.readTree(pclJson);
+                    // objectMapper.treeToValue(rootNode, Reports.class);
+                    for (JsonNode arrayItem : rootNode.get("items")) {
+                        // ReportFields field = ReportFields.create();
+                        Pcls pcl = Pcls.create();
+                        pcl.setNum(getStringWithDefault(arrayItem, "num", ""));
+                        pcl.setCategory(getStringWithDefault(arrayItem, "category", "default_category"));
+                        pcl.setScene(getStringWithDefault(arrayItem, "scene", ""));
+                        pcl.setExpectedResult(getStringWithDefault(arrayItem, "expectedResult", ""));
+                        pclsList.add(pcl);
+                    }
+                } catch (JsonProcessingException e) {
+                    throw new ServiceException(ErrorStatuses.BAD_REQUEST, "Error_When_Parsing_JSON_Result",
+                            e);
+                }
+
+            }
+        });
+
+        // 插入PCL
+        pclsList.forEach(pcl -> {
+            pcl.setReportId(reportsUUID);
+            pcl.setIsActiveEntity(isActive); // 同步父实体状态
+
+            if (isActive) {
+                aiService.run(Insert.into(Pcls_.class)
+                        .entry(pcl));
+
+            } else {
+                aiServiceDraft.newDraft(Insert.into(Pcls_.class)
+                .entry(pcl));
+            }
+        });
+
+        // Set Adopt field to "true" for current Record Entity
+        // records.setIsAdopted(true);
+        // // records.setReportId(result2.single(Reports.class).getId());
+        // Result result3;
+        // if (records.getIsActiveEntity()) {
+        //     result3 = aiService.run(Update.entity(Records_.class).data(records));
+        // } else {
+        //     result3 = aiServiceDraft.patchDraft(Update.entity(Records_.class).data(records));
+        // }
+        // return report entity
+        // adoptContext.setResult(result2.single(Reports.class));
+        // adoptContext.setCompleted();
+        // adoptContext.setResult(result3.single(Records.class));
+        generatePCLContext.setCompleted();
+
+
     }
 
     // @After(event = CqnService.EVENT_DELETE, entity = Reports_.CDS_NAME)

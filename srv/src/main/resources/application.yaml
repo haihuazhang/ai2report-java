@@ -20,7 +20,8 @@ aireport:
   prompt-prefix-for-report: prompt_report
   prompt-prefix-for-report-name: prompt_repname
   prompt-prefix-for-json: prompt_json
-
+  prompt-prefix-for-pcl: prompt_pcl
+  function-for-pcl: function_pcl
 ---
 spring:
   config:

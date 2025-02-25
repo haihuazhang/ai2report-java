@@ -11,4 +11,6 @@ public class AIReportProperties {
     private String promptPrefixForReport;
     private String promptPrefixForReportName;
     private String promptPrefixForJson;
+    private String promptPrefixForPCL;
+    private String functionForPCL; 
 }
