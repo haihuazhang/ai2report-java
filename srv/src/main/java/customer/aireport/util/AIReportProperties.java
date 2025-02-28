@@ -12,5 +12,6 @@ public class AIReportProperties {
     private String promptPrefixForReportName;
     private String promptPrefixForJson;
     private String promptPrefixForPCL;
-    private String functionForPCL; 
+    private String functionForPCL;
+    private String aiCoreDestination = "AICore"; // 默认值
 }

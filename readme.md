@@ -37,7 +37,7 @@ This project is a web application that allows users to generate reports using AI
 ## Local Run
 This project must be run with VSCode/Cursor.
 - .vscode/tasks.json:
-  - cds_bind: Bind the SAP BTP services with application and generate the config files to default-env.json and app/router/default-service.json
+  - cds_bind: Bind the SAP BTP services with application and generate the config files to default-env.json and app/router/default-services.json
 - .vscode/launch.json: 
   - Run "Spring Boot-Application<ai-fs>": Run the odata service
   - Run "Launch Approuter": Run the approuter

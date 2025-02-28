@@ -22,6 +22,7 @@ aireport:
   prompt-prefix-for-json: prompt_json
   prompt-prefix-for-pcl: prompt_pcl
   function-for-pcl: function_pcl
+  ai-core-destination: AICore
 ---
 spring:
   config:

@@ -1,7 +1,7 @@
 {
   "groups": [
     {
-      "name": "",
+      "name": "aireport",
       "type": "customer.aireport.util.AIReportProperties",
       "sourceType": "customer.aireport.util.AIReportProperties"
     }
@@ -19,6 +19,21 @@
     },
     {
       "name": "prompt-prefix-for-report-name",
+      "type": "java.lang.String",
+      "sourceType": "customer.aireport.util.AIReportProperties"
+    },
+    {
+      "name": "prompt-prefix-for-pcl",
+      "type": "java.lang.String",
+      "sourceType": "customer.aireport.util.AIReportProperties"
+    },
+    {
+      "name": "function-for-pcl",
+      "type": "java.lang.String",
+      "sourceType": "customer.aireport.util.AIReportProperties"
+    },
+    {
+      "name": "ai-core-destination",
       "type": "java.lang.String",
       "sourceType": "customer.aireport.util.AIReportProperties"
     }
