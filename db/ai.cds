@@ -35,8 +35,8 @@ entity Records : cuid, managed {
  */
 entity Reports : cuid, managed {
     // record             : Association to Records; // Reference to the associated message
-    isProgramGenerated    : Integer default 0 @readonly; // Indicates if the report was generated programmatically
-    isPCLGenerated        : Boolean           @readonly; // Indicates if the report contains PCL (PostScript Control Language) content
+    isProgramGenerated    : Integer default 0     @readonly; // Indicates if the report was generated programmatically
+    isPCLGenerated        : Boolean default false @readonly; // Indicates if the report contains PCL (PostScript Control Language) content
     ProjectId             : String(10); // Identifier of the project associated with the report
     Text                  : String(255); // Summary or textual description of the report
     DevClass              : String(30); // Development class related to the report

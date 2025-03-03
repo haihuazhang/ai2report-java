@@ -1,39 +1,41 @@
 package customer.aireport.util;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
+import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.sap.ai.sdk.foundationmodels.openai.model.OpenAiChatCompletionFunction;
-
+import cds.gen.chatservice.*;
+import customer.aireport.dto.FieldSummary;
+import customer.aireport.exception.BusinessException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import cds.gen.chatservice.ReportFields;
-import cds.gen.chatservice.Pcls;
-import cds.gen.chatservice.Reports;
-import customer.aireport.dto.FieldSummary;
-import customer.aireport.exception.AIServiceException;
+@Component
+public class JsonUtils {
+    private final ObjectMapper objectMapper;
 
-public class JsonParseUtil {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    public JsonUtils() {
+        this.objectMapper = new ObjectMapper();
+    }
 
-    public static JsonNode parseJson(String jsonString) {
+    public JsonNode parseJson(String jsonString) {
         try {
             return objectMapper.readTree(jsonString);
         } catch (JsonProcessingException e) {
-            throw AIServiceException.parsingError("JSON_Result", e);
+            throw BusinessException.parsingError("JSON_Result", e);
         }
     }
 
-    public static void setReportText(Reports reports, JsonNode rootNode) {
+    public void setReportText(Reports reports, JsonNode rootNode) {
         reports.setText(rootNode.get("Reports").get("Text").asText());
     }
 
-    public static List<ReportFields> parseReportFields(JsonNode rootNode) {
+    public List<ReportFields> parseReportFields(JsonNode rootNode) {
         List<ReportFields> fieldsList = new ArrayList<>();
         JsonNode fieldsNode = rootNode.get("fields");
-        
+
         if (fieldsNode != null && fieldsNode.isArray()) {
             for (JsonNode arrayItem : fieldsNode) {
                 ReportFields field = createReportField(arrayItem);
@@ -43,7 +45,7 @@ public class JsonParseUtil {
         return fieldsList;
     }
 
-    public static ReportFields createReportField(JsonNode arrayItem) {
+    public ReportFields createReportField(JsonNode arrayItem) {
         ReportFields field = ReportFields.create();
         field.setCategory(getStringWithDefault(arrayItem, "category", "default_category"));
         field.setTabFdPos(getIntWithDefault(arrayItem, "TabFdPos", 0));
@@ -66,7 +68,7 @@ public class JsonParseUtil {
         return field;
     }
 
-    public static Pcls createPcl(JsonNode arrayItem) {
+    public Pcls createPcl(JsonNode arrayItem) {
         Pcls pcl = Pcls.create();
         pcl.setNum(getStringWithDefault(arrayItem, "num", ""));
         pcl.setCategory(getStringWithDefault(arrayItem, "category", "default_category"));
@@ -75,37 +77,37 @@ public class JsonParseUtil {
         return pcl;
     }
 
-    public static String convertFieldsToJson(List<ReportFields> fields) {
+    public String convertFieldsToJson(List<ReportFields> fields) {
         try {
             return objectMapper.writeValueAsString(fields.stream()
-                .map(f -> new FieldSummary(
-                    f.getCategory(), f.getTabFdPos(), f.getParamText(), 
-                    f.getFieldType(), f.getDisplay(), f.getEnterable(), 
-                    f.getObligatory(), f.getValueHelp(), f.getToEntityText(),
-                    f.getToEntity(), f.getToFieldText(), f.getToField(), 
-                    f.getIsKey(), f.getRequiresCalculation(),
-                    f.getCaculationLogic(), f.getValueHelpTable(), 
-                    f.getValueHelpField(), f.getSeq()))
-                .collect(Collectors.toList()));
+                    .map(f -> new FieldSummary(
+                            f.getCategory(), f.getTabFdPos(), f.getParamText(),
+                            f.getFieldType(), f.getDisplay(), f.getEnterable(),
+                            f.getObligatory(), f.getValueHelp(), f.getToEntityText(),
+                            f.getToEntity(), f.getToFieldText(), f.getToField(),
+                            f.getIsKey(), f.getRequiresCalculation(),
+                            f.getCaculationLogic(), f.getValueHelpTable(),
+                            f.getValueHelpField(), f.getSeq()))
+                    .collect(Collectors.toList()));
         } catch (JsonProcessingException e) {
-            throw AIServiceException.parsingError("Field_To_JSON", e);
+            throw BusinessException.parsingError("Field_To_JSON", e);
         }
     }
 
-    public static OpenAiChatCompletionFunction parseFunction(String jsonString, String errorMessage) {
+    public OpenAiChatCompletionFunction parseFunction(String jsonString, String errorMessage) {
         try {
             return objectMapper.readValue(jsonString, OpenAiChatCompletionFunction.class);
         } catch (JsonProcessingException e) {
-            throw AIServiceException.parsingError(errorMessage, e);
+            throw BusinessException.parsingError(errorMessage, e);
         }
     }
 
-    private static String getStringWithDefault(JsonNode node, String field, String defaultValue) {
+    private String getStringWithDefault(JsonNode node, String field, String defaultValue) {
         JsonNode value = node.path(field);
         return value.isMissingNode() ? defaultValue : value.asText();
     }
 
-    private static int getIntWithDefault(JsonNode node, String field, int defaultValue) {
+    private int getIntWithDefault(JsonNode node, String field, int defaultValue) {
         JsonNode value = node.path(field);
         return value.isMissingNode() ? defaultValue : value.asInt();
     }

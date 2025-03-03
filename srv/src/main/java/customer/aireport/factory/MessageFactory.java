@@ -1,21 +1,24 @@
-package customer.aireport.util;
+package customer.aireport.factory;
 
+import org.springframework.stereotype.Component;
 import com.sap.ai.sdk.foundationmodels.openai.model.OpenAiChatMessage;
+import customer.aireport.util.OpenAiChatAssistantMessage2;
 
-public class AIMessageFactory {
-    public static OpenAiChatMessage[] createSystemMessage(String content) {
+@Component
+public class MessageFactory {
+    public OpenAiChatMessage[] createSystemMessage(String content) {
         return new OpenAiChatMessage[] {
             (new OpenAiChatMessage.OpenAiChatSystemMessage()).setContent(content)
         };
     }
 
-    public static OpenAiChatMessage[] createUserMessage(String content) {
+    public OpenAiChatMessage[] createUserMessage(String content) {
         return new OpenAiChatMessage[] {
             (new OpenAiChatMessage.OpenAiChatUserMessage()).addText(content)
         };
     }
 
-    public static OpenAiChatMessage[] createAssistantMessage(String content) {
+    public OpenAiChatMessage[] createAssistantMessage(String content) {
         return new OpenAiChatMessage[] {
             (new OpenAiChatAssistantMessage2()).setContent(content)
         };
