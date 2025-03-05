@@ -1,6 +1,8 @@
 name,description
-prompt_report,init_prompt
-prompt_json,function get_report_field
 prompt_repname,function get_report_name
-prompt_pcl,prompt_pcl
+prompt_report,prompt report
+prompt_json,function get_report_field
+prompt_pcl,prompt pcl
 func_pcl,function generate_pcl
+prompt_cds,prompt cds
+func_cds,function cds

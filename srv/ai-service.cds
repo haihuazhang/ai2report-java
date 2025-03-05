@@ -15,7 +15,7 @@ service ChatService @(path: '/ai2report') {
     entity Reports          as projection on ai.Reports
         actions {
             action generateProgram();
-            @Core.OperationAvailable: in.isPCLGenerated
+            // @Core.OperationAvailable: in.isPCLGenerated
             action generatePCL();
             action generateCDS();
             action verify();
@@ -231,6 +231,11 @@ annotate ChatService.Reports with @UI: {
         },
         {
             $Type : 'UI.DataFieldForAction',
+            Action: 'ChatService.generateCDS',
+            Label : '{i18n>GenerateCDS}'
+        },
+        {
+            $Type : 'UI.DataFieldForAction',
             Action: 'ChatService.generateProgram',
             Label : '{i18n>GenerateProgram}'
         },
@@ -242,7 +247,7 @@ annotate ChatService.Reports with @UI: {
         {
             $Type : 'UI.DataFieldForAction',
             Action: 'ChatService.createProject',
-            Label : '{i18n> }'
+            Label : '{i18n>CreateProject}'
         }
     ],
     Identification : [
@@ -283,6 +288,11 @@ annotate ChatService.Reports with @UI: {
         },
         {
             $Type : 'UI.DataFieldForAction',
+            Action: 'ChatService.generateCDS',
+            Label : '{i18n>GenerateCDS}'
+        },
+        {
+            $Type : 'UI.DataFieldForAction',
             Action: 'ChatService.generateProgram',
             Label : '{i18n>GenerateProgram}'
         },
@@ -305,7 +315,17 @@ annotate ChatService.Reports with @UI: {
         ],
         TargetEntities  : ['in/pcls']
     }
-    generatePCL
+    generatePCL;
+
+    @Common.SideEffects: {
+        TargetProperties: [
+            'in/CDS1',
+            'in/CDS2',
+            'in/CDS3',
+            'in/CDS4'
+        ]
+    }
+    generateCDS;
 };
 
 annotate ChatService.ReportFields with @(UI.PresentationVariant: {

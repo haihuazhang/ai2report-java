@@ -21,8 +21,10 @@ aireport:
   prompt-prefix-for-report-name: prompt_repname
   function-for-json: prompt_json
   prompt-prefix-for-pcl: prompt_pcl
-  function-for-pcl: function_pcl
+  function-for-pcl: func_pcl
   ai-core-destination: AICore
+  function-for-cds: func_cds
+  prompt-prefix-for-cds: prompt_cds
 ---
 spring:
   config:

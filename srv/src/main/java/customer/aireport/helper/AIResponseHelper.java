@@ -104,4 +104,25 @@ public class AIResponseHelper {
         );
         context.setResult(assistResult.single(Records.class));
     }
+
+    public void handleCDSResponse(
+            OpenAiChatCompletionOutput aiResult, 
+            Reports report) {
+        aiResult.getChoices().stream()
+            .filter(choice -> "tool_calls".equals(choice.getFinishReason()))
+            .findFirst()
+            .ifPresent(choice -> {
+                String jsonString = choice.getMessage().getToolCalls().get(0).getFunction().getArguments();
+                JsonNode rootNode = jsonUtils.parseJson(jsonString);
+                
+                // Update CDS fields in Reports
+                report.setCds1(rootNode.get("CDS1").asText());
+                report.setCds2(rootNode.get("CDS2").asText());
+                report.setCds3(rootNode.get("CDS3").asText());
+                report.setCds4(rootNode.get("CDS4").asText());
+                
+                // Persist changes using service layer
+                entityService.updateReport(aiService, aiServiceDraft, report);
+            });
+    }
 }

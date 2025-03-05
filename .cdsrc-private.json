@@ -5,13 +5,13 @@
         "binding": {
           "type": "cf",
           "apiEndpoint": "https://api.cf.us10-001.hana.ondemand.com",
-          "org": "57115f0etrial",
+          "org": "79933043trial",
           "space": "dev",
           "instance": "aireport-db",
           "key": "aireport-db-key",
           "resolved": false
         },
-        "kind": "hana",
+        "kind": "hana-cloud",
         "vcap": {
           "name": "db"
         }
@@ -20,7 +20,7 @@
         "binding": {
           "type": "cf",
           "apiEndpoint": "https://api.cf.us10-001.hana.ondemand.com",
-          "org": "57115f0etrial",
+          "org": "79933043trial",
           "space": "dev",
           "instance": "aireport-destination",
           "key": "aireport-destination-key",
@@ -35,7 +35,7 @@
         "binding": {
           "type": "cf",
           "apiEndpoint": "https://api.cf.us10-001.hana.ondemand.com",
-          "org": "57115f0etrial",
+          "org": "79933043trial",
           "space": "dev",
           "instance": "aireport-auth",
           "key": "aireport-auth-key",

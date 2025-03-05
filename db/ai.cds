@@ -28,6 +28,7 @@ entity Records : cuid, managed {
     role      : String; // user, assistant
     content   : LargeString; // message content
     isAdopted : Boolean; // Indicates if the record was adopted
+    chatTime : Timestamp; // Time stamp of the record
 }
 
 /**

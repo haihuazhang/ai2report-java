@@ -23,7 +23,7 @@ import cds.gen.chatservice.Records_;
 import cds.gen.chatservice.ReportFields;
 import cds.gen.chatservice.ReportFields_;
 import cds.gen.chatservice.Reports;
-
+import cds.gen.chatservice.Reports_;
 import customer.aireport.exception.BusinessException; // Changed from AIServiceException
 
 // Rename from EntityServiceUtil.java
@@ -85,6 +85,8 @@ public class EntityService {
 
     public Result insertRecord(ChatService service, ChatService.Draft serviceDraft,
             Records record, Boolean isActiveEntity) {
+        // Set UTC timestamp for chatTime using Instant directly
+        record.setChatTime(java.time.Instant.now());
         return insert(service, serviceDraft, Records_.class, record, isActiveEntity);
     }
 
@@ -160,6 +162,17 @@ public class EntityService {
             insertPcl(service, serviceDraft, (Pcls) entity, isActiveEntity);
         } else if (entity instanceof ReportFields) {
             insertReportField(service, serviceDraft, (ReportFields) entity, isActiveEntity);
+        }
+    }
+
+    public void updateReport(
+            ChatService service, 
+            ChatService.Draft serviceDraft,
+            Reports report) {
+        if (report.getIsActiveEntity()) {
+            service.run(Update.entity(Reports_.class).data(report));
+        } else {
+            serviceDraft.patchDraft(Update.entity(Reports_.class).data(report));
         }
     }
 }

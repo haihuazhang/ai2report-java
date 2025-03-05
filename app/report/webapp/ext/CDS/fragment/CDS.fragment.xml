@@ -1,0 +1,69 @@
+<core:FragmentDefinition xmlns:layout="sap.ui.layout"
+    xmlns:core="sap.ui.core" xmlns="sap.m"
+    xmlns:f="sap.ui.layout.form"
+    xmlns:codeeditor="sap.ui.codeeditor">
+    <!-- <VBox id="_IDGenVBox1" class="sapUiContentPadding"> -->
+    <!-- <layout:VerticalLayout class="sapUiContentPadding" width="100%" >
+        <codeeditor:CodeEditor id="_IDGenCodeEditor" type="abap" value="{CDS1}" lineNumbers="false"
+            height="30rem" editable="false"></codeeditor:CodeEditor>
+        <codeeditor:CodeEditor id="_IDGenCodeEditor2" type="abap" value="{CDS2}" lineNumbers="false"
+            height="30rem" editable="false"></codeeditor:CodeEditor>
+        <codeeditor:CodeEditor id="_IDGenCodeEditor3" type="abap" value="{CDS3}" lineNumbers="false"
+            height="30rem" editable="false"></codeeditor:CodeEditor>
+        <codeeditor:CodeEditor id="_IDGenCodeEditor4" type="abap" value="{CDS4}" lineNumbers="false"
+            height="30rem" editable="false"></codeeditor:CodeEditor> -->
+        <f:Form id="_IDGenForm" editable="true">
+            <f:layout>
+                <f:ColumnLayout id="_IDGenColumnLayout"
+                    columnsXL="1"
+                    columnsL="1"
+                    labelCellsLarge="12"
+                />
+            </f:layout>
+            <f:formContainers>
+                <f:FormContainer id="_IDGenFormContainer">
+                    <f:formElements>
+                        <f:FormElement id="_IDGenFormElement1" label="{i18n>CDS1}">
+                            <f:fields>
+                                <TextArea id="_IDGenTextArea" rows="20"
+                                    value="{CDS1}"
+                                    editable="false">
+
+                                </TextArea>
+
+                            </f:fields>
+                        </f:FormElement>
+                        <f:FormElement id="_IDGenFormElement2" label="{i18n>CDS2}">
+                            <f:fields>
+                                <TextArea id="_IDGenTextArea1" rows="20"
+                                    value="{CDS2}"
+                                    editable="false">
+
+                                </TextArea>
+                            </f:fields>
+                        </f:FormElement>
+                        <f:FormElement id="_IDGenFormElement3" label="{i18n>CDS3}">
+                            <f:fields>
+                                <TextArea id="_IDGenTextArea2" rows="20"
+                                    value="{CDS3}"
+                                    editable="false">
+
+                                </TextArea>
+                            </f:fields>
+                        </f:FormElement>
+                        <f:FormElement id="_IDGenFormElement4" label="{i18n>CDS4}">
+                            <f:fields>
+                                <TextArea id="_IDGenTextArea3" rows="20"
+                                    value="{CDS4}"
+                                    editable="false">
+
+                                </TextArea>
+                            </f:fields>
+                        </f:FormElement>
+                    </f:formElements>
+                </f:FormContainer>
+            </f:formContainers>
+        </f:Form>
+        <!-- </VBox>
+    </layout:VerticalLayout> -->
+</core:FragmentDefinition>

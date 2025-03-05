@@ -34,231 +34,280 @@ import customer.aireport.util.RequestUtils;
 // Generated imports
 import cds.gen.chatservice.*;
 
+/**
+ * Event handler for chat service operations.
+ * Handles various operations like new messages, record adoption, and PCL generation.
+ */
 @Component
 @ServiceName(value = ChatService_.CDS_NAME)
 public class ReportEventHandler implements EventHandler {
+    // Service dependencies
+    @Autowired
+    @Qualifier("openAIService")
+    private AIService openAIService;
 
-        @Autowired
-        @Qualifier("openAIService") // Add qualifier for the AI service
-        private AIService openAIService; // Renamed from aiService to openAIService
+    @Autowired
+    private ChatService aiService;
 
-        @Autowired
-        private ChatService aiService; // Keep original ChatService
+    @Autowired
+    private EntityService entityService; // 保持这个注入
 
-        @Autowired
-        private EntityService entityService; // 保持这个注入
+    @Autowired
+    private AIProperties aiProperties;
 
-        @Autowired
-        private AIProperties aiProperties;
+    @Autowired
+    private ChatService.Draft aiServiceDraft;
 
-        @Autowired
-        private ChatService.Draft aiServiceDraft;
+    @Autowired
+    private ConfigUtils configUtils; // Add ConfigUtils injection
 
-        @Autowired
-        private ConfigUtils configUtils; // Add ConfigUtils injection
+    @Autowired
+    private AIResponseHelper aiResponseHelper;
 
-        @Autowired
-        private AIResponseHelper aiResponseHelper;
+    @Autowired
+    private ChatHelper chatHelper;
 
-        @Autowired
-        private ChatHelper chatHelper;
+    @Autowired
+    private RecordFactory recordFactory;
 
-        @Autowired
-        private RecordFactory recordFactory;
+    @Autowired
+    private RequestUtils requestUtils;
 
-        @Autowired
-        private RequestUtils requestUtils;
+    @Autowired
+    private JsonUtils jsonUtils;
 
-        @Autowired
-        private JsonUtils jsonUtils;
+    /**
+     * Handles new message events in the chat service.
+     * Creates a new chat record or appends to existing conversation.
+     * 
+     * @param context The new record context containing message details
+     */
+    @On(event = ReportsNewRecordContext.CDS_NAME, entity = Reports_.CDS_NAME)
+    public void newMessage(ReportsNewRecordContext context) {
+        // Get entity info from request
+        EntityInfo entityInfo = requestUtils.analyzeRequest(context.getCqn(), context.getModel());
 
-        @On(event = ReportsNewRecordContext.CDS_NAME, entity = Reports_.CDS_NAME)
-        public void newMessage(ReportsNewRecordContext context) {
-                EntityInfo entityInfo = requestUtils.analyzeRequest(context.getCqn(), context.getModel());
+        // Retrieve existing records and report
+        List<Records> records = entityService.selectRecordsByReportId(aiService, entityInfo.getId());
+        Reports report = entityService.selectSingle(
+            aiService,
+            context.getCqn(),
+            Reports.class,
+            AIConstants.Messages.REPORT_NOT_FOUND
+        );
 
-                List<Records> records = entityService.selectRecordsByReportId(aiService, entityInfo.getId());
-                Reports report = entityService.selectSingle(
-                                aiService,
-                                context.getCqn(),
-                                Reports.class,
-                                AIConstants.Messages.REPORT_NOT_FOUND);
+        // Get system prompt content
+        String promptContent = configUtils.getPrompt(
+            aiService,
+            context.getParameterInfo().getLocale(),
+            aiProperties.getPromptPrefixForReport()
+        );
 
-                String localString = requestUtils.getLocaleString(context.getParameterInfo().getLocale());
-                // 只需要 prompt
-                String promptContent = configUtils.getPrompt(
-                                aiService,
-                                localString,
-                                aiProperties.getPromptPrefixForReport());
+        // Prepare chat parameters
+        OpenAiChatCompletionParameters aiChatCompletionParameters = new OpenAiChatCompletionParameters();
 
-                OpenAiChatCompletionParameters aiChatCompletionParameters = new OpenAiChatCompletionParameters();
-
-                if (records.isEmpty()) {
-                        Records systemRecord = chatHelper.handleNewChat(
-                                        aiChatCompletionParameters,
-                                        promptContent,
-                                        context.getContent(),
-                                        entityInfo.getId(),
-                                        entityInfo.getIsActiveEntity());
-                        entityService.insertRecord(aiService, aiServiceDraft, systemRecord,
-                                        entityInfo.getIsActiveEntity());
-                } else {
-                        chatHelper.handleExistingChat(aiChatCompletionParameters, records);
-                }
-
-                OpenAiChatCompletionOutput aiResult = openAIService.callAICompletion(aiChatCompletionParameters);
-                aiResponseHelper.handleChatResponse(
-                                aiResult,
-                                report,
-                                context.getContent(),
-                                entityInfo,
-                                // report.getId(),
-                                // entityInfo.getIsActiveEntity(),
-                                context);
+        // Handle new or existing chat
+        if (records.isEmpty()) {
+            // Create new system record for first-time chat
+            Records systemRecord = chatHelper.handleNewChat(
+                aiChatCompletionParameters,
+                promptContent,
+                context.getContent(),
+                entityInfo.getId(),
+                entityInfo.getIsActiveEntity()
+            );
+            entityService.insertRecord(aiService, aiServiceDraft, systemRecord, entityInfo.getIsActiveEntity());
+        } else {
+            // Add existing chat history
+            chatHelper.handleExistingChat(aiChatCompletionParameters, records);
         }
 
-        // private void handleAIResponse(OpenAiChatCompletionOutput aiResult, Reports
-        // report,
-        // ReportsNewRecordContext context, Boolean isActiveEntity) {
-        // Records userRecord = recordFactory.createUserRecord(context.getContent(),
-        // report.getId(),
-        // isActiveEntity);
-        // Records assistRecord =
-        // recordFactory.createAssistantRecord(aiResult.getContent(), report.getId(),
-        // isActiveEntity);
+        // Get AI response and handle it
+        OpenAiChatCompletionOutput aiResult = openAIService.callAICompletion(aiChatCompletionParameters);
+        aiResponseHelper.handleChatResponse(
+            aiResult,
+            report,
+            context.getContent(),
+            entityInfo,
+            context
+        );
+    }
 
-        // entityService.insertRecord(aiService, aiServiceDraft, userRecord,
-        // isActiveEntity);
+    /**
+     * Handles record adoption events.
+     * Processes the record content and extracts report fields.
+     * 
+     * @param adoptContext The adoption context containing record details
+     */
+    @On(event = RecordsAdoptContext.CDS_NAME, entity = Records_.CDS_NAME)
+    public void adopt(RecordsAdoptContext adoptContext) {
+        // Get record to be adopted
+        Records record = entityService.selectSingle(
+            aiService,
+            adoptContext.getCqn(),
+            Records.class,
+            AIConstants.Messages.RECORD_NOT_FOUND
+        );
 
-        // try {
-        // Thread.sleep(AIConstants.CHAT_DELAY_MS);
-        // } catch (InterruptedException e) {
-        // Thread.currentThread().interrupt();
-        // throw new BusinessException(AIConstants.Messages.THREAD_INTERRUPTED, e);
-        // }
+        // Get AI function for JSON processing
+        OpenAiChatCompletionFunction function = configUtils.getFunction(
+            aiService,
+            adoptContext.getParameterInfo().getLocale(),
+            aiProperties.getFunctionForJson()
+        );
 
-        // Result assistResult = entityService.insertRecord(aiService, aiServiceDraft,
-        // assistRecord,
-        // isActiveEntity);
-        // context.setResult(assistResult.single(Records.class));
-        // }
+        // Call AI to process record content
+        OpenAiChatCompletionOutput aiResult = openAIService.callAIWithFunction(
+            function,
+            record.getContent(),
+            ""
+        );
 
-        // private <T> void processAIResponse(OpenAiChatCompletionOutput aiResult,
-        // Reports report,
-        // List<T> resultList, String nodeKey, AIResponseProcessor<T> processor) {
-        // aiResponseHelper.processResponse(aiResult, report, resultList, nodeKey,
-        // processor);
-        // }
+        // Get associated report
+        Reports report = entityService.selectSingle(
+            aiService,
+            Select.from(Reports_.class)
+                .where(b -> b.ID().eq(record.getReportId())
+                    .and(b.IsActiveEntity()
+                        .eq(record.getIsActiveEntity()))),
+            Reports.class,
+            AIConstants.Messages.REPORT_NOT_FOUND
+        );
 
-        @On(event = RecordsAdoptContext.CDS_NAME, entity = Records_.CDS_NAME)
-        public void adopt(RecordsAdoptContext adoptContext) {
-                Records record = entityService.selectSingle(
-                                aiService,
-                                adoptContext.getCqn(),
-                                Records.class,
-                                AIConstants.Messages.RECORD_NOT_FOUND);
+        // Process fields and update database
+        entityService.deleteReportFieldsByReportId(aiService, record.getReportId());
+        List<ReportFields> fieldsList = new ArrayList<>();
+        aiResponseHelper.processResponse(aiResult, report, fieldsList, AIConstants.NodeKeys.FIELDS, jsonUtils::createReportField);
 
-                String localString = requestUtils.getLocaleString(adoptContext.getParameterInfo().getLocale());
-                // 需要 function 和 prompt
-                // AIParameters params = configUtils.getFunctionAndPrompt(
-                // aiService,
-                // aiProperties,
-                // localString,
-                // aiProperties.getFunctionForJson(),
-                // aiProperties.getPromptPrefixForJson());
-                OpenAiChatCompletionFunction function = configUtils.getFunction(aiService, localString,
-                                aiProperties.getFunctionForJson());
+        // Insert new fields and update record status
+        entityService.batchInsert(aiService, aiServiceDraft, fieldsList, record.getReportId(), record.getIsActiveEntity());
+        entityService.updateRecordStatus(aiService, aiServiceDraft, record);
 
-                OpenAiChatCompletionOutput aiResult = openAIService.callAIWithFunction(
-                                function,
-                                record.getContent(),
-                                "");
+        adoptContext.setResult(record);
+    }
 
-                Reports report = entityService.selectSingle(
-                                aiService,
-                                Select.from(Reports_.class)
-                                                .where(b -> b.ID().eq(record.getReportId())
-                                                                .and(b.IsActiveEntity()
-                                                                                .eq(record.getIsActiveEntity()))),
-                                Reports.class,
-                                AIConstants.Messages.REPORT_NOT_FOUND);
+    /**
+     * Handles append to chat record events.
+     * Converts report fields to JSON and creates a new chat record.
+     * 
+     * @param context The append context containing record details
+     */
+    @On(event = ReportsAppendToChatRecordContext.CDS_NAME, entity = Reports_.CDS_NAME)
+    public void appendToChatRecord(ReportsAppendToChatRecordContext context) {
+        EntityInfo entityInfo = requestUtils.analyzeRequest(context.getCqn(), context.getModel());
 
-                List<ReportFields> fieldsList = new ArrayList<>();
-                entityService.deleteReportFieldsByReportId(aiService, record.getReportId());
-                aiResponseHelper.processResponse(aiResult, report, fieldsList, AIConstants.NodeKeys.FIELDS,
-                                jsonUtils::createReportField);
+        List<ReportFields> fields = entityService.selectReportFieldsByReportId(
+            entityInfo.getIsActiveEntity() ? aiService : aiServiceDraft,
+            entityInfo.getId());
 
-                entityService.batchInsert(
-                                aiService,
-                                aiServiceDraft,
-                                fieldsList,
-                                record.getReportId(),
-                                record.getIsActiveEntity());
-                entityService.updateRecordStatus(aiService, aiServiceDraft, record);
+        Records newRecord = recordFactory.createUserRecord(
+            jsonUtils.convertFieldsToJson(fields),
+            entityInfo.getId(),
+            entityInfo.getIsActiveEntity());
 
-                adoptContext.setResult(record);
-        }
+        Result result = entityService.insertRecord(aiService, aiServiceDraft, newRecord,
+            entityInfo.getIsActiveEntity());
+        context.setResult(result.single(Records.class));
+    }
 
-        @On(event = ReportsAppendToChatRecordContext.CDS_NAME, entity = Reports_.CDS_NAME)
-        public void appendToChatRecord(ReportsAppendToChatRecordContext context) {
-                EntityInfo entityInfo = requestUtils.analyzeRequest(context.getCqn(), context.getModel());
+    /**
+     * Generates PCL (Process Control List) from report fields.
+     * Processes fields through AI and creates PCL records.
+     * 
+     * @param generatePCLContext The PCL generation context
+     */
+    @On(event = ReportsGeneratePCLContext.CDS_NAME, entity = Reports_.CDS_NAME)
+    public void generatePCL(ReportsGeneratePCLContext generatePCLContext) {
+        EntityInfo entityInfo = requestUtils.analyzeRequest(
+            generatePCLContext.getCqn(),
+            generatePCLContext.getModel());
 
-                List<ReportFields> fields = entityService.selectReportFieldsByReportId(
-                                entityInfo.getIsActiveEntity() ? aiService : aiServiceDraft,
-                                entityInfo.getId());
+        // Get parameters
+        AIParameters params = configUtils.getFunctionAndPrompt(
+            aiService,
+            aiProperties,
+            generatePCLContext.getParameterInfo().getLocale(),
+            aiProperties.getFunctionForPcl(),
+            aiProperties.getPromptPrefixForPcl());
 
-                Records newRecord = recordFactory.createUserRecord(
-                                jsonUtils.convertFieldsToJson(fields),
-                                entityInfo.getId(),
-                                entityInfo.getIsActiveEntity());
+        // Get fields and convert to JSON
+        List<ReportFields> reportFields = entityService.selectReportFieldsByReportId(
+            aiService,
+            entityInfo.getId());
+        String fieldsJson = jsonUtils.convertFieldsToJson(reportFields);
 
-                Result result = entityService.insertRecord(aiService, aiServiceDraft, newRecord,
-                                entityInfo.getIsActiveEntity());
-                context.setResult(result.single(Records.class));
-        }
+        // Call AI and process response
+        OpenAiChatCompletionOutput aiResult = openAIService.callAIWithFunction(
+            params.getFunction(),
+            fieldsJson,
+            params.getPromptContent());
 
-        @On(event = ReportsGeneratePCLContext.CDS_NAME, entity = Reports_.CDS_NAME)
-        public void generatePCL(ReportsGeneratePCLContext generatePCLContext) {
-                EntityInfo entityInfo = requestUtils.analyzeRequest(
-                                generatePCLContext.getCqn(),
-                                generatePCLContext.getModel());
+        // Process PCLs
+        List<Pcls> pclsList = new ArrayList<>();
+        aiResponseHelper.processResponse(
+            aiResult, 
+            null, 
+            pclsList, 
+            "pcl",  // Changed from AIConstants.NodeKeys.ITEMS to match function schema
+            jsonUtils::createPcl);
 
-                String localString = requestUtils.getLocaleString(generatePCLContext.getParameterInfo().getLocale());
+        // Delete old and insert new PCLs
+        entityService.deletePclsByReportId(aiService, entityInfo.getId());
+        entityService.batchInsert(
+            aiService,
+            aiServiceDraft,
+            pclsList,
+            entityInfo.getId(),
+            entityInfo.getIsActiveEntity());
 
-                // Get parameters
-                // 需要 function 和 prompt
-                AIParameters params = configUtils.getFunctionAndPrompt(
-                                aiService,
-                                aiProperties,
-                                localString,
-                                aiProperties.getFunctionForPcl(),
-                                aiProperties.getPromptPrefixForPcl());
+        generatePCLContext.setCompleted();
+    }
 
-                // Get fields and convert to JSON
-                List<ReportFields> reportFields = entityService.selectReportFieldsByReportId(
-                                aiService,
-                                entityInfo.getId());
-                String fieldsJson = jsonUtils.convertFieldsToJson(reportFields);
+    /**
+     * Generates CDS (Core Data Services) code from report fields.
+     * Processes fields through AI to create CDS entity definitions.
+     * 
+     * @param generateCDSContext The CDS generation context
+     */
+    @On(event = ReportsGenerateCDSContext.CDS_NAME, entity = Reports_.CDS_NAME)
+    public void generateCDS(ReportsGenerateCDSContext generateCDSContext) {
+        // Get entity info from request
+        EntityInfo entityInfo = requestUtils.analyzeRequest(
+            generateCDSContext.getCqn(),
+            generateCDSContext.getModel());
 
-                // Call AI and process response
-                OpenAiChatCompletionOutput aiResult = openAIService.callAIWithFunction(
-                                params.getFunction(),
-                                fieldsJson,
-                                params.getPromptContent());
+        // Get report
+        Reports report = entityService.selectSingle(
+            aiService,
+            generateCDSContext.getCqn(),
+            Reports.class,
+            AIConstants.Messages.REPORT_NOT_FOUND
+        );
 
-                // Process PCLs
-                List<Pcls> pclsList = new ArrayList<>();
-                aiResponseHelper.processResponse(aiResult, null, pclsList, AIConstants.NodeKeys.ITEMS,
-                                jsonUtils::createPcl);
+        // Get AI parameters
+        AIParameters params = configUtils.getFunctionAndPrompt(
+            aiService,
+            aiProperties,
+            generateCDSContext.getParameterInfo().getLocale(),
+            aiProperties.getFunctionForCds(),
+            aiProperties.getPromptPrefixForCds());
 
-                // Delete old and insert new PCLs
-                entityService.deletePclsByReportId(aiService, entityInfo.getId());
-                entityService.batchInsert(
-                                aiService,
-                                aiServiceDraft,
-                                pclsList,
-                                entityInfo.getId(),
-                                entityInfo.getIsActiveEntity());
+        // Get fields and convert to JSON
+        List<ReportFields> reportFields = entityService.selectReportFieldsByReportId(
+            aiService,
+            entityInfo.getId());
+        String fieldsJson = jsonUtils.convertFieldsToJson(reportFields);
 
-                generatePCLContext.setCompleted();
-        }
+        // Call AI service
+        OpenAiChatCompletionOutput aiResult = openAIService.callAIWithFunction(
+            params.getFunction(),
+            fieldsJson,
+            params.getPromptContent());
+
+        // Process response and update CDS
+        aiResponseHelper.handleCDSResponse(aiResult, report);
+
+        // generateCDSContext.setResult(report);
+        generateCDSContext.setCompleted();
+    }
 }

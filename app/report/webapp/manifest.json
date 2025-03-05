@@ -169,6 +169,19 @@
                       "text": "{@i18n>chatWithAi}"
                     }
                   }
+                },
+                "body": {
+                  "sections": {
+                    "CDS": {
+                      "type": "XMLFragment",
+                      "template": "report.ext.CDS.fragment.CDS",
+                      "position": {
+                        "placement": "After",
+                        "anchor": "Pcls"
+                      },
+                      "title": "CDS"
+                    }
+                  }
                 }
               }
             }
