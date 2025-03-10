@@ -11,7 +11,7 @@
           "key": "aireport-db-key",
           "resolved": false
         },
-        "kind": "hana-cloud",
+        "kind": "hana",
         "vcap": {
           "name": "db"
         }

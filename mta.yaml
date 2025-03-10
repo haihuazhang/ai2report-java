@@ -16,7 +16,7 @@ modules:
     properties:
       SPRING_PROFILES_ACTIVE: cloud,sandbox
       # JBP_CONFIG_COMPONENTS: "jres: ['com.sap.xs.java.buildpack.jre.SAPMachineJRE']"
-      JBP_CONFIG_OPEN_JDK_JRE : '{ jre: { version: 21.+ } }'
+      JBP_CONFIG_OPEN_JDK_JRE: '{ jre: { version: 21.+ } }'
       JAVA_OPTS: '-Xrunjdwp:transport=dt_socket,server=y,suspend=n,address=8000'
     build-parameters:
       builder: custom
@@ -68,6 +68,8 @@ modules:
       - name: app-api
         properties:
           url: ${default-url}
+          app-protocol: ${protocol}
+          app-uri: ${default-uri}
 
   - name: aireport-app-deployer
     type: com.sap.application.content
@@ -172,6 +174,18 @@ modules:
               ServiceInstanceName: aireport-auth
               ServiceKeyName: aireport-auth-key
               sap.cloud.service: aireport.service
+
+  - name: aireportcapragapp
+    type: html5
+    path: app/cap-rag-app
+    build-parameters:
+      build-result: dist
+      builder: custom
+      commands:
+        - npm ci
+        - npm run build
+      supported-platforms:
+        []
 
 resources:
   - name: aireport-db

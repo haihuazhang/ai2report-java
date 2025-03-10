@@ -147,8 +147,8 @@ entity Files : cuid, managed {
     fileName    : String;
     size        : String;
 
-    @Core.IsMediaType: true
-    mediaType   : String;
+    
+    mediaType   : String @Core.IsMediaType;
     isGenerated : Boolean;
 
     @Core.MediaType  : mediaType  @Core.ContentDisposition.Filename: fileName

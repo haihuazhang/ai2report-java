@@ -42,10 +42,10 @@ This project must be run with VSCode/Cursor.
   - Run "Spring Boot-Application<ai-fs>": Run the odata service
   - Run "Launch Approuter": Run the approuter
 
-### `step1` deploy cds artifacts.
+### `Step1` Deploy cds artifacts.
 run command cds deploy in the root folder.
 
-### `step2` create SAP BTP services and bind to local app.
+### `Step2` Create SAP BTP services and bind to local app.
 1. run cf create-service command for service XUSAA and Destination.
    - cf create-service xusaa application aireport-auth -c xs-security.json
    - cf create-service destination lite aireport-destination 
@@ -59,9 +59,9 @@ run command cds deploy in the root folder.
 4. check the content of file '.cdsrc-private.json'.
    - make sure the property apiEndpoint/org/space has the right value.  
 
-### `step3` run/debug srv app using VSCode debug extension
+### `Step3` Run/debug srv app using VSCode debug extension
 
-### `step4` run/debug approuter using VSCode debug extension
+### `Step4` Run/debug approuter using VSCode debug extension
 
 ## Deployment
 

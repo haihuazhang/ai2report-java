@@ -835,7 +835,8 @@ annotate ChatService.Knowledges with {
 };
 
 annotate ChatService.Files with {
-    mediaType @Common.FieldControl: #ReadOnly
+    mediaType @Common.FieldControl: #ReadOnly;
+    fileName @Common.FieldControl: #ReadOnly;
 };
 
 annotate ChatService.Files with {
