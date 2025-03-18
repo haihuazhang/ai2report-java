@@ -151,8 +151,8 @@ entity Files : cuid, managed {
     mediaType   : String @Core.IsMediaType;
     isGenerated : Boolean;
 
-    @Core.MediaType  : mediaType  @Core.ContentDisposition.Filename: fileName
-    fileContent : LargeBinary;
+    
+    fileContent : LargeBinary @Core.MediaType  : mediaType  @Core.ContentDisposition.Filename: fileName;
     knowledges  : Composition of many Knowledges
                       on knowledges.file = $self;
 }

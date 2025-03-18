@@ -15,18 +15,18 @@ public class BeanInfoConfig implements ApplicationListener<ContextRefreshedEvent
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        if (event.getApplicationContext().equals(this.applicationContext)) {
-            System.out.println("\n=== Spring Beans Information ===");
-            String[] beanNames = applicationContext.getBeanDefinitionNames();
-            Arrays.sort(beanNames);
+        // if (event.getApplicationContext().equals(this.applicationContext)) {
+        //     System.out.println("\n=== Spring Beans Information ===");
+        //     String[] beanNames = applicationContext.getBeanDefinitionNames();
+        //     Arrays.sort(beanNames);
             
-            for (String beanName : beanNames) {
-                Object bean = applicationContext.getBean(beanName);
-                System.out.printf("Bean Name: %-50s | Type: %s%n", 
-                    beanName, 
-                    bean.getClass().getName());
-            }
-            System.out.println("================================\n");
-        }
+        //     for (String beanName : beanNames) {
+        //         Object bean = applicationContext.getBean(beanName);
+        //         System.out.printf("Bean Name: %-50s | Type: %s%n", 
+        //             beanName, 
+        //             bean.getClass().getName());
+        //     }
+        //     System.out.println("================================\n");
+        // }
     }
 }

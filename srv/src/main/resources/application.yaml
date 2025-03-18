@@ -25,6 +25,13 @@ aireport:
   ai-core-destination: AICore
   function-for-cds: func_cds
   prompt-prefix-for-cds: prompt_cds
+
+# logging:
+#   level:
+#     '[com.sap.cds.adapter.odata]': TRACE
+#     '[com.sap.cds.odata.v4]': TRACE
+#     '[com.sap.cds.persistence.sql]': TRACE
+#     '[com.sap.cds.persistence.sql-tx]': TRACE
 ---
 spring:
   config:

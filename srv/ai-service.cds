@@ -632,21 +632,21 @@ annotate ChatService.Files with @(
                 Value: category,
                 Label: 'File Category',
             },
-            {
-                $Type: 'UI.DataField',
-                Value: fileName,
-                Label: 'File Name',
-            },
+            // {
+            //     $Type: 'UI.DataField',
+            //     Value: fileName,
+            //     Label: 'File Name',
+            // },
             {
                 $Type: 'UI.DataField',
                 Value: fileContent,
                 Label: 'File Content',
             },
-            {
-                $Type: 'UI.DataField',
-                Value: mediaType,
-                Label: 'Media Type',
-            },
+            // {
+            //     $Type: 'UI.DataField',
+            //     Value: mediaType,
+            //     Label: 'Media Type',
+            // },
             {
                 $Type: 'UI.DataField',
                 Value: isGenerated,
@@ -658,7 +658,7 @@ annotate ChatService.Files with @(
         $Type: 'UI.FieldGroupType',
         Data : [],
     },
-    UI.SelectionFields        : [category, ],
+    UI.SelectionFields        : [category],
 );
 
 annotate ChatService.Files with @(
@@ -672,24 +672,23 @@ annotate ChatService.Files with @(
             },
             {
                 $Type: 'UI.DataField',
-                Label: 'fileName',
-                Value: fileName,
+                Value: fileContent,
             },
-            {
-                $Type: 'UI.DataField',
-                Label: 'mediaType',
-                Value: mediaType,
-            },
+            // {
+            //     $Type: 'UI.DataField',
+            //     Label: 'mediaType',
+            //     Value: mediaType,
+            // },
             {
                 $Type: 'UI.DataField',
                 Label: 'isGeneratedEmbedding',
                 Value: isGenerated,
-            },
-            {
-                $Type: 'UI.DataField',
-                Label: 'fileContent',
-                Value: fileContent,
-            },
+            }
+            // {
+            //     $Type: 'UI.DataField',
+            //     Label: 'fileContent',
+            //     Value: fileContent,
+            // },
         ],
     },
     UI.Facets                    : [
@@ -719,14 +718,18 @@ annotate ChatService.Files with @(
         },
         {
             $Type: 'UI.DataField',
-            Label: 'File Name',
-            Value: fileName,
+            Value: fileContent
         },
-        {
-            $Type: 'UI.DataField',
-            Label: 'Media Type',
-            Value: mediaType,
-        },
+        // {
+        //     $Type: 'UI.DataField',
+        //     Label: 'File Name',
+        //     Value: fileName,
+        // },
+        // {
+        //     $Type: 'UI.DataField',
+        //     Label: 'Media Type',
+        //     Value: mediaType,
+        // },
         {
             $Type: 'UI.DataField',
             Label: 'isGenerateEmbedding',
@@ -834,14 +837,14 @@ annotate ChatService.Knowledges with {
     content @Common.FieldControl: #ReadOnly
 };
 
-annotate ChatService.Files with {
-    mediaType @Common.FieldControl: #ReadOnly;
-    fileName @Common.FieldControl: #ReadOnly;
-};
+// annotate ChatService.Files with {
+//     mediaType @Common.FieldControl: #ReadOnly;
+//     fileName @Common.FieldControl: #ReadOnly;
+// };
 
-annotate ChatService.Files with {
-    size @Common.FieldControl: #ReadOnly
-};
+// annotate ChatService.Files with {
+//     size @Common.FieldControl: #ReadOnly
+// };
 
 annotate ChatService.RagCategory with {
     code @Common.Text: {

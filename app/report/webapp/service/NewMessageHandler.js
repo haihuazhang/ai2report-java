@@ -24,6 +24,11 @@ sap.ui.define([
         createMessageAndCompletion: function () {
             var chatService = ChatService.getInstance();
             let tempUserContext = null;
+            // create a temporary chat record context for user
+            /**
+             * For Temporary display of the message in the chat list, we are creating a temporary chat record context for the user.
+             * This context will be deleted once the action newRecord is posted successfully.
+             */
             chatService.createEntity({
                 binding: this.binding,
                 entity: {
@@ -37,11 +42,14 @@ sap.ui.define([
                 return this.handleCompletion(createdUserContext);
             }).then((result) => {
                 console.log("Message posted successfully");
+                // delete the temporary chat record context for user
                 return result.tempUserContext.delete();
             }).then(() => {
+                // refresh the Reports Context(child records list will be refreshed automatically)
                 this.report.refresh();
-                chatService.model.refresh();
+                // chatService.model.refresh();
             }).catch(function (error) {
+                // delete the temporary chat record context for user
                 tempUserContext.delete();
                 console.error("Error posting message:", error);
             });

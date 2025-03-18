@@ -58,6 +58,7 @@ sap.ui.define([
                 var contextBinding = this.getEditFlow().getView().getModel().bindContext("ChatService.adopt(...)", context, { $$inheritExpandSelect: true });
                 contextBinding.invoke().finally(() => {
                     event.getSource().setBusy(false);
+                    // refresh Reports Context
                     this.getEditFlow().getView().getBindingContext().refresh();
                 });
             };
@@ -68,6 +69,7 @@ sap.ui.define([
                     // { $$inheritExpandSelect: true }
                 );
                 binding.invoke().then(() => {
+                    // refresh Reports Context
                     this.getEditFlow().getView().getBindingContext().refresh();
                 });
             };

@@ -97,6 +97,10 @@ modules:
           artifacts:
             - report.zip
           target-path: resources
+        - name: aireportcapragapp
+          artifacts:
+            - cap-rag-app.zip
+          target-path: resources
 
   - name: aireportchatbotui
     type: html5
