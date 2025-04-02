@@ -1,4 +1,4 @@
-package customer.aireport.util;
+package customer.aireport.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import javax.annotation.Nonnull;

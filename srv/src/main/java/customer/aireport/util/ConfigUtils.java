@@ -2,11 +2,12 @@ package customer.aireport.util;
 
 import java.util.Locale;
 
+// import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import com.sap.ai.sdk.foundationmodels.openai.model.OpenAiChatCompletionFunction;
 import cds.gen.chatservice.ChatService;
 import cds.gen.chatservice.ParameterItems;
-import customer.aireport.config.AIProperties;
+import customer.aireport.config.AIServiceKeysConfig;
+import customer.aireport.constant.AIServiceType;
 import customer.aireport.model.AIParameters;
 import customer.aireport.service.EntityService;
 
@@ -15,52 +16,60 @@ public class ConfigUtils {
     private final EntityService entityService;
     private final JsonUtils jsonUtils;
     private final RequestUtils requestUtils;
+    private final AIServiceKeysConfig aiServiceKeys;
 
-    public ConfigUtils(EntityService entityService, JsonUtils jsonUtils, RequestUtils requestUtils) {
+    public ConfigUtils(EntityService entityService, JsonUtils jsonUtils, RequestUtils requestUtils,
+            AIServiceKeysConfig aiServiceKeys) {
         this.entityService = entityService;
         this.jsonUtils = jsonUtils;
         this.requestUtils = requestUtils;
+        this.aiServiceKeys = aiServiceKeys;
+    }
+
+    public AIServiceType getAIServiceType() {
+        return AIServiceType.valueOf(aiServiceKeys.getServiceType().toUpperCase());
     }
 
     // For cases that need both function and prompt
-    public AIParameters getFunctionAndPrompt(
-            ChatService service, 
-            AIProperties properties,
-            Locale locale, 
-            String functionName, 
-            String promptName) {
+    public <T> AIParameters<T> getFunctionAndPrompt(
+            ChatService service,
+            Locale locale,
+            String functionName,
+            String promptName,
+            Class<T> functionClass) {
         String language = requestUtils.getLocaleString(locale);
         ParameterItems functionItem = getParameter(service, functionName, language);
         ParameterItems promptItem = getParameter(service, promptName, language);
-        
-        OpenAiChatCompletionFunction function = jsonUtils.parseFunction(
-            functionItem.getValue(),
-            "Error_When_Parsing_Parameter"
-        );
 
-        return new AIParameters(function, promptItem.getValue());
+        T function = jsonUtils.parseFunction(
+                functionItem.getValue(),
+                "Error_When_Parsing_Parameter",
+                functionClass);
+
+        return new AIParameters<>(function, promptItem.getValue());
     }
 
     // For cases that only need prompt
     public String getPrompt(
-            ChatService service, 
-            Locale locale, 
+            ChatService service,
+            Locale locale,
             String promptName) {
         String language = requestUtils.getLocaleString(locale);
         return getParameter(service, promptName, language).getValue();
     }
 
     // For cases that only need function
-    public OpenAiChatCompletionFunction getFunction(
-            ChatService service, 
-            Locale locale, 
-            String functionName) {
+    public <T> T getFunction(
+            ChatService service,
+            Locale locale,
+            String functionName,
+            Class<T> clazz) {
         String language = requestUtils.getLocaleString(locale);
         ParameterItems item = getParameter(service, functionName, language);
         return jsonUtils.parseFunction(
-            item.getValue(),
-            "Error_When_Parsing_Parameter"
-        );
+                item.getValue(),
+                "Error_When_Parsing_Parameter",
+                clazz);
     }
 
     private ParameterItems getParameter(
@@ -68,11 +77,9 @@ public class ConfigUtils {
             String parameterName,
             String language) {
         return entityService.selectParameterItem(
-            service,
-            parameterName,
-            language,
-            "Maintain_Parameter"
-        );
+                service,
+                parameterName,
+                language,
+                "Maintain_Parameter");
     }
 }
-

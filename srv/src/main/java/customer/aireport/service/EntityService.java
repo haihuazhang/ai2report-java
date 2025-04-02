@@ -30,7 +30,8 @@ import customer.aireport.exception.BusinessException; // Changed from AIServiceE
 @Service
 public class EntityService {
     // Select operations
-    public <T extends CdsData> T selectSingle(ChatService service, CqnSelect select, Class<T> type, String errorMessage) {
+    public <T extends CdsData> T selectSingle(ChatService service, CqnSelect select, Class<T> type,
+            String errorMessage) {
         Result result = service.run(select);
         if (result.rowCount() == 0) {
             throw new BusinessException(errorMessage); // Changed exception type
@@ -67,6 +68,16 @@ public class EntityService {
         CqnSelect select = Select.from(ParameterItems_.class)
                 .where(b -> b.name().eq(name).and(b.language().eq(language)));
         return selectSingle(service, select, ParameterItems.class, errorMessage);
+    }
+
+    public Reports selectReportById(ChatService service, String reportId, boolean isActiveEntity, String errorMessage) {
+        return selectSingle(
+                service,
+                Select.from(Reports_.class)
+                        .where(b -> b.ID().eq(reportId)
+                                .and(b.IsActiveEntity().eq(isActiveEntity))),
+                Reports.class,
+                errorMessage);
     }
 
     // Insert operations
@@ -166,7 +177,7 @@ public class EntityService {
     }
 
     public void updateReport(
-            ChatService service, 
+            ChatService service,
             ChatService.Draft serviceDraft,
             Reports report) {
         if (report.getIsActiveEntity()) {

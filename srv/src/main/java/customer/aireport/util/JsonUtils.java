@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.sap.ai.sdk.foundationmodels.openai.model.OpenAiChatCompletionFunction;
+// import com.sap.ai.sdk.foundationmodels.openai.model.OpenAiChatCompletionFunction;
 import cds.gen.chatservice.*;
 import customer.aireport.dto.FieldSummary;
 import customer.aireport.exception.BusinessException;
@@ -94,9 +94,9 @@ public class JsonUtils {
         }
     }
 
-    public OpenAiChatCompletionFunction parseFunction(String jsonString, String errorMessage) {
+    public <T> T parseFunction(String jsonString, String errorMessage, Class<T> clazz) {
         try {
-            return objectMapper.readValue(jsonString, OpenAiChatCompletionFunction.class);
+            return objectMapper.readValue(jsonString, clazz);
         } catch (JsonProcessingException e) {
             throw BusinessException.parsingError(errorMessage, e);
         }

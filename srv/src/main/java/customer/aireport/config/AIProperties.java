@@ -14,7 +14,6 @@ public class AIProperties {
     private String functionForJson;
     private String promptPrefixForPcl;
     private String functionForPcl;
-    private String aiCoreDestination = "AICore"; // 默认值
     private String functionForCds;
     private String promptPrefixForCds;
 }
