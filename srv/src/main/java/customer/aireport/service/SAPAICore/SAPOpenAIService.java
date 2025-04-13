@@ -1,4 +1,4 @@
-package customer.aireport.service;
+package customer.aireport.service.SAPAICore;
 
 import static com.sap.ai.sdk.foundationmodels.openai.OpenAiModel.GPT_4O;
 
@@ -8,7 +8,7 @@ import java.util.List;
 import javax.annotation.Nonnull;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+// import org.springframework.stereotype.Service;
 
 import com.sap.ai.sdk.core.AiCoreService;
 import com.sap.ai.sdk.foundationmodels.openai.OpenAiClient;
@@ -38,17 +38,18 @@ import customer.aireport.dto.AIResponse;
 import customer.aireport.dto.CommonAIMessage;
 import customer.aireport.exception.BusinessException;
 import customer.aireport.factory.AIResponseHandlerFactory;
-import customer.aireport.factory.SAPAIMessageFactory;
+import customer.aireport.factory.SAPOpenAIMessageFactory;
 import customer.aireport.helper.AIResponseHelper;
 import customer.aireport.model.AIParameters;
 
 import customer.aireport.model.EntityInfo;
+import customer.aireport.service.AIService.AIServiceI;
 import customer.aireport.util.ConfigUtils;
 import customer.aireport.util.JsonUtils;
 
 // Rename from AIUtil.java
 // @Service("aiCoreOpenAIService") // Changed bean name to avoid conflict
-public class SAPAIService implements AIServiceI {
+public class SAPOpenAIService implements AIServiceI {
         private final OpenAiModel DEFAULT_MODEL = GPT_4O;
 
         @Autowired
@@ -62,7 +63,7 @@ public class SAPAIService implements AIServiceI {
         // }
 
         @Autowired
-        private SAPAIMessageFactory messageFactory;
+        private SAPOpenAIMessageFactory messageFactory;
 
         @Autowired
         private AIResponseHelper aiResponseHelper;

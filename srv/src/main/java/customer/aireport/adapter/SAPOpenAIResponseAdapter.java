@@ -11,10 +11,10 @@ import customer.aireport.dto.AIResponse;
 import customer.aireport.dto.AIToolCall;
 
 @Component
-public class SAPAIResponseAdapter implements AIResponse {
+public class SAPOpenAIResponseAdapter implements AIResponse {
     private final OpenAiChatCompletionOutput output;
 
-    public SAPAIResponseAdapter(OpenAiChatCompletionOutput output) {
+    public SAPOpenAIResponseAdapter(OpenAiChatCompletionOutput output) {
         this.output = output;
     }
 
@@ -32,7 +32,7 @@ public class SAPAIResponseAdapter implements AIResponse {
     public List<AIToolCall> getToolCalls() {
         // Convert OpenAI tool calls to our interface
         return output.getChoices().get(0).getMessage().getToolCalls().stream()
-            .map(SAPAIToolCallAdapter::new)
+            .map(SAPOpenAIToolCallAdapter::new)
             .collect(Collectors.toList());
     }
 }

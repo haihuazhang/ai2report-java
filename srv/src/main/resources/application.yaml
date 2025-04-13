@@ -41,6 +41,9 @@ spring:
   config:
     activate:
       on-profile: default
+  ai:
+    openai:
+      api-key: your-openai-api-key-here
   # sql:
     # init:
       # schema-locations: classpath:schema.sql
@@ -59,6 +62,8 @@ cds:
   data-source:
     auto-config:
       enabled: true
+
+
 
 # openai:
 #   api:

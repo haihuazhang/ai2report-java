@@ -24,8 +24,8 @@ import customer.aireport.dto.CommonAIMessage;
 import customer.aireport.factory.RecordFactory;
 import customer.aireport.helper.ChatHelper;
 import customer.aireport.model.EntityInfo;
-import customer.aireport.service.AIServiceI;
 import customer.aireport.service.EntityService;
+import customer.aireport.service.AIService.AIServiceI;
 import customer.aireport.util.ConfigUtils;
 import customer.aireport.util.JsonUtils;
 import customer.aireport.util.RequestUtils;
@@ -43,8 +43,8 @@ import cds.gen.chatservice.*;
 public class ReportEventHandler implements EventHandler {
         // Service dependencies
         @Autowired
-        @Qualifier("sapAIService")
-        private AIServiceI sapAIService;
+        @Qualifier("sapOpenAIService")
+        private AIServiceI sapOpenAIService;
 
         // @Autowired
         // @Qualifier("directOpenAIService")
@@ -56,7 +56,7 @@ public class ReportEventHandler implements EventHandler {
 
         // private AIService getActiveAIService() {
         // return switch (configUtils.getAIServiceType()) {
-        // case SAP -> sapAIService;
+        // case SAP -> sapOpenAIService;
         // case DIRECT -> directOpenAIService;
         // case DEEPSEEK -> deepSeekService;
         // };
@@ -139,7 +139,7 @@ public class ReportEventHandler implements EventHandler {
                 }
 
                 // Get AI response and handle it
-                sapAIService.callAICompletion(commonAIMessages,
+                sapOpenAIService.callAICompletion(commonAIMessages,
                                 report,
                                 context.getContent(),
                                 entityInfo,
@@ -173,7 +173,7 @@ public class ReportEventHandler implements EventHandler {
                 // Process fields and update database
                 entityService.deleteReportFieldsByReportId(aiService, record.getReportId());
 
-                List<ReportFields> fieldsList = sapAIService.callAIforAdopt(
+                List<ReportFields> fieldsList = sapOpenAIService.callAIforAdopt(
                                 aiService,
                                 adoptContext,
                                 record,
@@ -186,7 +186,7 @@ public class ReportEventHandler implements EventHandler {
                 // aiProperties.getFunctionForJson());
 
                 // // Call AI to process record content
-                // OpenAiChatCompletionOutput aiResult = sapAIService.callAIWithFunction(
+                // OpenAiChatCompletionOutput aiResult = sapOpenAIService.callAIWithFunction(
                 // function,
                 // record.getContent(),
                 // "");
@@ -246,7 +246,7 @@ public class ReportEventHandler implements EventHandler {
                                 entityInfo.getId());
                 String fieldsJson = jsonUtils.convertFieldsToJson(reportFields);
 
-                List<Pcls> pclsList = sapAIService.callAIforGeneratePCL(fieldsJson, aiService, generatePCLContext);
+                List<Pcls> pclsList = sapOpenAIService.callAIforGeneratePCL(fieldsJson, aiService, generatePCLContext);
                 // // Get parameters
                 // AIParameters params = configUtils.getFunctionAndPrompt(
                 // aiService,
@@ -255,7 +255,7 @@ public class ReportEventHandler implements EventHandler {
                 // aiProperties.getPromptPrefixForPcl());
 
                 // // Call AI and process response
-                // OpenAiChatCompletionOutput aiResult = sapAIService.callAIWithFunction(
+                // OpenAiChatCompletionOutput aiResult = sapOpenAIService.callAIWithFunction(
                 // params.getFunction(),
                 // fieldsJson,
                 // params.getPromptContent());
@@ -307,7 +307,7 @@ public class ReportEventHandler implements EventHandler {
                                 entityInfo.getId());
                 String fieldsJson = jsonUtils.convertFieldsToJson(reportFields);
 
-                sapAIService.callAIforGenerateCDS(fieldsJson, aiService, generateCDSContext, report);
+                sapOpenAIService.callAIforGenerateCDS(fieldsJson, aiService, generateCDSContext, report);
 
                 // // Get AI parameters
                 // AIParameters params = configUtils.getFunctionAndPrompt(
@@ -317,7 +317,7 @@ public class ReportEventHandler implements EventHandler {
                 // aiProperties.getPromptPrefixForCds());
 
                 // // Call AI service
-                // OpenAiChatCompletionOutput aiResult = sapAIService.callAIWithFunction(
+                // OpenAiChatCompletionOutput aiResult = sapOpenAIService.callAIWithFunction(
                 // params.getFunction(),
                 // fieldsJson,
                 // params.getPromptContent());

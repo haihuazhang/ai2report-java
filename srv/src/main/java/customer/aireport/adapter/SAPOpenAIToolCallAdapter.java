@@ -4,15 +4,15 @@ import com.sap.ai.sdk.foundationmodels.openai.model.OpenAiChatToolCall;
 import customer.aireport.dto.AIFunction;
 import customer.aireport.dto.AIToolCall;
 
-public class SAPAIToolCallAdapter implements AIToolCall {
+public class SAPOpenAIToolCallAdapter implements AIToolCall {
     private final OpenAiChatToolCall toolCall;
 
-    public SAPAIToolCallAdapter(OpenAiChatToolCall toolCall) {
+    public SAPOpenAIToolCallAdapter(OpenAiChatToolCall toolCall) {
         this.toolCall = toolCall;
     }
 
     @Override
     public AIFunction getFunction() {
-        return new SAPAIFunctionAdapter(toolCall.getFunction());
+        return new SAPOpenAIFunctionAdapter(toolCall.getFunction());
     }
 }

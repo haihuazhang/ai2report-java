@@ -6,7 +6,7 @@ import com.sap.ai.sdk.foundationmodels.openai.model.OpenAiChatMessage;
 import customer.aireport.model.OpenAiChatAssistantMessage2;
 
 @Component
-public class SAPAIMessageFactory {
+public class SAPOpenAIMessageFactory {
     public OpenAiChatMessage[] createSystemMessage(String content) {
         return new OpenAiChatMessage[] {
             (new OpenAiChatMessage.OpenAiChatSystemMessage()).setContent(content)

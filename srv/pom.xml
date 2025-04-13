@@ -49,17 +49,17 @@
 		<dependency>
 			<groupId>com.sap.ai.sdk</groupId>
 			<artifactId>core</artifactId>
-			<version>1.0.0</version>
+			<version>1.6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sap.ai.sdk.foundationmodels</groupId>
 			<artifactId>openai</artifactId>
-			<version>1.0.0</version>
+			<version>1.6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.sap.ai.sdk</groupId>
 			<artifactId>orchestration</artifactId>
-			<version>1.0.0</version>
+			<version>1.6.0</version>
 		</dependency>
 
 		<dependency>
@@ -212,6 +212,67 @@
 				<cds.install-node.skip>true</cds.install-node.skip>
 				<cds.install-cdsdk.skip>true</cds.install-cdsdk.skip>
 			</properties>
+		</profile>
+		<profile>
+			<id>generate</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+				<property>
+					<name>generate</name>
+				</property>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.sap.cloud.sdk.datamodel</groupId>
+						<artifactId>openapi-generator-maven-plugin</artifactId>
+						<configuration>
+							<skip>true</skip>
+							<outputDirectory>${project.basedir}/src/main/java/customer/aireport</outputDirectory>
+							<apiMaturity>beta</apiMaturity>
+							<enableOneOfAnyOfGeneration>true</enableOneOfAnyOfGeneration>
+							<compileScope>COMPILE</compileScope>
+							<deleteOutputDirectory>true</deleteOutputDirectory>
+						</configuration>
+						<executions>
+							<execution>
+								<id>claude</id>
+								<goals>
+									<goal>generate</goal>
+								</goals>
+								<phase>generate-sources</phase>
+								<configuration>
+									<inputSpec>
+										${project.basedir}/src/main/resources/spec/claude-sonnet-3.5.yaml</inputSpec>
+									<apiPackage>customer.aireport.service.SAPAICore.claude.generated.api</apiPackage>
+									<modelPackage>
+										customer.aireport.service.SAPAICore.claude.generated.model</modelPackage>
+									<generateApis>false</generateApis>
+									<additionalProperties>
+										<enumUnknownDefaultCase>true</enumUnknownDefaultCase>
+										<useOneOfInterfaces>true</useOneOfInterfaces>
+										<useOneOfCreators>true</useOneOfCreators>
+										<useFloatArrays>true</useFloatArrays>
+
+										<!-- new exclude paths -->
+										<!-- <excludePaths>/deployments/{deployment-id}/completions
+											/deployments/{deployment-id}/audio/transcriptions
+											/deployments/{deployment-id}/audio/translations
+											/deployments/{deployment-id}/images/generations</excludePaths> -->
+
+										<!-- new exclude properties -->
+										<!-- <excludeProperties>chatCompletionResponseMessage.context
+											createChatCompletionRequest.data_sources</excludeProperties> -->
+
+										<!-- new: remove unassigned components -->
+										<removeUnusedComponents>true</removeUnusedComponents>
+									</additionalProperties>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 	</profiles>
 </project>

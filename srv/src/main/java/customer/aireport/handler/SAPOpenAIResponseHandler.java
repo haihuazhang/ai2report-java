@@ -2,11 +2,11 @@ package customer.aireport.handler;
 
 import org.springframework.stereotype.Component;
 import com.sap.ai.sdk.foundationmodels.openai.model.OpenAiChatCompletionOutput;
-import customer.aireport.adapter.SAPAIResponseAdapter;
+import customer.aireport.adapter.SAPOpenAIResponseAdapter;
 import customer.aireport.dto.AIResponse;
 
 @Component
-public class SAPAIResponseHandler implements AIResponseHandler {
+public class SAPOpenAIResponseHandler implements AIResponseHandler {
     
     @Override
     public AIResponse processResponse(Object rawResponse) {
@@ -15,6 +15,6 @@ public class SAPAIResponseHandler implements AIResponseHandler {
                 + rawResponse.getClass().getName());
         }
         
-        return new SAPAIResponseAdapter((OpenAiChatCompletionOutput) rawResponse);
+        return new SAPOpenAIResponseAdapter((OpenAiChatCompletionOutput) rawResponse);
     }
 }

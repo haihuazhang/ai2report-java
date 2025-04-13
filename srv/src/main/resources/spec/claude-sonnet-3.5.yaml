@@ -1,0 +1,391 @@
+openapi: 3.0.0
+info:
+  title: Amazon Bedrock Anthropic Claude Messages API
+  description: API for invoking Claude models through AWS Bedrock Runtime
+  version: '2024-10-22'
+servers:
+  - url: https://bedrock-runtime.{region}.amazonaws.com
+    variables:
+      region:
+        default: us-east-1
+        enum:
+          - us-east-1
+          - us-west-2
+          - ap-southeast-1
+          - eu-central-1
+        description: AWS region endpoint
+paths:
+  /model/anthropic.claude-v3/invoke:
+    post:
+      summary: Invoke Claude model
+      operationId: invokeClaude
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        uri: arn:aws:bedrock:${region}::/model/anthropic.claude-v3/invoke
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          schema:
+            type: string
+            enum: [application/json]
+        - name: contentType
+          in: header
+          required: true
+          schema:
+            type: string
+            enum: [application/json]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InvokeRequest"
+      responses:
+        '200':
+          description: Successful invocation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvokeResponse"
+          headers:
+            x-amzn-requestid:
+              description: Unique request identifier
+              schema:
+                type: string
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '429':
+          $ref: "#/components/responses/TooManyRequests"
+
+components:
+  schemas:
+    InvokeRequest:
+      type: object
+      required:
+        - anthropic_version
+        - messages
+        - max_tokens
+      properties:
+        anthropic_version:
+          type: string
+          pattern: "^bedrock-\\d{4}-\\d{2}-\\d{2}$"
+          example: "bedrock-2023-05-31"
+        anthropic_beta:
+          type: array
+          items:
+            type: string
+            pattern: "^[a-z-]+-\\d{4}-\\d{2}-\\d{2}$"
+          example: ["computer-use-2024-10-22"]
+        max_tokens:
+          type: integer
+          minimum: 1
+          maximum: 4096
+          example: 1024
+        system:
+          type: string
+          maxLength: 20000
+          description: System prompt to guide model behavior
+        messages:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/Message"
+        temperature:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          default: 0.5
+        top_p:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+        top_k:
+          type: integer
+          minimum: 0
+          maximum: 500
+        tools:
+          type: array
+          maxItems: 20
+          items:
+            $ref: "#/components/schemas/Tool"
+
+        tool_choice:
+          $ref: "#/components/schemas/ToolChoice"
+        stop_sequences:
+          type: array
+          maxItems: 10
+          items:
+            type: string
+            maxLength: 100
+    Message:
+      oneOf: 
+        - $ref: "#/components/schemas/RequestUserMessage"
+        - $ref: "#/components/schemas/RequestAssistantMessage"
+
+    RequestUserMessage:
+      type: object
+      required:
+        - role
+        - content
+      properties:
+        role:
+          type: string
+          enum: [user]
+        content:
+          description: |
+            The contents of the user message.
+          oneOf:
+            - type: string
+              description: The text contents of the message.
+              title: Text content
+            - type: array
+              items:
+                $ref: "#/components/schemas/MessageRequestContentPart"
+              description: |
+                The contents of the message can be a combination of text and images.
+          examples:
+            textExample:
+              - type: text
+                text: "Hello, how can I help you?"
+            imageExample:
+              - type: image
+                source:
+                  type: base64
+                  media_type: image/jpeg
+                  data: "/9j/4AAQSkZJRgABAQ..."
+    RequestAssistantMessage:
+      type: object
+      required:
+        - role
+        - content
+      properties:
+        role:
+          type: string
+          enum: [assistant]
+        content:
+          description: |
+            The contents of the user message.
+          oneOf:
+            - type: string
+              description: The text contents of the message.
+              title: Text content
+            - type: array
+              items:
+                $ref: "#/components/schemas/MessageRequestContentPart"
+              description: |
+                The contents of the message can be a combination of text and images.
+          examples:
+            textExample:
+              - type: text
+                text: "Hello, how can I help you?"
+            imageExample:
+              - type: image
+                source:
+                  type: base64
+                  media_type: image/jpeg
+                  data: "/9j/4AAQSkZJRgABAQ..."
+    MessageRequestContentPart:
+      oneOf:
+        - $ref: "#/components/schemas/TextContent"
+        - $ref: "#/components/schemas/ImageContent"
+    TextContent:
+      type: object
+      required: [type, text]
+      properties:
+        type:
+          type: string
+          enum: [text]
+        text:
+          type: string
+          maxLength: 100000
+
+    ImageContent:
+      type: object
+      required: [type, source]
+      properties:
+        type:
+          type: string
+          enum: [image]
+        source:
+          type: object
+          required: [type, media_type, data]
+          properties:
+            type:
+              type: string
+              enum: [base64]
+            media_type:
+              type: string
+              enum: [image/jpeg, image/png, image/webp]
+            data:
+              type: string
+              description: Base64 encoded image data (max 5MB)
+    Tool:
+      oneOf:
+        - $ref: "#/components/schemas/CustomTool"
+        - $ref: "#/components/schemas/ComputerTool"
+        - $ref: "#/components/schemas/BashTool"
+        - $ref: "#/components/schemas/TextEditorTool"
+
+    CustomTool:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [custom]
+        name:
+          type: string
+        description:
+          type: string
+        input_schema:
+          type: object
+          additionalProperties: true
+
+    ComputerTool:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [computer_20241022]
+        name:
+          type: string
+          enum: [computer]
+        display_height_px:
+          type: integer
+        display_width_px:
+          type: integer
+        display_number:
+          type: integer
+
+    BashTool:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [bash_20241022]
+        name:
+          type: string
+          enum: [bash]
+
+    TextEditorTool:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [text_editor_20241022]
+        name:
+          type: string
+          enum: [str_replace_editor]
+
+    ToolChoice:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [auto, any, tool]
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+
+    InvokeResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        model:
+          type: string
+          example: "anthropic.claude-v3"
+        type:
+          type: string
+          enum: [message]
+        role:
+          type: string
+          enum: [assistant]
+        content:
+          type: array
+          items:
+            oneOf:
+              - $ref: "#/components/schemas/TextResponseContent"
+              - $ref: "#/components/schemas/ToolResponseContent"
+        stop_reason:
+          type: string
+          enum: [end_turn, max_tokens, stop_sequence, tool_use]
+        stop_sequence:
+          type: string
+        usage:
+          $ref: "#/components/schemas/TokenUsage"
+
+    TokenUsage:
+      type: object
+      required: [input_tokens, output_tokens]
+      properties:
+        input_tokens:
+          type: integer
+          minimum: 0
+        output_tokens:
+          type: integer
+          minimum: 0
+
+    TextResponseContent:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [text]
+        text:
+          type: string
+
+    ToolResponseContent:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: [tool_use]
+        id:
+          type: string
+        name:
+          type: string
+        input:
+          type: object
+          additionalProperties: true
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        code:
+          type: string
+        requestId:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+    TooManyRequests:
+      description: Rate limit exceeded
+      headers:
+        x-amzn-ratelimit-limit:
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ErrorResponse"
+
+  securitySchemes:
+    awsSigv4:
+      type: apiKey
+      name: Authorization
+      in: header
+      x-amazon-apigateway-authtype: awsSigv4
+      x-amazon-apigateway-signer:
+        service: bedrock
+        region: "$request.header.region"

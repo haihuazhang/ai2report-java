@@ -1,4 +1,4 @@
-package customer.aireport.service;
+package customer.aireport.service.AIService;
 
 import java.util.List;
 
