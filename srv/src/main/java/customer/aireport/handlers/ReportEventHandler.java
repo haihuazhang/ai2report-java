@@ -25,7 +25,6 @@ import customer.aireport.factory.RecordFactory;
 import customer.aireport.helper.ChatHelper;
 import customer.aireport.model.EntityInfo;
 import customer.aireport.service.EntityService;
-import customer.aireport.service.AIService.AIServiceI;
 import customer.aireport.util.ConfigUtils;
 import customer.aireport.util.JsonUtils;
 import customer.aireport.util.RequestUtils;
@@ -43,24 +42,7 @@ import cds.gen.chatservice.*;
 public class ReportEventHandler implements EventHandler {
         // Service dependencies
         @Autowired
-        @Qualifier("sapOpenAIService")
-        private AIServiceI sapOpenAIService;
-
-        // @Autowired
-        // @Qualifier("directOpenAIService")
-        // private AIServiceI directOpenAIService;
-
-        // @Autowired
-        // @Qualifier("deepSeekService")
-        // private AIServiceI deepSeekService;
-
-        // private AIService getActiveAIService() {
-        // return switch (configUtils.getAIServiceType()) {
-        // case SAP -> sapOpenAIService;
-        // case DIRECT -> directOpenAIService;
-        // case DEEPSEEK -> deepSeekService;
-        // };
-        // }
+        private ConfigUtils configUtils;
 
         @Autowired
         private ChatService aiService;
@@ -73,12 +55,6 @@ public class ReportEventHandler implements EventHandler {
 
         @Autowired
         private ChatService.Draft aiServiceDraft;
-
-        @Autowired
-        private ConfigUtils configUtils; // Add ConfigUtils injection
-
-        // @Autowired
-        // private AIResponseHelper aiResponseHelper;
 
         @Autowired
         private ChatHelper chatHelper;
@@ -118,8 +94,6 @@ public class ReportEventHandler implements EventHandler {
                                 aiProperties.getPromptPrefixForReport());
 
                 // Prepare chat parameters
-                // OpenAiChatCompletionParameters aiChatCompletionParameters = new
-                // OpenAiChatCompletionParameters();
                 List<CommonAIMessage> commonAIMessages = new ArrayList<>();
 
                 // Handle new or existing chat
@@ -139,12 +113,12 @@ public class ReportEventHandler implements EventHandler {
                 }
 
                 // Get AI response and handle it
-                sapOpenAIService.callAICompletion(commonAIMessages,
+                configUtils.getActiveAIService().callAICompletion(
+                                commonAIMessages,
                                 report,
                                 context.getContent(),
                                 entityInfo,
                                 context);
-
         }
 
         /**
@@ -173,28 +147,11 @@ public class ReportEventHandler implements EventHandler {
                 // Process fields and update database
                 entityService.deleteReportFieldsByReportId(aiService, record.getReportId());
 
-                List<ReportFields> fieldsList = sapOpenAIService.callAIforAdopt(
+                List<ReportFields> fieldsList = configUtils.getActiveAIService().callAIforAdopt(
                                 aiService,
                                 adoptContext,
                                 record,
                                 report);
-
-                // // Get AI function for JSON processing
-                // OpenAiChatCompletionFunction function = configUtils.getFunction(
-                // aiService,
-                // adoptContext.getParameterInfo().getLocale(),
-                // aiProperties.getFunctionForJson());
-
-                // // Call AI to process record content
-                // OpenAiChatCompletionOutput aiResult = sapOpenAIService.callAIWithFunction(
-                // function,
-                // record.getContent(),
-                // "");
-
-                // List<ReportFields> fieldsList = new ArrayList<>();
-                // aiResponseHelper.processResponse(aiResult, report, fieldsList,
-                // AIConstants.NodeKeys.FIELDS,
-                // jsonUtils::createReportField);
 
                 // Insert new fields and update record status
                 entityService.batchInsert(aiService, aiServiceDraft, fieldsList, record.getReportId(),
@@ -246,28 +203,8 @@ public class ReportEventHandler implements EventHandler {
                                 entityInfo.getId());
                 String fieldsJson = jsonUtils.convertFieldsToJson(reportFields);
 
-                List<Pcls> pclsList = sapOpenAIService.callAIforGeneratePCL(fieldsJson, aiService, generatePCLContext);
-                // // Get parameters
-                // AIParameters params = configUtils.getFunctionAndPrompt(
-                // aiService,
-                // generatePCLContext.getParameterInfo().getLocale(),
-                // aiProperties.getFunctionForPcl(),
-                // aiProperties.getPromptPrefixForPcl());
-
-                // // Call AI and process response
-                // OpenAiChatCompletionOutput aiResult = sapOpenAIService.callAIWithFunction(
-                // params.getFunction(),
-                // fieldsJson,
-                // params.getPromptContent());
-
-                // // Process PCLs
-                // List<Pcls> pclsList = new ArrayList<>();
-                // aiResponseHelper.processResponse(
-                // aiResult,
-                // null,
-                // pclsList,
-                // "pcl", // Changed from AIConstants.NodeKeys.ITEMS to match function schema
-                // jsonUtils::createPcl);
+                List<Pcls> pclsList = configUtils.getActiveAIService().callAIforGeneratePCL(fieldsJson, aiService,
+                                generatePCLContext);
 
                 // Delete old and insert new PCLs
                 entityService.deletePclsByReportId(aiService, entityInfo.getId());
@@ -307,25 +244,8 @@ public class ReportEventHandler implements EventHandler {
                                 entityInfo.getId());
                 String fieldsJson = jsonUtils.convertFieldsToJson(reportFields);
 
-                sapOpenAIService.callAIforGenerateCDS(fieldsJson, aiService, generateCDSContext, report);
+                configUtils.getActiveAIService().callAIforGenerateCDS(fieldsJson, aiService, generateCDSContext, report);
 
-                // // Get AI parameters
-                // AIParameters params = configUtils.getFunctionAndPrompt(
-                // aiService,
-                // generateCDSContext.getParameterInfo().getLocale(),
-                // aiProperties.getFunctionForCds(),
-                // aiProperties.getPromptPrefixForCds());
-
-                // // Call AI service
-                // OpenAiChatCompletionOutput aiResult = sapOpenAIService.callAIWithFunction(
-                // params.getFunction(),
-                // fieldsJson,
-                // params.getPromptContent());
-
-                // // Process response and update CDS
-                // aiResponseHelper.handleCDSResponse(aiResult, report);
-
-                // generateCDSContext.setResult(report);
                 generateCDSContext.setCompleted();
         }
 }

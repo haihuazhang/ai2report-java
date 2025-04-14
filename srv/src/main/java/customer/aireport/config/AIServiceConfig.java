@@ -1,6 +1,6 @@
 package customer.aireport.config;
 
-import customer.aireport.service.*;
+import customer.aireport.service.SAPAICore.SAPClaudeAIService;
 import customer.aireport.service.SAPAICore.SAPOpenAIService;
 
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,10 +13,18 @@ public class AIServiceConfig {
 
     @Bean
     @Primary
-    @Qualifier("sapAIService")
-    public SAPOpenAIService sapAIService() {
+    @Qualifier("sapOpenAIService")
+    public SAPOpenAIService sapOpenAIService() {
         // Your existing SAP AIService implementation
         return new SAPOpenAIService();
+    }
+
+    @Bean
+    @Primary
+    @Qualifier("sapClaudeAIService")
+    public SAPClaudeAIService sapClaudeAIService() {
+        // Your existing SAP AIService implementation
+        return new SAPClaudeAIService();
     }
 
     // @Bean

@@ -14,6 +14,7 @@ import com.sap.ai.sdk.core.AiCoreService;
 import com.sap.ai.sdk.foundationmodels.openai.OpenAiClient;
 import com.sap.ai.sdk.foundationmodels.openai.OpenAiModel;
 import com.sap.ai.sdk.foundationmodels.openai.model.*;
+import com.sap.ai.sdk.foundationmodels.openai.model.OpenAiChatCompletionTool.ToolType;
 
 // import static com.sap.ai.sdk.foundationmodels.openai.model.OpenAiChatCompletionToolType.FUNCTION;
 import static com.sap.ai.sdk.foundationmodels.openai.model.OpenAiChatCompletionTool.ToolType;
@@ -149,7 +150,7 @@ public class SAPOpenAIService implements AIServiceI {
 
                 // 使用适配器转换响应
                 AIResponse aiResponse = aiResponseHandlerFactory
-                                .getHandler(AIServiceType.SAP)
+                                .getHandler(AIServiceType.SAPOPENAI)
                                 .processResponse(rawResult);
 
                 aiResponseHelper.handleChatResponse(
@@ -182,7 +183,7 @@ public class SAPOpenAIService implements AIServiceI {
 
                 // 使用适配器转换响应
                 AIResponse aiResponse = aiResponseHandlerFactory
-                                .getHandler(AIServiceType.SAP)
+                                .getHandler(AIServiceType.SAPOPENAI)
                                 .processResponse(rawResult);
 
                 List<ReportFields> fieldsList = new ArrayList<>();
@@ -214,7 +215,7 @@ public class SAPOpenAIService implements AIServiceI {
 
                 // 使用适配器转换响应
                 AIResponse aiResponse = aiResponseHandlerFactory
-                                .getHandler(AIServiceType.SAP)
+                                .getHandler(AIServiceType.SAPOPENAI)
                                 .processResponse(rawResult);
 
                 // Process PCLs
@@ -250,7 +251,7 @@ public class SAPOpenAIService implements AIServiceI {
 
                 // 使用适配器转换响应
                 AIResponse aiResponse = aiResponseHandlerFactory
-                                .getHandler(AIServiceType.SAP)
+                                .getHandler(AIServiceType.SAPOPENAI)
                                 .processResponse(rawResult);
 
                 // Process response and update CDS

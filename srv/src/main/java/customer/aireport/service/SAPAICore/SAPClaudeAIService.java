@@ -11,14 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.sap.ai.sdk.core.AiCoreService;
-import com.sap.ai.sdk.foundationmodels.openai.OpenAiClient;
-import com.sap.ai.sdk.foundationmodels.openai.OpenAiModel;
-import com.sap.ai.sdk.foundationmodels.openai.model.OpenAiChatCompletionFunction;
-import com.sap.ai.sdk.foundationmodels.openai.model.OpenAiChatCompletionOutput;
-import com.sap.ai.sdk.foundationmodels.openai.model.OpenAiChatCompletionParameters;
-import com.sap.ai.sdk.foundationmodels.openai.model.OpenAiChatCompletionTool;
-import com.sap.ai.sdk.foundationmodels.openai.model.OpenAiChatCompletionTool.ToolType;
-import com.sap.ai.sdk.foundationmodels.openai.model.OpenAiChatMessage;
 
 import com.sap.cloud.sdk.cloudplatform.connectivity.Destination;
 import com.sap.cloud.sdk.cloudplatform.connectivity.DestinationAccessor;
@@ -40,17 +32,22 @@ import customer.aireport.dto.AIResponse;
 import customer.aireport.dto.CommonAIMessage;
 import customer.aireport.exception.BusinessException;
 import customer.aireport.factory.AIResponseHandlerFactory;
-import customer.aireport.factory.SAPOpenAIMessageFactory;
+import customer.aireport.factory.SAPClaudeAIMessageFactory;
 import customer.aireport.helper.AIResponseHelper;
 import customer.aireport.model.AIParameters;
 import customer.aireport.model.EntityInfo;
 import customer.aireport.service.AIService.AIServiceI;
+import customer.aireport.service.SAPAICore.claude.ClaudeAiClient;
+import customer.aireport.service.SAPAICore.claude.ClaudeAiModel;
+import customer.aireport.service.SAPAICore.claude.generated.model.InvokeRequest;
+import customer.aireport.service.SAPAICore.claude.generated.model.InvokeResponse;
+import customer.aireport.service.SAPAICore.claude.generated.model.Tool;
 import customer.aireport.util.ConfigUtils;
 import customer.aireport.util.JsonUtils;
 
 @Service
 public class SAPClaudeAIService implements AIServiceI{
-    private final OpenAiModel DEFAULT_MODEL = GPT_4O;
+    private final ClaudeAiModel DEFAULT_MODEL = ClaudeAiModel.CLAUDE_3_5_SONNET;
 
     @Autowired
     private AIProperties aiProperties; // Changed from AIReportProperties
@@ -63,7 +60,7 @@ public class SAPClaudeAIService implements AIServiceI{
     // }
 
     @Autowired
-    private SAPOpenAIMessageFactory messageFactory;
+    private SAPClaudeAIMessageFactory messageFactory;
 
     @Autowired
     private AIResponseHelper aiResponseHelper;
@@ -77,38 +74,44 @@ public class SAPClaudeAIService implements AIServiceI{
     @Autowired
     private AIResponseHandlerFactory aiResponseHandlerFactory;
 
-    public OpenAiClient getAiClientbyModelUsingBTPDestination(@Nonnull OpenAiModel foundationModel) {
+    public ClaudeAiClient getAiClientbyModelUsingBTPDestination(@Nonnull ClaudeAiModel foundationModel) {
         // build api destination
         Destination destination = DestinationAccessor.getDestination(aiServiceKeys.getAiCoreDestination());
         AiCoreService aiCoreService = new AiCoreService().withBaseDestination(destination.asHttp());
         Destination destinationWithDeployment = aiCoreService.getInferenceDestination()
                 .forModel(foundationModel);
-        return OpenAiClient.withCustomDestination(destinationWithDeployment);
+        return ClaudeAiClient.withCustomDestination(destinationWithDeployment);
     }
 
-    public OpenAiChatCompletionOutput callAIWithFunction(
-            OpenAiChatCompletionFunction function,
+    /**
+     * Call Claude AI with a tool and content
+     */
+    public InvokeResponse callAIWithFunction(
+            Tool tool,
             String content) {
-        return callAIWithFunction(function, content, "");
+        return callAIWithFunction(tool, content, "");
     }
 
-    public OpenAiChatCompletionOutput callAIWithFunction(
-            OpenAiChatCompletionFunction function,
+    /**
+     * Call Claude AI with a tool, content and prompt prefix
+     */
+    public InvokeResponse callAIWithFunction(
+            Tool tool,
             String content,
             String promptPrefix) {
 
-        OpenAiClient aiClient = getAiClientbyModelUsingBTPDestination(DEFAULT_MODEL);
-        OpenAiChatCompletionTool tool = new OpenAiChatCompletionTool()
-                .setType(ToolType.FUNCTION)
-                .setFunction(function);
+        ClaudeAiClient aiClient = getAiClientbyModelUsingBTPDestination(DEFAULT_MODEL);
+        
+        InvokeRequest request = new InvokeRequest();
+        // Add the tool to request
+        request.addToolsItem(tool);
+        
+        // Create user message with content
+        request.addMessagesItem(
+            messageFactory.createUserMessage(promptPrefix + content)
+        );
 
-        OpenAiChatCompletionParameters params = new OpenAiChatCompletionParameters()
-                .addMessages(
-                        new OpenAiChatMessage.OpenAiChatUserMessage()
-                                .addText(promptPrefix + content))
-                .setTools(List.of(tool));
-
-        return aiClient.chatCompletion(params);
+        return aiClient.chatCompletion(request);
     }
 
     public void callAICompletion(
@@ -117,11 +120,10 @@ public class SAPClaudeAIService implements AIServiceI{
             String userContent,
             EntityInfo entityInfo,
             ReportsNewRecordContext context) {
-        OpenAiChatCompletionParameters params = new OpenAiChatCompletionParameters();
+        // OpenAiChatCompletionParameters params = new OpenAiChatCompletionParameters();
+        InvokeRequest request = new InvokeRequest();
         messages.stream()
                 .map(msg -> switch (msg.role()) {
-                    case AIConstants.Roles.SYSTEM ->
-                        messageFactory.createSystemMessage(msg.message());
                     case AIConstants.Roles.USER ->
                         messageFactory.createUserMessage(msg.message());
                     case AIConstants.Roles.ASSISTANT ->
@@ -129,7 +131,7 @@ public class SAPClaudeAIService implements AIServiceI{
                     default -> throw new BusinessException(AIConstants.Messages.UNEXPECTED_ROLE +
                             msg.role());
                 })
-                .forEach(params::addMessages);
+                .forEach(request::addMessagesItem);
         // messages.forEach(record -> {
         // OpenAiChatMessage[] message = switch (record.role()) {
         // case AIConstants.Roles.SYSTEM ->
@@ -144,12 +146,12 @@ public class SAPClaudeAIService implements AIServiceI{
         // params.addMessages(message);
         // // messages.add(new CommonAIMessage(record.getRole(), record.getContent()));
         // });
-        OpenAiClient aiClient = getAiClientbyModelUsingBTPDestination(DEFAULT_MODEL);
-        OpenAiChatCompletionOutput rawResult = aiClient.chatCompletion(params);
+        ClaudeAiClient aiClient = getAiClientbyModelUsingBTPDestination(DEFAULT_MODEL);
+        InvokeResponse rawResult = aiClient.chatCompletion(request);
 
         // 使用适配器转换响应
         AIResponse aiResponse = aiResponseHandlerFactory
-                .getHandler(AIServiceType.SAP)
+                .getHandler(AIServiceType.SAPCLAUDE)
                 .processResponse(rawResult);
 
         aiResponseHelper.handleChatResponse(
@@ -168,21 +170,21 @@ public class SAPClaudeAIService implements AIServiceI{
         // throw new UnsupportedOperationException("Unimplemented method
         // 'callAIforAdopt'");
         // Get AI function for JSON processing
-        OpenAiChatCompletionFunction function = configUtils.getFunction(
+        Tool tool = configUtils.getFunction(
                 readService,
                 adoptContext.getParameterInfo().getLocale(),
                 aiProperties.getFunctionForJson(),
-                OpenAiChatCompletionFunction.class);
+                Tool.class);
 
         // Call AI to process record content
-        OpenAiChatCompletionOutput rawResult = callAIWithFunction(
-                function,
+        InvokeResponse rawResult = callAIWithFunction(
+                tool,
                 originalRecord.getContent(),
                 "");
 
         // 使用适配器转换响应
         AIResponse aiResponse = aiResponseHandlerFactory
-                .getHandler(AIServiceType.SAP)
+                .getHandler(AIServiceType.SAPCLAUDE)
                 .processResponse(rawResult);
 
         List<ReportFields> fieldsList = new ArrayList<>();
@@ -199,22 +201,22 @@ public class SAPClaudeAIService implements AIServiceI{
         // TODO Auto-generated method stub
         // throw new UnsupportedOperationException("Unimplemented method
         // 'callAIforGeneratePCL'");
-        AIParameters<OpenAiChatCompletionFunction> params = configUtils.getFunctionAndPrompt(
+        AIParameters<Tool> params = configUtils.getFunctionAndPrompt(
                 readService,
                 generatePCLContext.getParameterInfo().getLocale(),
                 aiProperties.getFunctionForPcl(),
                 aiProperties.getPromptPrefixForPcl(),
-                OpenAiChatCompletionFunction.class);
+                Tool.class);
 
         // Call AI and process response
-        OpenAiChatCompletionOutput rawResult = callAIWithFunction(
+        InvokeResponse rawResult = callAIWithFunction(
                 params.getFunction(),
                 fieldsInJSON,
                 params.getPromptContent());
 
         // 使用适配器转换响应
         AIResponse aiResponse = aiResponseHandlerFactory
-                .getHandler(AIServiceType.SAP)
+                .getHandler(AIServiceType.SAPCLAUDE)
                 .processResponse(rawResult);
 
         // Process PCLs
@@ -235,22 +237,22 @@ public class SAPClaudeAIService implements AIServiceI{
         // throw new UnsupportedOperationException("Unimplemented method
         // 'callAIforGenerateCDS'");
         // Get AI parameters
-        AIParameters<OpenAiChatCompletionFunction> params = configUtils.getFunctionAndPrompt(
+        AIParameters<Tool> params = configUtils.getFunctionAndPrompt(
                 readService,
                 generateCDSContext.getParameterInfo().getLocale(),
                 aiProperties.getFunctionForCds(),
                 aiProperties.getPromptPrefixForCds(),
-                OpenAiChatCompletionFunction.class);
+                Tool.class);
 
         // Call AI service
-        OpenAiChatCompletionOutput rawResult = callAIWithFunction(
+        InvokeResponse rawResult = callAIWithFunction(
                 params.getFunction(),
                 fieldsInJSON,
                 params.getPromptContent());
 
         // 使用适配器转换响应
         AIResponse aiResponse = aiResponseHandlerFactory
-                .getHandler(AIServiceType.SAP)
+                .getHandler(AIServiceType.SAPCLAUDE)
                 .processResponse(rawResult);
 
         // Process response and update CDS

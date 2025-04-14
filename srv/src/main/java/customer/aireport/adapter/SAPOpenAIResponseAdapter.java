@@ -18,17 +18,20 @@ public class SAPOpenAIResponseAdapter implements AIResponse {
         this.output = output;
     }
 
-    @Override
     public String getFinishReason() {
         return output.getChoices().get(0).getFinishReason();
     }
 
     @Override
     public String getContent() {
-        return output.getContent();
+        // return output.getContent();
+        if ("tool_calls".equals(this.getFinishReason())){
+             return this.getToolCalls().get(0).getFunction().getArguments();
+        } else {
+            return output.getContent();
+        }
     }
 
-    @Override
     public List<AIToolCall> getToolCalls() {
         // Convert OpenAI tool calls to our interface
         return output.getChoices().get(0).getMessage().getToolCalls().stream()

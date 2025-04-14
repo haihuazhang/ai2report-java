@@ -47,8 +47,8 @@ public class AIResponseHelper {
             List<T> resultList,
             String nodeKey,
             AIResponseProcessor<T> processor) {
-        if ("tool_calls".equals(aiResult.getFinishReason())) {
-            String jsonString = aiResult.getToolCalls().get(0).getFunction().getArguments();
+        // if ("tool_calls".equals(aiResult.getFinishReason())) {
+            String jsonString = aiResult.getContent();
             JsonNode rootNode = jsonUtils.parseJson(jsonString);
             if (report != null) {
                 jsonUtils.setReportText(report, rootNode);
@@ -60,7 +60,7 @@ public class AIResponseHelper {
                     resultList.add(processor.process(arrayItem));
                 }
             }
-        }
+        // }
     }
 
     public void handleChatResponse(
@@ -98,8 +98,9 @@ public class AIResponseHelper {
     public void handleCDSResponse(
             AIResponse aiResult,
             Reports report) {
-        if ("tool_calls".equals(aiResult.getFinishReason())) {
-            String jsonString = aiResult.getToolCalls().get(0).getFunction().getArguments();
+        // if ("tool_calls".equals(aiResult.getFinishReason())) {
+            // String jsonString = aiResult.getToolCalls().get(0).getFunction().getArguments();
+            String jsonString = aiResult.getContent();
             JsonNode rootNode = jsonUtils.parseJson(jsonString);
 
             // Update CDS fields in Reports
@@ -110,6 +111,6 @@ public class AIResponseHelper {
 
             // Persist changes using service layer
             entityService.updateReport(aiService, aiServiceDraft, report);
-        }
+        // }
     }
 }

@@ -1,7 +1,7 @@
 package customer.aireport.constant;
 
 public enum AIServiceType {
-    SAP,
+    SAPOPENAI,
     SAPCLAUDE,
     OPENAI,
     DEEPSEEK

@@ -28,6 +28,7 @@ public class ClaudeAiError implements ClientError {
    */
   @Nonnull
   public String getMessage() {
-    return originalResponse.getError().getMessage();
+    // return originalResponse.getError().getMessage();
+    return originalResponse.getMessage();
   }
 }
