@@ -12,7 +12,7 @@ public class SAPClaudeAIResponseHandler implements AIResponseHandler {
     @Override
     public AIResponse processResponse(Object rawResponse) {
         if (!(rawResponse instanceof InvokeResponse)) {
-            throw new IllegalArgumentException("Expected OpenAiChatCompletionOutput but got: " 
+            throw new IllegalArgumentException("Expected InvokeResponse but got: " 
                 + rawResponse.getClass().getName());
         }
         

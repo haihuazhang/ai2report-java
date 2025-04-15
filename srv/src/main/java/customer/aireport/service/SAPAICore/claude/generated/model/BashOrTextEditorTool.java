@@ -35,11 +35,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * BashTool
+ * BashOrTextEditorTool
  */
 
 @Beta// CHECKSTYLE:OFF
-public class BashTool implements Tool 
+public class BashOrTextEditorTool implements Tool 
 // CHECKSTYLE:ON
 {
   /**
@@ -47,12 +47,17 @@ public class BashTool implements Tool
    */
   public enum TypeEnum {
     /**
-    * The BASH_20241022 option of this BashTool
+    * The BASH_20241022 option of this BashOrTextEditorTool
     */
     BASH_20241022("bash_20241022"),
     
     /**
-    * The UNKNOWN_DEFAULT_OPEN_API option of this BashTool
+    * The TEXT_EDITOR_20241022 option of this BashOrTextEditorTool
+    */
+    TEXT_EDITOR_20241022("text_editor_20241022"),
+    
+    /**
+    * The UNKNOWN_DEFAULT_OPEN_API option of this BashOrTextEditorTool
     */
     UNKNOWN_DEFAULT_OPEN_API("unknown_default_open_api");
 
@@ -83,7 +88,7 @@ public class BashTool implements Tool
     /**
     * Get the enum value from a String value
     * @param value The String value
-    * @return The enum value of type BashTool
+    * @return The enum value of type BashOrTextEditorTool
     */
     @JsonCreator
     @Nonnull public static TypeEnum fromValue(@Nonnull final String value) {
@@ -97,19 +102,24 @@ public class BashTool implements Tool
   }
 
   @JsonProperty("type")
-  private TypeEnum type;
+  private TypeEnum type = TypeEnum.BASH_20241022;
 
   /**
    * Gets or Sets name
    */
   public enum NameEnum {
     /**
-    * The BASH option of this BashTool
+    * The BASH option of this BashOrTextEditorTool
     */
     BASH("bash"),
     
     /**
-    * The UNKNOWN_DEFAULT_OPEN_API option of this BashTool
+    * The STR_REPLACE_EDITOR option of this BashOrTextEditorTool
+    */
+    STR_REPLACE_EDITOR("str_replace_editor"),
+    
+    /**
+    * The UNKNOWN_DEFAULT_OPEN_API option of this BashOrTextEditorTool
     */
     UNKNOWN_DEFAULT_OPEN_API("unknown_default_open_api");
 
@@ -140,7 +150,7 @@ public class BashTool implements Tool
     /**
     * Get the enum value from a String value
     * @param value The String value
-    * @return The enum value of type BashTool
+    * @return The enum value of type BashOrTextEditorTool
     */
     @JsonCreator
     @Nonnull public static NameEnum fromValue(@Nonnull final String value) {
@@ -154,26 +164,26 @@ public class BashTool implements Tool
   }
 
   @JsonProperty("name")
-  private NameEnum name;
+  private NameEnum name = NameEnum.BASH;
 
   @JsonAnySetter
   @JsonAnyGetter
   private final Map<String, Object> cloudSdkCustomFields = new LinkedHashMap<>();
 
   /**
-   * Set the type of this {@link BashTool} instance and return the same instance.
+   * Set the type of this {@link BashOrTextEditorTool} instance and return the same instance.
    *
-   * @param type  The type of this {@link BashTool}
-   * @return The same instance of this {@link BashTool} class
+   * @param type  The type of this {@link BashOrTextEditorTool}
+   * @return The same instance of this {@link BashOrTextEditorTool} class
    */
-  @Nonnull public BashTool type( @Nullable final TypeEnum type) {
+  @Nonnull public BashOrTextEditorTool type( @Nullable final TypeEnum type) {
     this.type = type;
     return this;
   }
 
   /**
    * Get type
-   * @return type  The type of this {@link BashTool} instance.
+   * @return type  The type of this {@link BashOrTextEditorTool} instance.
    */
   @Nonnull
   public TypeEnum getType() {
@@ -181,28 +191,28 @@ public class BashTool implements Tool
   }
 
   /**
-   * Set the type of this {@link BashTool} instance.
+   * Set the type of this {@link BashOrTextEditorTool} instance.
    *
-   * @param type  The type of this {@link BashTool}
+   * @param type  The type of this {@link BashOrTextEditorTool}
    */
   public void setType( @Nullable final TypeEnum type) {
     this.type = type;
   }
 
   /**
-   * Set the name of this {@link BashTool} instance and return the same instance.
+   * Set the name of this {@link BashOrTextEditorTool} instance and return the same instance.
    *
-   * @param name  The name of this {@link BashTool}
-   * @return The same instance of this {@link BashTool} class
+   * @param name  The name of this {@link BashOrTextEditorTool}
+   * @return The same instance of this {@link BashOrTextEditorTool} class
    */
-  @Nonnull public BashTool name( @Nullable final NameEnum name) {
+  @Nonnull public BashOrTextEditorTool name( @Nullable final NameEnum name) {
     this.name = name;
     return this;
   }
 
   /**
    * Get name
-   * @return name  The name of this {@link BashTool} instance.
+   * @return name  The name of this {@link BashOrTextEditorTool} instance.
    */
   @Nonnull
   public NameEnum getName() {
@@ -210,16 +220,16 @@ public class BashTool implements Tool
   }
 
   /**
-   * Set the name of this {@link BashTool} instance.
+   * Set the name of this {@link BashOrTextEditorTool} instance.
    *
-   * @param name  The name of this {@link BashTool}
+   * @param name  The name of this {@link BashOrTextEditorTool}
    */
   public void setName( @Nullable final NameEnum name) {
     this.name = name;
   }
 
   /**
-   * Get the names of the unrecognizable properties of the {@link BashTool}.
+   * Get the names of the unrecognizable properties of the {@link BashOrTextEditorTool}.
    * @return The set of properties names
    */
   @JsonIgnore
@@ -229,7 +239,7 @@ public class BashTool implements Tool
   }
 
   /**
-   * Get the value of an unrecognizable property of this {@link BashTool} instance.
+   * Get the value of an unrecognizable property of this {@link BashOrTextEditorTool} instance.
    * @deprecated Use {@link #toMap()} instead.
    * @param name  The name of the property
    * @return The value of the property
@@ -239,13 +249,13 @@ public class BashTool implements Tool
   @Deprecated
   public Object getCustomField( @Nonnull final String name ) throws NoSuchElementException {
     if( !cloudSdkCustomFields.containsKey(name) ) {
-        throw new NoSuchElementException("BashTool has no field with name '" + name + "'.");
+        throw new NoSuchElementException("BashOrTextEditorTool has no field with name '" + name + "'.");
     }
     return cloudSdkCustomFields.get(name);
   }
 
   /**
-   * Get the value of all properties of this {@link BashTool} instance including unrecognized properties.
+   * Get the value of all properties of this {@link BashOrTextEditorTool} instance including unrecognized properties.
    *
    * @return The map of all properties
    */
@@ -260,7 +270,7 @@ public class BashTool implements Tool
   }
 
   /**
-   * Set an unrecognizable property of this {@link BashTool} instance. If the map previously contained a mapping
+   * Set an unrecognizable property of this {@link BashOrTextEditorTool} instance. If the map previously contained a mapping
    * for the key, the old value is replaced by the specified value.
    * @param customFieldName The name of the property
    * @param customFieldValue The value of the property
@@ -280,10 +290,10 @@ public class BashTool implements Tool
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    final BashTool bashTool = (BashTool) o;
-    return Objects.equals(this.cloudSdkCustomFields, bashTool.cloudSdkCustomFields) &&
-        Objects.equals(this.type, bashTool.type) &&
-        Objects.equals(this.name, bashTool.name);
+    final BashOrTextEditorTool bashOrTextEditorTool = (BashOrTextEditorTool) o;
+    return Objects.equals(this.cloudSdkCustomFields, bashOrTextEditorTool.cloudSdkCustomFields) &&
+        Objects.equals(this.type, bashOrTextEditorTool.type) &&
+        Objects.equals(this.name, bashOrTextEditorTool.name);
   }
 
   @Override
@@ -294,7 +304,7 @@ public class BashTool implements Tool
   @Override
   @Nonnull public String toString() {
     final StringBuilder sb = new StringBuilder();
-    sb.append("class BashTool {\n");
+    sb.append("class BashOrTextEditorTool {\n");
     sb.append("    type: ").append(toIndentedString(type)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     cloudSdkCustomFields.forEach((k,v) -> sb.append("    ").append(k).append(": ").append(toIndentedString(v)).append("\n"));

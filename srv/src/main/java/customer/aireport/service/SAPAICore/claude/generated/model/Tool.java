@@ -24,10 +24,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import customer.aireport.service.SAPAICore.claude.generated.model.BashTool;
+import customer.aireport.service.SAPAICore.claude.generated.model.BashOrTextEditorTool;
 import customer.aireport.service.SAPAICore.claude.generated.model.ComputerTool;
 import customer.aireport.service.SAPAICore.claude.generated.model.CustomTool;
-import customer.aireport.service.SAPAICore.claude.generated.model.TextEditorTool;
 import java.util.HashMap;
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -47,10 +46,9 @@ import javax.annotation.Nullable;
 @Beta
 @JsonTypeInfo(use = JsonTypeInfo.Id.DEDUCTION)
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = BashTool.class),
+    @JsonSubTypes.Type(value = BashOrTextEditorTool.class),
     @JsonSubTypes.Type(value = ComputerTool.class),
     @JsonSubTypes.Type(value = CustomTool.class),
-    @JsonSubTypes.Type(value = TextEditorTool.class),
 })
 
 public interface Tool  {

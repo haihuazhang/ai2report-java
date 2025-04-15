@@ -1,6 +1,5 @@
 package customer.aireport.service.SAPAICore;
 
-import static com.sap.ai.sdk.foundationmodels.openai.OpenAiModel.GPT_4O;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -11,7 +10,6 @@ import javax.annotation.Nonnull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sap.ai.sdk.core.AiCoreService;
 
 import com.sap.cloud.sdk.cloudplatform.connectivity.Destination;

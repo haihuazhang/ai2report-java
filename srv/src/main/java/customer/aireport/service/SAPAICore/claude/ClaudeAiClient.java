@@ -486,7 +486,7 @@ public final class ClaudeAiClient {
       final var json = JACKSON.writeValueAsString(payload);
       // Log the payload
       log.info("Claude AI Request Payload: {}", json);
-      
+
       request.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
     } catch (final JsonProcessingException e) {
       throw new ClaudeAiClientException("Failed to serialize request parameters", e);
@@ -502,21 +502,32 @@ public final class ClaudeAiClient {
           request,
           new ClientResponseHandler<>(responseType, ClaudeAiError.class, ClaudeAiClientException::new));
     } catch (final IOException e) {
-      throw new ClaudeAiClientException("Request to OpenAI model failed", e);
+      throw new ClaudeAiClientException("Request to Claude AI model failed", e);
     }
   }
 
-  // @Nonnull
-  // private <D extends StreamedDelta> Stream<D> streamRequest(
-  // final BasicClassicHttpRequest request, @Nonnull final Class<D> deltaType) {
-  // try {
-  // final var client = ApacheHttpClient5Accessor.getHttpClient(destination);
-  // return new ClientStreamingHandler<>(deltaType, ClaudeAiError.class,
-  // ClaudeAiClientException::new)
-  // .objectMapper(JACKSON)
-  // .handleStreamingResponse(client.executeOpen(null, request, null));
-  // } catch (final IOException e) {
-  // throw new ClaudeAiClientException("Request to OpenAI model failed", e);
-  // }
-  // }
+
+  @Nonnull
+  private <D extends StreamedDelta> Stream<D> executeStream(
+      @Nonnull final String path,
+      @Nonnull final Object payload,
+      @Nonnull final Class<D> deltaType) {
+    final var request = new HttpPost(path);
+    serializeAndSetHttpEntity(request, payload);
+    return streamRequest(request, deltaType);
+  }
+
+  @Nonnull
+  private <D extends StreamedDelta> Stream<D> streamRequest(
+      final BasicClassicHttpRequest request, @Nonnull final Class<D> deltaType) {
+    try {
+      final var client = ApacheHttpClient5Accessor.getHttpClient(destination);
+      return new ClientStreamingHandler<>(deltaType, ClaudeAiError.class,
+          ClaudeAiClientException::new)
+          .objectMapper(JACKSON)
+          .handleStreamingResponse(client.executeOpen(null, request, null));
+    } catch (final IOException e) {
+      throw new ClaudeAiClientException("Request to Claude AI model failed", e);
+    }
+  }
 }
