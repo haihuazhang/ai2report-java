@@ -3,14 +3,11 @@ package customer.aireport.adapter;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.stereotype.Component;
-
 import com.sap.ai.sdk.foundationmodels.openai.model.OpenAiChatCompletionOutput;
 import customer.aireport.dto.AIResponse;
 // ...other imports
 import customer.aireport.dto.AIToolCall;
 
-@Component
 public class SAPOpenAIResponseAdapter implements AIResponse {
     private final OpenAiChatCompletionOutput output;
 

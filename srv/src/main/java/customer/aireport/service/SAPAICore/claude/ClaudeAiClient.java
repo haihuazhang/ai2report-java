@@ -38,15 +38,16 @@ import org.apache.hc.core5.http.ContentType;
 import org.apache.hc.core5.http.io.entity.StringEntity;
 import org.apache.hc.core5.http.message.BasicClassicHttpRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import static com.sap.ai.sdk.core.JacksonConfiguration.getDefaultObjectMapper;
 
 /** Client for interacting with OpenAI models. */
 @Slf4j
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ClaudeAiClient {
   // private static final String DEFAULT_API_VERSION = "2024-02-01";
-  // static final ObjectMapper JACKSON = getClaudeAiObjectMapper();
-  @Autowired
-  private ObjectMapper objectMapper;
+  static final ObjectMapper JACKSON = getDefaultObjectMapper();
+  // @Nonnull
+  // private ObjectMapper objectMapper;
 
   @Nullable
   private String systemPrompt = null;
@@ -482,7 +483,10 @@ public final class ClaudeAiClient {
   private void serializeAndSetHttpEntity(
       @Nonnull final BasicClassicHttpRequest request, @Nonnull final Object payload) {
     try {
-      final var json = objectMapper.writeValueAsString(payload);
+      final var json = JACKSON.writeValueAsString(payload);
+      // Log the payload
+      log.info("Claude AI Request Payload: {}", json);
+      
       request.setEntity(new StringEntity(json, ContentType.APPLICATION_JSON));
     } catch (final JsonProcessingException e) {
       throw new ClaudeAiClientException("Failed to serialize request parameters", e);

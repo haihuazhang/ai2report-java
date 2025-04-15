@@ -1,8 +1,5 @@
 package customer.aireport.adapter;
 
-
-import org.springframework.stereotype.Component;
-
 import customer.aireport.dto.AIResponse;
 // ...other imports
 import customer.aireport.service.SAPAICore.claude.generated.model.InvokeResponse;
@@ -10,7 +7,7 @@ import customer.aireport.service.SAPAICore.claude.generated.model.InvokeResponse
 import customer.aireport.service.SAPAICore.claude.generated.model.ToolResponseContent;
 import customer.aireport.service.SAPAICore.claude.generated.model.TextResponseContent;
 
-@Component
+
 public class SAPClaudeAIResponseAdapter implements AIResponse {
     private final InvokeResponse output;
 

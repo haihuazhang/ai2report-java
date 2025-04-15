@@ -17,17 +17,26 @@ management:
     db:
       enabled: true
 aireport:
-  prompt-prefix-for-report: prompt_report
-  prompt-prefix-for-report-name: prompt_repname
-  function-for-json: prompt_json
-  prompt-prefix-for-pcl: prompt_pcl
-  function-for-pcl: func_pcl
-  # ai-core-destination: AICore
-  function-for-cds: func_cds
-  prompt-prefix-for-cds: prompt_cds
+  openai:
+    prompt-prefix-for-report: prompt_report
+    prompt-prefix-for-report-name: prompt_repname
+    function-for-json: prompt_json
+    prompt-prefix-for-pcl: prompt_pcl
+    function-for-pcl: func_pcl
+    function-for-cds: func_cds
+    prompt-prefix-for-cds: prompt_cds
+  claude:
+    prompt-prefix-for-report: prompt_report
+    prompt-prefix-for-report-name: prompt_repname
+    function-for-json: prompt_json_claude
+    prompt-prefix-for-pcl: prompt_pcl
+    function-for-pcl: func_pcl_claude
+    function-for-cds: func_cds_claude
+    prompt-prefix-for-cds: prompt_cds
 aiService:
-  service-type: SAP
+  service-type: SAPCLAUDE
   ai-core-destination: AICore
+  claude-max-tokens: 4096
 
 
 # logging:

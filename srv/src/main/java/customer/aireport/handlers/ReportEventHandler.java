@@ -4,15 +4,9 @@ package customer.aireport.handlers;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-// import com.sap.ai.sdk.foundationmodels.openai.model.OpenAiChatCompletionFunction;
-// // SAP imports
-// import com.sap.ai.sdk.foundationmodels.openai.model.OpenAiChatCompletionOutput;
-// import com.sap.ai.sdk.foundationmodels.openai.model.OpenAiChatCompletionParameters;
 import com.sap.cds.Result;
-// import com.sap.cds.ql.Select;
 import com.sap.cds.services.handler.EventHandler;
 import com.sap.cds.services.handler.annotations.On;
 import com.sap.cds.services.handler.annotations.ServiceName;
@@ -24,6 +18,7 @@ import customer.aireport.dto.CommonAIMessage;
 import customer.aireport.factory.RecordFactory;
 import customer.aireport.helper.ChatHelper;
 import customer.aireport.model.EntityInfo;
+import customer.aireport.resolver.AIServiceResolver;
 import customer.aireport.service.EntityService;
 import customer.aireport.util.ConfigUtils;
 import customer.aireport.util.JsonUtils;
@@ -68,6 +63,9 @@ public class ReportEventHandler implements EventHandler {
         @Autowired
         private JsonUtils jsonUtils;
 
+        @Autowired
+        private AIServiceResolver aiServiceResolver;
+
         /**
          * Handles new message events in the chat service.
          * Creates a new chat record or appends to existing conversation.
@@ -91,7 +89,7 @@ public class ReportEventHandler implements EventHandler {
                 String promptContent = configUtils.getPrompt(
                                 aiService,
                                 context.getParameterInfo().getLocale(),
-                                aiProperties.getPromptPrefixForReport());
+                                aiProperties.getOpenai().getPromptPrefixForReport());
 
                 // Prepare chat parameters
                 List<CommonAIMessage> commonAIMessages = new ArrayList<>();
@@ -113,7 +111,7 @@ public class ReportEventHandler implements EventHandler {
                 }
 
                 // Get AI response and handle it
-                configUtils.getActiveAIService().callAICompletion(
+                aiServiceResolver.getActiveAIService().callAICompletion(
                                 commonAIMessages,
                                 report,
                                 context.getContent(),
@@ -147,7 +145,7 @@ public class ReportEventHandler implements EventHandler {
                 // Process fields and update database
                 entityService.deleteReportFieldsByReportId(aiService, record.getReportId());
 
-                List<ReportFields> fieldsList = configUtils.getActiveAIService().callAIforAdopt(
+                List<ReportFields> fieldsList = aiServiceResolver.getActiveAIService().callAIforAdopt(
                                 aiService,
                                 adoptContext,
                                 record,
@@ -203,7 +201,7 @@ public class ReportEventHandler implements EventHandler {
                                 entityInfo.getId());
                 String fieldsJson = jsonUtils.convertFieldsToJson(reportFields);
 
-                List<Pcls> pclsList = configUtils.getActiveAIService().callAIforGeneratePCL(fieldsJson, aiService,
+                List<Pcls> pclsList = aiServiceResolver.getActiveAIService().callAIforGeneratePCL(fieldsJson, aiService,
                                 generatePCLContext);
 
                 // Delete old and insert new PCLs
@@ -244,7 +242,7 @@ public class ReportEventHandler implements EventHandler {
                                 entityInfo.getId());
                 String fieldsJson = jsonUtils.convertFieldsToJson(reportFields);
 
-                configUtils.getActiveAIService().callAIforGenerateCDS(fieldsJson, aiService, generateCDSContext, report);
+                aiServiceResolver.getActiveAIService().callAIforGenerateCDS(fieldsJson, aiService, generateCDSContext, report);
 
                 generateCDSContext.setCompleted();
         }

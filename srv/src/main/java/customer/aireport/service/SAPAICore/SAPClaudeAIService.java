@@ -2,6 +2,7 @@ package customer.aireport.service.SAPAICore;
 
 import static com.sap.ai.sdk.foundationmodels.openai.OpenAiModel.GPT_4O;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,6 +11,7 @@ import javax.annotation.Nonnull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sap.ai.sdk.core.AiCoreService;
 
 import com.sap.cloud.sdk.cloudplatform.connectivity.Destination;
@@ -46,217 +48,225 @@ import customer.aireport.util.ConfigUtils;
 import customer.aireport.util.JsonUtils;
 
 @Service
-public class SAPClaudeAIService implements AIServiceI{
-    private final ClaudeAiModel DEFAULT_MODEL = ClaudeAiModel.CLAUDE_3_5_SONNET;
+public class SAPClaudeAIService implements AIServiceI {
+        private final ClaudeAiModel DEFAULT_MODEL = ClaudeAiModel.CLAUDE_3_5_SONNET;
 
-    @Autowired
-    private AIProperties aiProperties; // Changed from AIReportProperties
+        @Autowired
+        private AIProperties aiProperties; // Changed from AIReportProperties
 
-    @Autowired
-    private AIServiceKeysConfig aiServiceKeys; // Changed from AIServiceKeys
-    // public void setAiProperties(AIProperties aiProperties) { // Changed method
-    // name and parameter type
-    // this.aiProperties = aiProperties; // Changed from AIUtil
-    // }
+        @Autowired
+        private AIServiceKeysConfig aiServiceKeys; // Changed from AIServiceKeys
+        // public void setAiProperties(AIProperties aiProperties) { // Changed method
+        // name and parameter type
+        // this.aiProperties = aiProperties; // Changed from AIUtil
+        // }
 
-    @Autowired
-    private SAPClaudeAIMessageFactory messageFactory;
+        @Autowired
+        private SAPClaudeAIMessageFactory messageFactory;
 
-    @Autowired
-    private AIResponseHelper aiResponseHelper;
+        @Autowired
+        private AIResponseHelper aiResponseHelper;
 
-    @Autowired
-    private ConfigUtils configUtils; // Add ConfigUtils injection
+        @Autowired
+        private ConfigUtils configUtils; // Add ConfigUtils injection
 
-    @Autowired
-    private JsonUtils jsonUtils;
+        @Autowired
+        private JsonUtils jsonUtils;
 
-    @Autowired
-    private AIResponseHandlerFactory aiResponseHandlerFactory;
+        @Autowired
+        private AIResponseHandlerFactory aiResponseHandlerFactory;
 
-    public ClaudeAiClient getAiClientbyModelUsingBTPDestination(@Nonnull ClaudeAiModel foundationModel) {
-        // build api destination
-        Destination destination = DestinationAccessor.getDestination(aiServiceKeys.getAiCoreDestination());
-        AiCoreService aiCoreService = new AiCoreService().withBaseDestination(destination.asHttp());
-        Destination destinationWithDeployment = aiCoreService.getInferenceDestination()
-                .forModel(foundationModel);
-        return ClaudeAiClient.withCustomDestination(destinationWithDeployment);
-    }
+        public ClaudeAiClient getAiClientbyModelUsingBTPDestination(@Nonnull ClaudeAiModel foundationModel) {
+                // build api destination
+                Destination destination = DestinationAccessor.getDestination(aiServiceKeys.getAiCoreDestination());
+                AiCoreService aiCoreService = new AiCoreService().withBaseDestination(destination.asHttp());
+                Destination destinationWithDeployment = aiCoreService.getInferenceDestination()
+                                .forModel(foundationModel);
+                return ClaudeAiClient.withCustomDestination(destinationWithDeployment);
+        }
 
-    /**
-     * Call Claude AI with a tool and content
-     */
-    public InvokeResponse callAIWithFunction(
-            Tool tool,
-            String content) {
-        return callAIWithFunction(tool, content, "");
-    }
+        /**
+         * Call Claude AI with a tool and content
+         */
+        public InvokeResponse callAIWithFunction(
+                        Tool tool,
+                        String content) {
+                return callAIWithFunction(tool, content, "");
+        }
 
-    /**
-     * Call Claude AI with a tool, content and prompt prefix
-     */
-    public InvokeResponse callAIWithFunction(
-            Tool tool,
-            String content,
-            String promptPrefix) {
+        /**
+         * Call Claude AI with a tool, content and prompt prefix
+         */
+        public InvokeResponse callAIWithFunction(
+                        Tool tool,
+                        String content,
+                        String promptPrefix) {
 
-        ClaudeAiClient aiClient = getAiClientbyModelUsingBTPDestination(DEFAULT_MODEL);
-        
-        InvokeRequest request = new InvokeRequest();
-        // Add the tool to request
-        request.addToolsItem(tool);
-        
-        // Create user message with content
-        request.addMessagesItem(
-            messageFactory.createUserMessage(promptPrefix + content)
-        );
+                ClaudeAiClient aiClient = getAiClientbyModelUsingBTPDestination(DEFAULT_MODEL);
 
-        return aiClient.chatCompletion(request);
-    }
+                InvokeRequest request = new InvokeRequest()
+                                .anthropicVersion("bedrock-2023-05-31")
+                                .maxTokens(aiServiceKeys.getClaudeMaxTokens())
+                                .temperature(new BigDecimal("0.7"));
+                // Add the tool to request
+                request.addToolsItem(tool);
 
-    public void callAICompletion(
-            List<CommonAIMessage> messages,
-            Reports report,
-            String userContent,
-            EntityInfo entityInfo,
-            ReportsNewRecordContext context) {
-        // OpenAiChatCompletionParameters params = new OpenAiChatCompletionParameters();
-        InvokeRequest request = new InvokeRequest();
-        messages.stream()
-                .map(msg -> switch (msg.role()) {
-                    case AIConstants.Roles.USER ->
-                        messageFactory.createUserMessage(msg.message());
-                    case AIConstants.Roles.ASSISTANT ->
-                        messageFactory.createAssistantMessage(msg.message());
-                    default -> throw new BusinessException(AIConstants.Messages.UNEXPECTED_ROLE +
-                            msg.role());
-                })
-                .forEach(request::addMessagesItem);
-        // messages.forEach(record -> {
-        // OpenAiChatMessage[] message = switch (record.role()) {
-        // case AIConstants.Roles.SYSTEM ->
-        // messageFactory.createSystemMessage(record.message());
-        // case AIConstants.Roles.USER ->
-        // messageFactory.createUserMessage(record.message());
-        // case AIConstants.Roles.ASSISTANT ->
-        // messageFactory.createAssistantMessage(record.message());
-        // default -> throw new BusinessException(AIConstants.Messages.UNEXPECTED_ROLE +
-        // record.role());
-        // };
-        // params.addMessages(message);
-        // // messages.add(new CommonAIMessage(record.getRole(), record.getContent()));
-        // });
-        ClaudeAiClient aiClient = getAiClientbyModelUsingBTPDestination(DEFAULT_MODEL);
-        InvokeResponse rawResult = aiClient.chatCompletion(request);
+                request.setSystem(promptPrefix);
+                // Create user message with content
+                request.addMessagesItem(
+                                // messageFactory.createUserMessage(promptPrefix + content)
+                                messageFactory.createUserMessage(content));
 
-        // 使用适配器转换响应
-        AIResponse aiResponse = aiResponseHandlerFactory
-                .getHandler(AIServiceType.SAPCLAUDE)
-                .processResponse(rawResult);
+                return aiClient.chatCompletion(request);
+        }
 
-        aiResponseHelper.handleChatResponse(
-                aiResponse,
-                report,
-                context.getContent(),
-                entityInfo,
-                context);
-    }
+        public void callAICompletion(
+                        List<CommonAIMessage> messages,
+                        Reports report,
+                        String userContent,
+                        EntityInfo entityInfo,
+                        ReportsNewRecordContext context) {
 
-    @Override
-    public List<ReportFields> callAIforAdopt(ChatService readService, RecordsAdoptContext adoptContext,
-            Records originalRecord,
-            Reports report) {
-        // TODO Auto-generated method stub
-        // throw new UnsupportedOperationException("Unimplemented method
-        // 'callAIforAdopt'");
-        // Get AI function for JSON processing
-        Tool tool = configUtils.getFunction(
-                readService,
-                adoptContext.getParameterInfo().getLocale(),
-                aiProperties.getFunctionForJson(),
-                Tool.class);
+                InvokeRequest request = new InvokeRequest()
+                                .anthropicVersion("bedrock-2023-05-31")
+                                .maxTokens(aiServiceKeys.getClaudeMaxTokens())
+                                .temperature(new BigDecimal("0.7"));
 
-        // Call AI to process record content
-        InvokeResponse rawResult = callAIWithFunction(
-                tool,
-                originalRecord.getContent(),
-                "");
+                // Extract system message if present
+                String systemMessage = messages.stream()
+                                .filter(msg -> AIConstants.Roles.SYSTEM.equals(msg.role()))
+                                .map(CommonAIMessage::message)
+                                .findFirst()
+                                .orElse(null);
 
-        // 使用适配器转换响应
-        AIResponse aiResponse = aiResponseHandlerFactory
-                .getHandler(AIServiceType.SAPCLAUDE)
-                .processResponse(rawResult);
+                if (systemMessage != null) {
+                        request.setSystem(systemMessage);
+                }
 
-        List<ReportFields> fieldsList = new ArrayList<>();
-        aiResponseHelper.processResponse(aiResponse, report, fieldsList, AIConstants.NodeKeys.FIELDS,
-                jsonUtils::createReportField);
+                // Add other messages (user and assistant)
+                messages.stream()
+                                .filter(msg -> !AIConstants.Roles.SYSTEM.equals(msg.role()))
+                                .map(msg -> switch (msg.role()) {
+                                        case AIConstants.Roles.USER ->
+                                                messageFactory.createUserMessage(msg.message());
+                                        case AIConstants.Roles.ASSISTANT ->
+                                                messageFactory.createAssistantMessage(msg.message());
+                                        default -> throw new BusinessException(AIConstants.Messages.UNEXPECTED_ROLE +
+                                                        msg.role());
+                                })
+                                .forEach(request::addMessagesItem);
 
-        return fieldsList;
+                ClaudeAiClient aiClient = getAiClientbyModelUsingBTPDestination(DEFAULT_MODEL);
+                InvokeResponse rawResult = aiClient.chatCompletion(request);
 
-    }
+                // 使用适配器转换响应
+                AIResponse aiResponse = aiResponseHandlerFactory
+                                .getHandler(AIServiceType.SAPCLAUDE)
+                                .processResponse(rawResult);
 
-    @Override
-    public List<Pcls> callAIforGeneratePCL(String fieldsInJSON, ChatService readService,
-            ReportsGeneratePCLContext generatePCLContext) {
-        // TODO Auto-generated method stub
-        // throw new UnsupportedOperationException("Unimplemented method
-        // 'callAIforGeneratePCL'");
-        AIParameters<Tool> params = configUtils.getFunctionAndPrompt(
-                readService,
-                generatePCLContext.getParameterInfo().getLocale(),
-                aiProperties.getFunctionForPcl(),
-                aiProperties.getPromptPrefixForPcl(),
-                Tool.class);
+                aiResponseHelper.handleChatResponse(
+                                aiResponse,
+                                report,
+                                context.getContent(),
+                                entityInfo,
+                                context);
+        }
 
-        // Call AI and process response
-        InvokeResponse rawResult = callAIWithFunction(
-                params.getFunction(),
-                fieldsInJSON,
-                params.getPromptContent());
+        @Override
+        public List<ReportFields> callAIforAdopt(ChatService readService, RecordsAdoptContext adoptContext,
+                        Records originalRecord,
+                        Reports report) {
+                // TODO Auto-generated method stub
+                // throw new UnsupportedOperationException("Unimplemented method
+                // 'callAIforAdopt'");
+                // Get AI function for JSON processing
+                Tool tool = configUtils.getFunction(
+                                readService,
+                                adoptContext.getParameterInfo().getLocale(),
+                                aiProperties.getClaude().getFunctionForJson(),
+                                Tool.class);
 
-        // 使用适配器转换响应
-        AIResponse aiResponse = aiResponseHandlerFactory
-                .getHandler(AIServiceType.SAPCLAUDE)
-                .processResponse(rawResult);
+                // Call AI to process record content
+                InvokeResponse rawResult = callAIWithFunction(
+                                tool,
+                                originalRecord.getContent(),
+                                "");
 
-        // Process PCLs
-        List<Pcls> pclsList = new ArrayList<>();
-        aiResponseHelper.processResponse(
-                aiResponse,
-                null,
-                pclsList,
-                "pcl", // Changed from AIConstants.NodeKeys.ITEMS to match function schema
-                jsonUtils::createPcl);
-        return pclsList;
-    }
+                // 使用适配器转换响应
+                AIResponse aiResponse = aiResponseHandlerFactory
+                                .getHandler(AIServiceType.SAPCLAUDE)
+                                .processResponse(rawResult);
 
-    @Override
-    public void callAIforGenerateCDS(String fieldsInJSON, ChatService readService,
-            ReportsGenerateCDSContext generateCDSContext, Reports report) {
-        // TODO Auto-generated method stub
-        // throw new UnsupportedOperationException("Unimplemented method
-        // 'callAIforGenerateCDS'");
-        // Get AI parameters
-        AIParameters<Tool> params = configUtils.getFunctionAndPrompt(
-                readService,
-                generateCDSContext.getParameterInfo().getLocale(),
-                aiProperties.getFunctionForCds(),
-                aiProperties.getPromptPrefixForCds(),
-                Tool.class);
+                List<ReportFields> fieldsList = new ArrayList<>();
+                aiResponseHelper.processResponse(aiResponse, report, fieldsList, AIConstants.NodeKeys.FIELDS,
+                                jsonUtils::createReportField);
 
-        // Call AI service
-        InvokeResponse rawResult = callAIWithFunction(
-                params.getFunction(),
-                fieldsInJSON,
-                params.getPromptContent());
+                return fieldsList;
 
-        // 使用适配器转换响应
-        AIResponse aiResponse = aiResponseHandlerFactory
-                .getHandler(AIServiceType.SAPCLAUDE)
-                .processResponse(rawResult);
+        }
 
-        // Process response and update CDS
-        aiResponseHelper.handleCDSResponse(aiResponse, report);
+        @Override
+        public List<Pcls> callAIforGeneratePCL(String fieldsInJSON, ChatService readService,
+                        ReportsGeneratePCLContext generatePCLContext) {
+                // TODO Auto-generated method stub
+                // throw new UnsupportedOperationException("Unimplemented method
+                // 'callAIforGeneratePCL'");
+                AIParameters<Tool> params = configUtils.getFunctionAndPrompt(
+                                readService,
+                                generatePCLContext.getParameterInfo().getLocale(),
+                                aiProperties.getClaude().getFunctionForPcl(),
+                                aiProperties.getClaude().getPromptPrefixForPcl(),
+                                Tool.class);
 
-    }
+                // Call AI and process response
+                InvokeResponse rawResult = callAIWithFunction(
+                                params.getFunction(),
+                                fieldsInJSON,
+                                params.getPromptContent());
+
+                // 使用适配器转换响应
+                AIResponse aiResponse = aiResponseHandlerFactory
+                                .getHandler(AIServiceType.SAPCLAUDE)
+                                .processResponse(rawResult);
+
+                // Process PCLs
+                List<Pcls> pclsList = new ArrayList<>();
+                aiResponseHelper.processResponse(
+                                aiResponse,
+                                null,
+                                pclsList,
+                                "pcl", // Changed from AIConstants.NodeKeys.ITEMS to match function schema
+                                jsonUtils::createPcl);
+                return pclsList;
+        }
+
+        @Override
+        public void callAIforGenerateCDS(String fieldsInJSON, ChatService readService,
+                        ReportsGenerateCDSContext generateCDSContext, Reports report) {
+                // TODO Auto-generated method stub
+                // throw new UnsupportedOperationException("Unimplemented method
+                // 'callAIforGenerateCDS'");
+                // Get AI parameters
+                AIParameters<Tool> params = configUtils.getFunctionAndPrompt(
+                                readService,
+                                generateCDSContext.getParameterInfo().getLocale(),
+                                aiProperties.getClaude().getFunctionForCds(),
+                                aiProperties.getClaude().getPromptPrefixForCds(),
+                                Tool.class);
+
+                // Call AI service
+                InvokeResponse rawResult = callAIWithFunction(
+                                params.getFunction(),
+                                fieldsInJSON,
+                                params.getPromptContent());
+
+                // 使用适配器转换响应
+                AIResponse aiResponse = aiResponseHandlerFactory
+                                .getHandler(AIServiceType.SAPCLAUDE)
+                                .processResponse(rawResult);
+
+                // Process response and update CDS
+                aiResponseHelper.handleCDSResponse(aiResponse, report);
+
+        }
 }

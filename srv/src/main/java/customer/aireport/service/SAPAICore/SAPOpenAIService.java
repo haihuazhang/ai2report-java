@@ -172,7 +172,8 @@ public class SAPOpenAIService implements AIServiceI {
                 OpenAiChatCompletionFunction function = configUtils.getFunction(
                                 readService,
                                 adoptContext.getParameterInfo().getLocale(),
-                                aiProperties.getFunctionForJson(),
+                                // aiProperties.getFunctionForJson(),
+                                aiProperties.getOpenai().getFunctionForJson(),
                                 OpenAiChatCompletionFunction.class);
 
                 // Call AI to process record content
@@ -203,8 +204,8 @@ public class SAPOpenAIService implements AIServiceI {
                 AIParameters<OpenAiChatCompletionFunction> params = configUtils.getFunctionAndPrompt(
                                 readService,
                                 generatePCLContext.getParameterInfo().getLocale(),
-                                aiProperties.getFunctionForPcl(),
-                                aiProperties.getPromptPrefixForPcl(),
+                                aiProperties.getOpenai().getFunctionForPcl(),
+                                aiProperties.getOpenai().getPromptPrefixForPcl(),
                                 OpenAiChatCompletionFunction.class);
 
                 // Call AI and process response
@@ -239,8 +240,8 @@ public class SAPOpenAIService implements AIServiceI {
                 AIParameters<OpenAiChatCompletionFunction> params = configUtils.getFunctionAndPrompt(
                                 readService,
                                 generateCDSContext.getParameterInfo().getLocale(),
-                                aiProperties.getFunctionForCds(),
-                                aiProperties.getPromptPrefixForCds(),
+                                aiProperties.getOpenai().getFunctionForCds(),
+                                aiProperties.getOpenai().getPromptPrefixForCds(),
                                 OpenAiChatCompletionFunction.class);
 
                 // Call AI service

@@ -2,6 +2,9 @@ package customer.aireport.config;
 
 import customer.aireport.service.SAPAICore.SAPClaudeAIService;
 import customer.aireport.service.SAPAICore.SAPOpenAIService;
+import customer.aireport.service.AIService.AIServiceI;
+import customer.aireport.constant.AIServiceType;
+import customer.aireport.resolver.AIServiceResolver;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -27,17 +30,25 @@ public class AIServiceConfig {
         return new SAPClaudeAIService();
     }
 
+    @Bean
+    public AIServiceResolver aiServiceResolver(
+            @Qualifier("sapOpenAIService") AIServiceI sapOpenAIService,
+            @Qualifier("sapClaudeAIService") AIServiceI sapClaudeAIService,
+            AIServiceKeysConfig aiServiceKeys) {
+        return new AIServiceResolver(sapOpenAIService, sapClaudeAIService, aiServiceKeys);
+    }
+
     // @Bean
     // @Qualifier("directOpenAIService")
     // public AIService directOpenAIService() {
-    //     // Your DirectOpenAIService implementation
-    //     return new DirectOpenAIService();
+    // // Your DirectOpenAIService implementation
+    // return new DirectOpenAIService();
     // }
 
     // @Bean
     // @Qualifier("deepSeekService")
     // public AIService deepSeekService() {
-    //     // DeepSeek implementation
-    //     return new DeepSeekService();
+    // // DeepSeek implementation
+    // return new DeepSeekService();
     // }
 }

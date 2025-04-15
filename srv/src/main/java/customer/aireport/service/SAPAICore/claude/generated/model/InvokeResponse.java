@@ -29,7 +29,6 @@ import customer.aireport.service.SAPAICore.claude.generated.model.TokenUsage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -47,7 +46,7 @@ public class InvokeResponse
 // CHECKSTYLE:ON
 {
   @JsonProperty("id")
-  private UUID id;
+  private String id;
 
   @JsonProperty("model")
   private String model;
@@ -257,7 +256,7 @@ public class InvokeResponse
    * @param id  The id of this {@link InvokeResponse}
    * @return The same instance of this {@link InvokeResponse} class
    */
-  @Nonnull public InvokeResponse id( @Nullable final UUID id) {
+  @Nonnull public InvokeResponse id( @Nullable final String id) {
     this.id = id;
     return this;
   }
@@ -267,7 +266,7 @@ public class InvokeResponse
    * @return id  The id of this {@link InvokeResponse} instance.
    */
   @Nonnull
-  public UUID getId() {
+  public String getId() {
     return id;
   }
 
@@ -276,7 +275,7 @@ public class InvokeResponse
    *
    * @param id  The id of this {@link InvokeResponse}
    */
-  public void setId( @Nullable final UUID id) {
+  public void setId( @Nullable final String id) {
     this.id = id;
   }
 

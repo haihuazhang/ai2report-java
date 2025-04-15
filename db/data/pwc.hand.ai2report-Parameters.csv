@@ -2,7 +2,10 @@ name,description
 prompt_repname,function get_report_name
 prompt_report,prompt report
 prompt_json,function get_report_field
+prompt_json_claude,function for claude get_report_field
 prompt_pcl,prompt pcl
 func_pcl,function generate_pcl
+func_pcl_claude,function generate_pcl
 prompt_cds,prompt cds
 func_cds,function cds
+func_cds_claude,function cds

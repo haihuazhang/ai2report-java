@@ -20,13 +20,13 @@ public class ConfigUtils {
     private final RequestUtils requestUtils;
     private final AIServiceKeysConfig aiServiceKeys;
 
-    @Autowired
-    @Qualifier("sapOpenAIService")
-    private AIServiceI sapOpenAIService;
+    // @Autowired
+    // @Qualifier("sapOpenAIService")
+    // private AIServiceI sapOpenAIService;
 
-    @Autowired
-    @Qualifier("sapClaudeAIService")
-    private AIServiceI sapClaudeAIService;
+    // @Autowired
+    // @Qualifier("sapClaudeAIService")
+    // private AIServiceI sapClaudeAIService;
 
     public ConfigUtils(EntityService entityService, JsonUtils jsonUtils, RequestUtils requestUtils,
             AIServiceKeysConfig aiServiceKeys) {
@@ -38,18 +38,6 @@ public class ConfigUtils {
 
     public AIServiceType getAIServiceType() {
         return AIServiceType.valueOf(aiServiceKeys.getServiceType().toUpperCase());
-    }
-
-    /**
-     * Returns the active AI service based on configuration
-     * @return The configured AI service implementation
-     */
-    public AIServiceI getActiveAIService() {
-        return switch (getAIServiceType()) {
-            case SAPOPENAI -> sapOpenAIService;
-            case SAPCLAUDE -> sapClaudeAIService;
-            default -> throw new IllegalStateException("Unsupported AI service type: " + getAIServiceType());
-        };
     }
 
     // For cases that need both function and prompt

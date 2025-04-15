@@ -48,13 +48,13 @@ public class InvokeRequest
 // CHECKSTYLE:ON
 {
   @JsonProperty("anthropic_version")
-  private String anthropicVersion;
+  private String anthropicVersion = "bedrock-2023-05-31";
 
   @JsonProperty("anthropic_beta")
   private List<String> anthropicBeta = new ArrayList<>();
 
   @JsonProperty("max_tokens")
-  private Integer maxTokens;
+  private Integer maxTokens = 1024;
 
   @JsonProperty("system")
   private String system;
