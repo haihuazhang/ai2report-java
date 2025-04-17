@@ -7,4 +7,5 @@ import javax.annotation.Nullable;
 
 public record ClaudeAiModel(@Nonnull String name, @Nullable String version) implements AiModel {
     public static final ClaudeAiModel CLAUDE_3_5_SONNET = new ClaudeAiModel("anthropic--claude-3.5-sonnet", null);
+    public static final ClaudeAiModel CLAUDE_3_7_SONNET = new ClaudeAiModel("anthropic--claude-3.7-sonnet", null);
 }

@@ -24,8 +24,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import java.util.HashMap;
-import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -35,29 +33,24 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * BashOrTextEditorTool
+ * CachePointBlock
  */
 
 @Beta// CHECKSTYLE:OFF
-public class BashOrTextEditorTool implements InvokeTool 
+public class CachePointBlock 
 // CHECKSTYLE:ON
 {
   /**
-   * Gets or Sets type
+   * Specifies the type of cache point within the CachePointBlock.
    */
   public enum TypeEnum {
     /**
-    * The BASH_20241022 option of this BashOrTextEditorTool
+    * The DEFAULT option of this CachePointBlock
     */
-    BASH_20241022("bash_20241022"),
+    DEFAULT("default"),
     
     /**
-    * The TEXT_EDITOR_20241022 option of this BashOrTextEditorTool
-    */
-    TEXT_EDITOR_20241022("text_editor_20241022"),
-    
-    /**
-    * The UNKNOWN_DEFAULT_OPEN_API option of this BashOrTextEditorTool
+    * The UNKNOWN_DEFAULT_OPEN_API option of this CachePointBlock
     */
     UNKNOWN_DEFAULT_OPEN_API("unknown_default_open_api");
 
@@ -88,7 +81,7 @@ public class BashOrTextEditorTool implements InvokeTool
     /**
     * Get the enum value from a String value
     * @param value The String value
-    * @return The enum value of type BashOrTextEditorTool
+    * @return The enum value of type CachePointBlock
     */
     @JsonCreator
     @Nonnull public static TypeEnum fromValue(@Nonnull final String value) {
@@ -102,88 +95,26 @@ public class BashOrTextEditorTool implements InvokeTool
   }
 
   @JsonProperty("type")
-  private TypeEnum type = TypeEnum.BASH_20241022;
-
-  /**
-   * Gets or Sets name
-   */
-  public enum NameEnum {
-    /**
-    * The BASH option of this BashOrTextEditorTool
-    */
-    BASH("bash"),
-    
-    /**
-    * The STR_REPLACE_EDITOR option of this BashOrTextEditorTool
-    */
-    STR_REPLACE_EDITOR("str_replace_editor"),
-    
-    /**
-    * The UNKNOWN_DEFAULT_OPEN_API option of this BashOrTextEditorTool
-    */
-    UNKNOWN_DEFAULT_OPEN_API("unknown_default_open_api");
-
-    private String value;
-
-    NameEnum(String value) {
-      this.value = value;
-    }
-
-    /**
-    * Get the value of the enum
-    * @return The enum value
-    */
-    @JsonValue
-    @Nonnull public String getValue() {
-      return value;
-    }
-
-    /**
-    * Get the String value of the enum value.
-    * @return The enum value as String
-    */
-    @Override
-    @Nonnull public String toString() {
-      return String.valueOf(value);
-    }
-
-    /**
-    * Get the enum value from a String value
-    * @param value The String value
-    * @return The enum value of type BashOrTextEditorTool
-    */
-    @JsonCreator
-    @Nonnull public static NameEnum fromValue(@Nonnull final String value) {
-      for (NameEnum b : NameEnum.values()) {
-        if (b.value.equals(value)) {
-          return b;
-        }
-      }
-      return UNKNOWN_DEFAULT_OPEN_API;
-    }
-  }
-
-  @JsonProperty("name")
-  private NameEnum name = NameEnum.BASH;
+  private TypeEnum type;
 
   @JsonAnySetter
   @JsonAnyGetter
   private final Map<String, Object> cloudSdkCustomFields = new LinkedHashMap<>();
 
   /**
-   * Set the type of this {@link BashOrTextEditorTool} instance and return the same instance.
+   * Set the type of this {@link CachePointBlock} instance and return the same instance.
    *
-   * @param type  The type of this {@link BashOrTextEditorTool}
-   * @return The same instance of this {@link BashOrTextEditorTool} class
+   * @param type  Specifies the type of cache point within the CachePointBlock.
+   * @return The same instance of this {@link CachePointBlock} class
    */
-  @Nonnull public BashOrTextEditorTool type( @Nullable final TypeEnum type) {
+  @Nonnull public CachePointBlock type( @Nonnull final TypeEnum type) {
     this.type = type;
     return this;
   }
 
   /**
-   * Get type
-   * @return type  The type of this {@link BashOrTextEditorTool} instance.
+   * Specifies the type of cache point within the CachePointBlock.
+   * @return type  The type of this {@link CachePointBlock} instance.
    */
   @Nonnull
   public TypeEnum getType() {
@@ -191,45 +122,16 @@ public class BashOrTextEditorTool implements InvokeTool
   }
 
   /**
-   * Set the type of this {@link BashOrTextEditorTool} instance.
+   * Set the type of this {@link CachePointBlock} instance.
    *
-   * @param type  The type of this {@link BashOrTextEditorTool}
+   * @param type  Specifies the type of cache point within the CachePointBlock.
    */
-  public void setType( @Nullable final TypeEnum type) {
+  public void setType( @Nonnull final TypeEnum type) {
     this.type = type;
   }
 
   /**
-   * Set the name of this {@link BashOrTextEditorTool} instance and return the same instance.
-   *
-   * @param name  The name of this {@link BashOrTextEditorTool}
-   * @return The same instance of this {@link BashOrTextEditorTool} class
-   */
-  @Nonnull public BashOrTextEditorTool name( @Nullable final NameEnum name) {
-    this.name = name;
-    return this;
-  }
-
-  /**
-   * Get name
-   * @return name  The name of this {@link BashOrTextEditorTool} instance.
-   */
-  @Nonnull
-  public NameEnum getName() {
-    return name;
-  }
-
-  /**
-   * Set the name of this {@link BashOrTextEditorTool} instance.
-   *
-   * @param name  The name of this {@link BashOrTextEditorTool}
-   */
-  public void setName( @Nullable final NameEnum name) {
-    this.name = name;
-  }
-
-  /**
-   * Get the names of the unrecognizable properties of the {@link BashOrTextEditorTool}.
+   * Get the names of the unrecognizable properties of the {@link CachePointBlock}.
    * @return The set of properties names
    */
   @JsonIgnore
@@ -239,7 +141,7 @@ public class BashOrTextEditorTool implements InvokeTool
   }
 
   /**
-   * Get the value of an unrecognizable property of this {@link BashOrTextEditorTool} instance.
+   * Get the value of an unrecognizable property of this {@link CachePointBlock} instance.
    * @deprecated Use {@link #toMap()} instead.
    * @param name  The name of the property
    * @return The value of the property
@@ -249,13 +151,13 @@ public class BashOrTextEditorTool implements InvokeTool
   @Deprecated
   public Object getCustomField( @Nonnull final String name ) throws NoSuchElementException {
     if( !cloudSdkCustomFields.containsKey(name) ) {
-        throw new NoSuchElementException("BashOrTextEditorTool has no field with name '" + name + "'.");
+        throw new NoSuchElementException("CachePointBlock has no field with name '" + name + "'.");
     }
     return cloudSdkCustomFields.get(name);
   }
 
   /**
-   * Get the value of all properties of this {@link BashOrTextEditorTool} instance including unrecognized properties.
+   * Get the value of all properties of this {@link CachePointBlock} instance including unrecognized properties.
    *
    * @return The map of all properties
    */
@@ -265,12 +167,11 @@ public class BashOrTextEditorTool implements InvokeTool
   {
     final Map<String, Object> declaredFields = new LinkedHashMap<>(cloudSdkCustomFields);
     if( type != null ) declaredFields.put("type", type);
-    if( name != null ) declaredFields.put("name", name);
     return declaredFields;
   }
 
   /**
-   * Set an unrecognizable property of this {@link BashOrTextEditorTool} instance. If the map previously contained a mapping
+   * Set an unrecognizable property of this {@link CachePointBlock} instance. If the map previously contained a mapping
    * for the key, the old value is replaced by the specified value.
    * @param customFieldName The name of the property
    * @param customFieldValue The value of the property
@@ -290,23 +191,21 @@ public class BashOrTextEditorTool implements InvokeTool
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    final BashOrTextEditorTool bashOrTextEditorTool = (BashOrTextEditorTool) o;
-    return Objects.equals(this.cloudSdkCustomFields, bashOrTextEditorTool.cloudSdkCustomFields) &&
-        Objects.equals(this.type, bashOrTextEditorTool.type) &&
-        Objects.equals(this.name, bashOrTextEditorTool.name);
+    final CachePointBlock cachePointBlock = (CachePointBlock) o;
+    return Objects.equals(this.cloudSdkCustomFields, cachePointBlock.cloudSdkCustomFields) &&
+        Objects.equals(this.type, cachePointBlock.type);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(type, name, cloudSdkCustomFields);
+    return Objects.hash(type, cloudSdkCustomFields);
   }
 
   @Override
   @Nonnull public String toString() {
     final StringBuilder sb = new StringBuilder();
-    sb.append("class BashOrTextEditorTool {\n");
+    sb.append("class CachePointBlock {\n");
     sb.append("    type: ").append(toIndentedString(type)).append("\n");
-    sb.append("    name: ").append(toIndentedString(name)).append("\n");
     cloudSdkCustomFields.forEach((k,v) -> sb.append("    ").append(k).append(": ").append(toIndentedString(v)).append("\n"));
     sb.append("}");
     return sb.toString();

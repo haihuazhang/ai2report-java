@@ -39,7 +39,7 @@ import javax.annotation.Nullable;
  */
 
 @Beta// CHECKSTYLE:OFF
-public class ComputerTool implements Tool 
+public class ComputerTool implements InvokeTool 
 // CHECKSTYLE:ON
 {
   /**

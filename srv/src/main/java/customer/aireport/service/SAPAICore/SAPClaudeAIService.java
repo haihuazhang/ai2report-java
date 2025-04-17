@@ -39,15 +39,17 @@ import customer.aireport.model.EntityInfo;
 import customer.aireport.service.AIService.AIServiceI;
 import customer.aireport.service.SAPAICore.claude.ClaudeAiClient;
 import customer.aireport.service.SAPAICore.claude.ClaudeAiModel;
-import customer.aireport.service.SAPAICore.claude.generated.model.InvokeRequest;
-import customer.aireport.service.SAPAICore.claude.generated.model.InvokeResponse;
-import customer.aireport.service.SAPAICore.claude.generated.model.Tool;
+import customer.aireport.service.SAPAICore.claude.generated.model.ConverseRequest;
+import customer.aireport.service.SAPAICore.claude.generated.model.ConverseRequestInferenceConfig;
+import customer.aireport.service.SAPAICore.claude.generated.model.ConverseRequestToolConfig;
+import customer.aireport.service.SAPAICore.claude.generated.model.ConverseResponse;
+import customer.aireport.service.SAPAICore.claude.generated.model.ConverseTool;
 import customer.aireport.util.ConfigUtils;
 import customer.aireport.util.JsonUtils;
 
 @Service
 public class SAPClaudeAIService implements AIServiceI {
-        private final ClaudeAiModel DEFAULT_MODEL = ClaudeAiModel.CLAUDE_3_5_SONNET;
+        private final ClaudeAiModel DEFAULT_MODEL = ClaudeAiModel.CLAUDE_3_7_SONNET;
 
         @Autowired
         private AIProperties aiProperties; // Changed from AIReportProperties
@@ -86,8 +88,8 @@ public class SAPClaudeAIService implements AIServiceI {
         /**
          * Call Claude AI with a tool and content
          */
-        public InvokeResponse callAIWithFunction(
-                        Tool tool,
+        public ConverseResponse callAIWithFunction(
+                        ConverseTool tool,
                         String content) {
                 return callAIWithFunction(tool, content, "");
         }
@@ -95,25 +97,33 @@ public class SAPClaudeAIService implements AIServiceI {
         /**
          * Call Claude AI with a tool, content and prompt prefix
          */
-        public InvokeResponse callAIWithFunction(
-                        Tool tool,
+        public ConverseResponse callAIWithFunction(
+                        ConverseTool tool,
                         String content,
                         String promptPrefix) {
 
                 ClaudeAiClient aiClient = getAiClientbyModelUsingBTPDestination(DEFAULT_MODEL);
 
-                InvokeRequest request = new InvokeRequest()
-                                .anthropicVersion("bedrock-2023-05-31")
+                ConverseRequest request = new ConverseRequest();
+
+                // Set inference config
+                ConverseRequestInferenceConfig inferenceConfig = new ConverseRequestInferenceConfig()
                                 .maxTokens(aiServiceKeys.getClaudeMaxTokens())
                                 .temperature(new BigDecimal("0.7"));
-                // Add the tool to request
-                request.addToolsItem(tool);
+                request.setInferenceConfig(inferenceConfig);
 
-                request.setSystem(promptPrefix);
-                // Create user message with content
-                request.addMessagesItem(
-                                // messageFactory.createUserMessage(promptPrefix + content)
-                                messageFactory.createUserMessage(content));
+                // Set tool config
+                ConverseRequestToolConfig toolConfig = new ConverseRequestToolConfig();
+                toolConfig.addToolsItem(tool);
+                request.setToolConfig(toolConfig);
+
+                // Set system message if provided
+                if (promptPrefix != null && !promptPrefix.isEmpty()) {
+                        request.addSystemItem(messageFactory.createSystemBlock(promptPrefix));
+                }
+
+                // Add user message
+                request.addMessagesItem(messageFactory.createUserMessage(content));
 
                 return aiClient.chatCompletion(request);
         }
@@ -125,10 +135,13 @@ public class SAPClaudeAIService implements AIServiceI {
                         EntityInfo entityInfo,
                         ReportsNewRecordContext context) {
 
-                InvokeRequest request = new InvokeRequest()
-                                .anthropicVersion("bedrock-2023-05-31")
+                ConverseRequest request = new ConverseRequest();
+
+                // Set inference config
+                ConverseRequestInferenceConfig inferenceConfig = new ConverseRequestInferenceConfig()
                                 .maxTokens(aiServiceKeys.getClaudeMaxTokens())
                                 .temperature(new BigDecimal("0.7"));
+                request.setInferenceConfig(inferenceConfig);
 
                 // Extract system message if present
                 String systemMessage = messages.stream()
@@ -138,24 +151,25 @@ public class SAPClaudeAIService implements AIServiceI {
                                 .orElse(null);
 
                 if (systemMessage != null) {
-                        request.setSystem(systemMessage);
+                        request.addSystemItem(messageFactory.createSystemBlock(systemMessage));
                 }
 
                 // Add other messages (user and assistant)
                 messages.stream()
                                 .filter(msg -> !AIConstants.Roles.SYSTEM.equals(msg.role()))
-                                .map(msg -> switch (msg.role()) {
-                                        case AIConstants.Roles.USER ->
-                                                messageFactory.createUserMessage(msg.message());
-                                        case AIConstants.Roles.ASSISTANT ->
-                                                messageFactory.createAssistantMessage(msg.message());
-                                        default -> throw new BusinessException(AIConstants.Messages.UNEXPECTED_ROLE +
-                                                        msg.role());
-                                })
-                                .forEach(request::addMessagesItem);
+                                .forEach(msg -> {
+                                        if (AIConstants.Roles.USER.equals(msg.role())) {
+                                                request.addMessagesItem(messageFactory.createUserMessage(msg.message()));
+                                        } else if (AIConstants.Roles.ASSISTANT.equals(msg.role())) {
+                                                request.addMessagesItem(messageFactory.createAssistantMessage(msg.message()));
+                                        } else {
+                                                throw new BusinessException(AIConstants.Messages.UNEXPECTED_ROLE +
+                                                                msg.role());
+                                        }
+                                });
 
                 ClaudeAiClient aiClient = getAiClientbyModelUsingBTPDestination(DEFAULT_MODEL);
-                InvokeResponse rawResult = aiClient.chatCompletion(request);
+                ConverseResponse rawResult = aiClient.chatCompletion(request);
 
                 // 使用适配器转换响应
                 AIResponse aiResponse = aiResponseHandlerFactory
@@ -178,14 +192,14 @@ public class SAPClaudeAIService implements AIServiceI {
                 // throw new UnsupportedOperationException("Unimplemented method
                 // 'callAIforAdopt'");
                 // Get AI function for JSON processing
-                Tool tool = configUtils.getFunction(
+                ConverseTool tool = configUtils.getFunction(
                                 readService,
                                 adoptContext.getParameterInfo().getLocale(),
                                 aiProperties.getClaude().getFunctionForJson(),
-                                Tool.class);
+                                ConverseTool.class);
 
                 // Call AI to process record content
-                InvokeResponse rawResult = callAIWithFunction(
+                ConverseResponse rawResult = callAIWithFunction(
                                 tool,
                                 originalRecord.getContent(),
                                 "");
@@ -209,15 +223,15 @@ public class SAPClaudeAIService implements AIServiceI {
                 // TODO Auto-generated method stub
                 // throw new UnsupportedOperationException("Unimplemented method
                 // 'callAIforGeneratePCL'");
-                AIParameters<Tool> params = configUtils.getFunctionAndPrompt(
+                AIParameters<ConverseTool> params = configUtils.getFunctionAndPrompt(
                                 readService,
                                 generatePCLContext.getParameterInfo().getLocale(),
                                 aiProperties.getClaude().getFunctionForPcl(),
                                 aiProperties.getClaude().getPromptPrefixForPcl(),
-                                Tool.class);
+                                ConverseTool.class);
 
                 // Call AI and process response
-                InvokeResponse rawResult = callAIWithFunction(
+                ConverseResponse rawResult = callAIWithFunction(
                                 params.getFunction(),
                                 fieldsInJSON,
                                 params.getPromptContent());
@@ -245,15 +259,15 @@ public class SAPClaudeAIService implements AIServiceI {
                 // throw new UnsupportedOperationException("Unimplemented method
                 // 'callAIforGenerateCDS'");
                 // Get AI parameters
-                AIParameters<Tool> params = configUtils.getFunctionAndPrompt(
+                AIParameters<ConverseTool> params = configUtils.getFunctionAndPrompt(
                                 readService,
                                 generateCDSContext.getParameterInfo().getLocale(),
                                 aiProperties.getClaude().getFunctionForCds(),
                                 aiProperties.getClaude().getPromptPrefixForCds(),
-                                Tool.class);
+                                ConverseTool.class);
 
                 // Call AI service
-                InvokeResponse rawResult = callAIWithFunction(
+                ConverseResponse rawResult = callAIWithFunction(
                                 params.getFunction(),
                                 fieldsInJSON,
                                 params.getPromptContent());

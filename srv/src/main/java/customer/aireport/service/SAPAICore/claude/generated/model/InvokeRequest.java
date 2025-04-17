@@ -24,9 +24,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
+import customer.aireport.service.SAPAICore.claude.generated.model.InvokeTool;
+import customer.aireport.service.SAPAICore.claude.generated.model.InvokeToolChoice;
 import customer.aireport.service.SAPAICore.claude.generated.model.Message;
-import customer.aireport.service.SAPAICore.claude.generated.model.Tool;
-import customer.aireport.service.SAPAICore.claude.generated.model.ToolChoice;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -72,13 +72,16 @@ public class InvokeRequest
   private Integer topK;
 
   @JsonProperty("tools")
-  private List<Tool> tools = new ArrayList<>();
+  private List<InvokeTool> tools = new ArrayList<>();
 
   @JsonProperty("tool_choice")
-  private ToolChoice toolChoice;
+  private InvokeToolChoice toolChoice;
 
   @JsonProperty("stop_sequences")
   private List<String> stopSequences = new ArrayList<>();
+
+  @JsonProperty("stream")
+  private Boolean stream = false;
 
   @JsonAnySetter
   @JsonAnyGetter
@@ -370,7 +373,7 @@ public class InvokeRequest
    * @param tools  The tools of this {@link InvokeRequest}
    * @return The same instance of this {@link InvokeRequest} class
    */
-  @Nonnull public InvokeRequest tools( @Nullable final List<Tool> tools) {
+  @Nonnull public InvokeRequest tools( @Nullable final List<InvokeTool> tools) {
     this.tools = tools;
     return this;
   }
@@ -379,7 +382,7 @@ public class InvokeRequest
    * @param toolsItem The tools that should be added
    * @return The same instance of type {@link InvokeRequest}
    */
-  @Nonnull public InvokeRequest addToolsItem( @Nonnull final Tool toolsItem) {
+  @Nonnull public InvokeRequest addToolsItem( @Nonnull final InvokeTool toolsItem) {
     if (this.tools == null) {
       this.tools = new ArrayList<>();
     }
@@ -392,7 +395,7 @@ public class InvokeRequest
    * @return tools  The tools of this {@link InvokeRequest} instance.
    */
   @Nonnull
-  public List<Tool> getTools() {
+  public List<InvokeTool> getTools() {
     return tools;
   }
 
@@ -401,7 +404,7 @@ public class InvokeRequest
    *
    * @param tools  The tools of this {@link InvokeRequest}
    */
-  public void setTools( @Nullable final List<Tool> tools) {
+  public void setTools( @Nullable final List<InvokeTool> tools) {
     this.tools = tools;
   }
 
@@ -411,7 +414,7 @@ public class InvokeRequest
    * @param toolChoice  The toolChoice of this {@link InvokeRequest}
    * @return The same instance of this {@link InvokeRequest} class
    */
-  @Nonnull public InvokeRequest toolChoice( @Nullable final ToolChoice toolChoice) {
+  @Nonnull public InvokeRequest toolChoice( @Nullable final InvokeToolChoice toolChoice) {
     this.toolChoice = toolChoice;
     return this;
   }
@@ -421,7 +424,7 @@ public class InvokeRequest
    * @return toolChoice  The toolChoice of this {@link InvokeRequest} instance.
    */
   @Nonnull
-  public ToolChoice getToolChoice() {
+  public InvokeToolChoice getToolChoice() {
     return toolChoice;
   }
 
@@ -430,7 +433,7 @@ public class InvokeRequest
    *
    * @param toolChoice  The toolChoice of this {@link InvokeRequest}
    */
-  public void setToolChoice( @Nullable final ToolChoice toolChoice) {
+  public void setToolChoice( @Nullable final InvokeToolChoice toolChoice) {
     this.toolChoice = toolChoice;
   }
 
@@ -473,6 +476,35 @@ public class InvokeRequest
    */
   public void setStopSequences( @Nullable final List<String> stopSequences) {
     this.stopSequences = stopSequences;
+  }
+
+  /**
+   * Set the stream of this {@link InvokeRequest} instance and return the same instance.
+   *
+   * @param stream  If set, partial message deltas will be sent, like in ChatGPT. Tokens will be sent as data-only server-sent events as they become available, with the stream terminated by a &#x60;data: [DONE]&#x60; message.
+   * @return The same instance of this {@link InvokeRequest} class
+   */
+  @Nonnull public InvokeRequest stream( @Nullable final Boolean stream) {
+    this.stream = stream;
+    return this;
+  }
+
+  /**
+   * If set, partial message deltas will be sent, like in ChatGPT. Tokens will be sent as data-only server-sent events as they become available, with the stream terminated by a &#x60;data: [DONE]&#x60; message.
+   * @return stream  The stream of this {@link InvokeRequest} instance.
+   */
+  @Nullable
+  public Boolean isStream() {
+    return stream;
+  }
+
+  /**
+   * Set the stream of this {@link InvokeRequest} instance.
+   *
+   * @param stream  If set, partial message deltas will be sent, like in ChatGPT. Tokens will be sent as data-only server-sent events as they become available, with the stream terminated by a &#x60;data: [DONE]&#x60; message.
+   */
+  public void setStream( @Nullable final Boolean stream) {
+    this.stream = stream;
   }
 
   /**
@@ -522,6 +554,7 @@ public class InvokeRequest
     if( tools != null ) declaredFields.put("tools", tools);
     if( toolChoice != null ) declaredFields.put("toolChoice", toolChoice);
     if( stopSequences != null ) declaredFields.put("stopSequences", stopSequences);
+    if( stream != null ) declaredFields.put("stream", stream);
     return declaredFields;
   }
 
@@ -558,12 +591,13 @@ public class InvokeRequest
         Objects.equals(this.topK, invokeRequest.topK) &&
         Objects.equals(this.tools, invokeRequest.tools) &&
         Objects.equals(this.toolChoice, invokeRequest.toolChoice) &&
-        Objects.equals(this.stopSequences, invokeRequest.stopSequences);
+        Objects.equals(this.stopSequences, invokeRequest.stopSequences) &&
+        Objects.equals(this.stream, invokeRequest.stream);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(anthropicVersion, anthropicBeta, maxTokens, system, messages, temperature, topP, topK, tools, toolChoice, stopSequences, cloudSdkCustomFields);
+    return Objects.hash(anthropicVersion, anthropicBeta, maxTokens, system, messages, temperature, topP, topK, tools, toolChoice, stopSequences, stream, cloudSdkCustomFields);
   }
 
   @Override
@@ -581,6 +615,7 @@ public class InvokeRequest
     sb.append("    tools: ").append(toIndentedString(tools)).append("\n");
     sb.append("    toolChoice: ").append(toIndentedString(toolChoice)).append("\n");
     sb.append("    stopSequences: ").append(toIndentedString(stopSequences)).append("\n");
+    sb.append("    stream: ").append(toIndentedString(stream)).append("\n");
     cloudSdkCustomFields.forEach((k,v) -> sb.append("    ").append(k).append(": ").append(toIndentedString(v)).append("\n"));
     sb.append("}");
     return sb.toString();

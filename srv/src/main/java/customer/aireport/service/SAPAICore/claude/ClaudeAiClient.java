@@ -10,6 +10,11 @@ import com.sap.ai.sdk.core.DeploymentResolutionException;
 import com.sap.ai.sdk.core.common.ClientResponseHandler;
 import com.sap.ai.sdk.core.common.ClientStreamingHandler;
 import com.sap.ai.sdk.core.common.StreamedDelta;
+
+import customer.aireport.service.SAPAICore.claude.generated.model.ContentBlock;
+import customer.aireport.service.SAPAICore.claude.generated.model.ConverseRequest;
+import customer.aireport.service.SAPAICore.claude.generated.model.ConverseRequestUserMessage;
+import customer.aireport.service.SAPAICore.claude.generated.model.ConverseResponse;
 // import customer.aireport.service.SAPAICore.claude.generated.model.ChatCompletionStreamOptions;
 // import customer.aireport.service.SAPAICore.claude.generated.model.CreateChatCompletionRequest;
 // import customer.aireport.service.SAPAICore.claude.generated.model.CreateChatCompletionResponse;
@@ -19,14 +24,17 @@ import customer.aireport.service.SAPAICore.claude.generated.model.ErrorResponse;
 import customer.aireport.service.SAPAICore.claude.generated.model.InvokeRequest;
 import customer.aireport.service.SAPAICore.claude.generated.model.InvokeResponse;
 import customer.aireport.service.SAPAICore.claude.generated.model.Message;
+import customer.aireport.service.SAPAICore.claude.generated.model.MessageRequestContentPart;
 import customer.aireport.service.SAPAICore.claude.generated.model.RequestUserMessage;
 import customer.aireport.service.SAPAICore.claude.generated.model.RequestUserMessageContent;
+import customer.aireport.service.SAPAICore.claude.generated.model.SystemContentBlock;
 
 import com.sap.cloud.sdk.cloudplatform.connectivity.ApacheHttpClient5Accessor;
 // import com.sap.cloud.sdk.cloudplatform.connectivity.DefaultHttpDestination;
 import com.sap.cloud.sdk.cloudplatform.connectivity.Destination;
 import com.sap.cloud.sdk.cloudplatform.connectivity.HttpDestination;
 import java.io.IOException;
+import java.util.List;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -153,15 +161,11 @@ public final class ClaudeAiClient {
    * @throws ClaudeAiClientException if the request fails
    */
   @Nonnull
-  public InvokeResponse chatCompletion(@Nonnull final String prompt)
+  public InvokeResponse chatCompletionWithPresetPromptInvoke(@Nonnull final String prompt)
       throws ClaudeAiClientException {
-    // final ClaudeAiChatCompletionParameters parameters = new
-    // ClaudeAiChatCompletionParameters();
+        
     final InvokeRequest request = new InvokeRequest();
     if (systemPrompt != null) {
-      // parameters.addMessages(new
-      // ClaudeAiChatSystemMessage().setContent(systemPrompt));
-      // parameters.setSystemPrompt(systemPrompt);
       request.setSystem(systemPrompt);
     }
     // parameters.addMessages(new ClaudeAiChatUserMessage().addText(prompt));
@@ -170,6 +174,20 @@ public final class ClaudeAiClient {
     userMessage.setContent(userMessageContent);
     // Set necessary fields on userMessageContent here if required
     request.addMessagesItem(userMessage);
+    return chatCompletion(request);
+  }
+
+  @Nonnull
+  public ConverseResponse chatCompletionWithPresetPromptConverse(@Nonnull final String prompt)
+      throws ClaudeAiClientException {
+
+    final ConverseRequest request = new ConverseRequest();
+    if (systemPrompt != null) {
+      request.addSystemItem(new SystemContentBlock().text(systemPrompt));
+    }
+
+    request.addMessagesItem(new ConverseRequestUserMessage().role(ConverseRequestUserMessage.RoleEnum.USER)
+        .content(List.of(new ContentBlock().text(prompt))));
     return chatCompletion(request);
   }
 
@@ -206,6 +224,15 @@ public final class ClaudeAiClient {
     // return execute("/chat/completions", request,
     // CreateChatCompletionResponse.class);
     return execute("/invoke", request, InvokeResponse.class);
+  }
+
+  @Beta
+  @Nonnull
+  public ConverseResponse chatCompletion(
+      @Nonnull final ConverseRequest request) throws ClaudeAiClientException {
+    // return execute("/chat/completions", request,
+    // CreateChatCompletionResponse.class);
+    return execute("/converse", request, ConverseResponse.class);
   }
 
   // /**
@@ -505,7 +532,6 @@ public final class ClaudeAiClient {
       throw new ClaudeAiClientException("Request to Claude AI model failed", e);
     }
   }
-
 
   @Nonnull
   private <D extends StreamedDelta> Stream<D> executeStream(

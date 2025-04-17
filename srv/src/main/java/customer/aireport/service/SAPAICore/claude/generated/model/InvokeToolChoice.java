@@ -24,8 +24,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import java.util.HashMap;
-import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -35,11 +33,11 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * BashOrTextEditorTool
+ * InvokeToolChoice
  */
 
 @Beta// CHECKSTYLE:OFF
-public class BashOrTextEditorTool implements InvokeTool 
+public class InvokeToolChoice 
 // CHECKSTYLE:ON
 {
   /**
@@ -47,17 +45,22 @@ public class BashOrTextEditorTool implements InvokeTool
    */
   public enum TypeEnum {
     /**
-    * The BASH_20241022 option of this BashOrTextEditorTool
+    * The AUTO option of this InvokeToolChoice
     */
-    BASH_20241022("bash_20241022"),
+    AUTO("auto"),
     
     /**
-    * The TEXT_EDITOR_20241022 option of this BashOrTextEditorTool
+    * The ANY option of this InvokeToolChoice
     */
-    TEXT_EDITOR_20241022("text_editor_20241022"),
+    ANY("any"),
     
     /**
-    * The UNKNOWN_DEFAULT_OPEN_API option of this BashOrTextEditorTool
+    * The TOOL option of this InvokeToolChoice
+    */
+    TOOL("tool"),
+    
+    /**
+    * The UNKNOWN_DEFAULT_OPEN_API option of this InvokeToolChoice
     */
     UNKNOWN_DEFAULT_OPEN_API("unknown_default_open_api");
 
@@ -88,7 +91,7 @@ public class BashOrTextEditorTool implements InvokeTool
     /**
     * Get the enum value from a String value
     * @param value The String value
-    * @return The enum value of type BashOrTextEditorTool
+    * @return The enum value of type InvokeToolChoice
     */
     @JsonCreator
     @Nonnull public static TypeEnum fromValue(@Nonnull final String value) {
@@ -102,88 +105,29 @@ public class BashOrTextEditorTool implements InvokeTool
   }
 
   @JsonProperty("type")
-  private TypeEnum type = TypeEnum.BASH_20241022;
-
-  /**
-   * Gets or Sets name
-   */
-  public enum NameEnum {
-    /**
-    * The BASH option of this BashOrTextEditorTool
-    */
-    BASH("bash"),
-    
-    /**
-    * The STR_REPLACE_EDITOR option of this BashOrTextEditorTool
-    */
-    STR_REPLACE_EDITOR("str_replace_editor"),
-    
-    /**
-    * The UNKNOWN_DEFAULT_OPEN_API option of this BashOrTextEditorTool
-    */
-    UNKNOWN_DEFAULT_OPEN_API("unknown_default_open_api");
-
-    private String value;
-
-    NameEnum(String value) {
-      this.value = value;
-    }
-
-    /**
-    * Get the value of the enum
-    * @return The enum value
-    */
-    @JsonValue
-    @Nonnull public String getValue() {
-      return value;
-    }
-
-    /**
-    * Get the String value of the enum value.
-    * @return The enum value as String
-    */
-    @Override
-    @Nonnull public String toString() {
-      return String.valueOf(value);
-    }
-
-    /**
-    * Get the enum value from a String value
-    * @param value The String value
-    * @return The enum value of type BashOrTextEditorTool
-    */
-    @JsonCreator
-    @Nonnull public static NameEnum fromValue(@Nonnull final String value) {
-      for (NameEnum b : NameEnum.values()) {
-        if (b.value.equals(value)) {
-          return b;
-        }
-      }
-      return UNKNOWN_DEFAULT_OPEN_API;
-    }
-  }
+  private TypeEnum type;
 
   @JsonProperty("name")
-  private NameEnum name = NameEnum.BASH;
+  private String name;
 
   @JsonAnySetter
   @JsonAnyGetter
   private final Map<String, Object> cloudSdkCustomFields = new LinkedHashMap<>();
 
   /**
-   * Set the type of this {@link BashOrTextEditorTool} instance and return the same instance.
+   * Set the type of this {@link InvokeToolChoice} instance and return the same instance.
    *
-   * @param type  The type of this {@link BashOrTextEditorTool}
-   * @return The same instance of this {@link BashOrTextEditorTool} class
+   * @param type  The type of this {@link InvokeToolChoice}
+   * @return The same instance of this {@link InvokeToolChoice} class
    */
-  @Nonnull public BashOrTextEditorTool type( @Nullable final TypeEnum type) {
+  @Nonnull public InvokeToolChoice type( @Nullable final TypeEnum type) {
     this.type = type;
     return this;
   }
 
   /**
    * Get type
-   * @return type  The type of this {@link BashOrTextEditorTool} instance.
+   * @return type  The type of this {@link InvokeToolChoice} instance.
    */
   @Nonnull
   public TypeEnum getType() {
@@ -191,45 +135,45 @@ public class BashOrTextEditorTool implements InvokeTool
   }
 
   /**
-   * Set the type of this {@link BashOrTextEditorTool} instance.
+   * Set the type of this {@link InvokeToolChoice} instance.
    *
-   * @param type  The type of this {@link BashOrTextEditorTool}
+   * @param type  The type of this {@link InvokeToolChoice}
    */
   public void setType( @Nullable final TypeEnum type) {
     this.type = type;
   }
 
   /**
-   * Set the name of this {@link BashOrTextEditorTool} instance and return the same instance.
+   * Set the name of this {@link InvokeToolChoice} instance and return the same instance.
    *
-   * @param name  The name of this {@link BashOrTextEditorTool}
-   * @return The same instance of this {@link BashOrTextEditorTool} class
+   * @param name  The name of this {@link InvokeToolChoice}
+   * @return The same instance of this {@link InvokeToolChoice} class
    */
-  @Nonnull public BashOrTextEditorTool name( @Nullable final NameEnum name) {
+  @Nonnull public InvokeToolChoice name( @Nullable final String name) {
     this.name = name;
     return this;
   }
 
   /**
    * Get name
-   * @return name  The name of this {@link BashOrTextEditorTool} instance.
+   * @return name  The name of this {@link InvokeToolChoice} instance.
    */
   @Nonnull
-  public NameEnum getName() {
+  public String getName() {
     return name;
   }
 
   /**
-   * Set the name of this {@link BashOrTextEditorTool} instance.
+   * Set the name of this {@link InvokeToolChoice} instance.
    *
-   * @param name  The name of this {@link BashOrTextEditorTool}
+   * @param name  The name of this {@link InvokeToolChoice}
    */
-  public void setName( @Nullable final NameEnum name) {
+  public void setName( @Nullable final String name) {
     this.name = name;
   }
 
   /**
-   * Get the names of the unrecognizable properties of the {@link BashOrTextEditorTool}.
+   * Get the names of the unrecognizable properties of the {@link InvokeToolChoice}.
    * @return The set of properties names
    */
   @JsonIgnore
@@ -239,7 +183,7 @@ public class BashOrTextEditorTool implements InvokeTool
   }
 
   /**
-   * Get the value of an unrecognizable property of this {@link BashOrTextEditorTool} instance.
+   * Get the value of an unrecognizable property of this {@link InvokeToolChoice} instance.
    * @deprecated Use {@link #toMap()} instead.
    * @param name  The name of the property
    * @return The value of the property
@@ -249,13 +193,13 @@ public class BashOrTextEditorTool implements InvokeTool
   @Deprecated
   public Object getCustomField( @Nonnull final String name ) throws NoSuchElementException {
     if( !cloudSdkCustomFields.containsKey(name) ) {
-        throw new NoSuchElementException("BashOrTextEditorTool has no field with name '" + name + "'.");
+        throw new NoSuchElementException("InvokeToolChoice has no field with name '" + name + "'.");
     }
     return cloudSdkCustomFields.get(name);
   }
 
   /**
-   * Get the value of all properties of this {@link BashOrTextEditorTool} instance including unrecognized properties.
+   * Get the value of all properties of this {@link InvokeToolChoice} instance including unrecognized properties.
    *
    * @return The map of all properties
    */
@@ -270,7 +214,7 @@ public class BashOrTextEditorTool implements InvokeTool
   }
 
   /**
-   * Set an unrecognizable property of this {@link BashOrTextEditorTool} instance. If the map previously contained a mapping
+   * Set an unrecognizable property of this {@link InvokeToolChoice} instance. If the map previously contained a mapping
    * for the key, the old value is replaced by the specified value.
    * @param customFieldName The name of the property
    * @param customFieldValue The value of the property
@@ -290,10 +234,10 @@ public class BashOrTextEditorTool implements InvokeTool
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    final BashOrTextEditorTool bashOrTextEditorTool = (BashOrTextEditorTool) o;
-    return Objects.equals(this.cloudSdkCustomFields, bashOrTextEditorTool.cloudSdkCustomFields) &&
-        Objects.equals(this.type, bashOrTextEditorTool.type) &&
-        Objects.equals(this.name, bashOrTextEditorTool.name);
+    final InvokeToolChoice invokeToolChoice = (InvokeToolChoice) o;
+    return Objects.equals(this.cloudSdkCustomFields, invokeToolChoice.cloudSdkCustomFields) &&
+        Objects.equals(this.type, invokeToolChoice.type) &&
+        Objects.equals(this.name, invokeToolChoice.name);
   }
 
   @Override
@@ -304,7 +248,7 @@ public class BashOrTextEditorTool implements InvokeTool
   @Override
   @Nonnull public String toString() {
     final StringBuilder sb = new StringBuilder();
-    sb.append("class BashOrTextEditorTool {\n");
+    sb.append("class InvokeToolChoice {\n");
     sb.append("    type: ").append(toIndentedString(type)).append("\n");
     sb.append("    name: ").append(toIndentedString(name)).append("\n");
     cloudSdkCustomFields.forEach((k,v) -> sb.append("    ").append(k).append(": ").append(toIndentedString(v)).append("\n"));
