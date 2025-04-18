@@ -172,6 +172,14 @@ components:
       oneOf: 
         - $ref: "#/components/schemas/ConverseRequestUserMessage"
         - $ref: "#/components/schemas/ConverseRequestAssistantMessage"
+    ConverseResponseMessage:
+      oneOf: 
+        - $ref: "#/components/schemas/ConverseRequestAssistantMessage"
+      # discriminator:
+      #   propertyName: role
+      #   mapping:
+      #     user: "#/components/schemas/ConverseRequestUserMessage"
+      #     assistant: "#/components/schemas/ConverseRequestAssistantMessage"
     ConverseRequestUserMessage:
       type: object
       required:
@@ -325,11 +333,6 @@ components:
         - required: [image]
         - required: [text]
       additionalProperties: false
-      discriminator:
-        propertyName: type
-        mapping:
-          image: '#/components/schemas/GuardrailConverseImageBlock'
-          text: '#/components/schemas/GuardrailConverseTextBlock'
     GuardrailConverseImageBlock:
       type: object
       description: An image block that contains images that you want to assess with a guardrail.
@@ -457,10 +460,7 @@ components:
         - required: [reasoningText]
         - required: [redactedContent]
       additionalProperties: false
-      discriminator:
-        propertyName: "type"
-        mapping:
-          reasoningText: "#/components/schemas/ReasoningTextBlock"
+
     ReasoningTextBlock:
       type: object
       description: Contains the model's explicit reasoning steps.
@@ -552,12 +552,6 @@ components:
         - required: [text]
         - required: [video]
       additionalProperties: false
-      discriminator:
-        propertyName: "type"
-        mapping:
-          document: "#/components/schemas/DocumentBlock"
-          image: "#/components/schemas/ImageBlock"
-          video: "#/components/schemas/VideoBlock"
     ToolUseBlock:
       type: object
       description: |
@@ -641,10 +635,6 @@ components:
         - required: [bytes]
         - required: [s3Location]
       additionalProperties: false
-      discriminator:
-        propertyName: "type"
-        mapping:
-          s3Location: "#/components/schemas/S3Location"
     S3Location:
       type: object
       description: AWS S3 object reference
@@ -989,11 +979,7 @@ components:
         - required: [guardContent]
         - required: [text]
       additionalProperties: false
-      discriminator:
-        propertyName: "type"
-        mapping:
-          cachePoint: "#/components/schemas/CachePointBlock"
-          guardContent: "#/components/schemas/GuardrailConverseContentBlock"
+
       examples:
         basic_prompt:
           value:
@@ -1078,15 +1064,11 @@ components:
         IMPORTANT: This is a UNION type - currently only supports 'message'.
       properties:
         message:
-          $ref: '#/components/schemas/ConverseMessage'
+          $ref: '#/components/schemas/ConverseResponseMessage'
           description: Primary model-generated response
       oneOf:
         - required: [message]
       additionalProperties: false
-      discriminator:
-        propertyName: "type"
-        mapping:
-          message: "#/components/schemas/ConverseMessage"
       x-union-extensible: true
       x-future-members:
         - metadata
@@ -1257,11 +1239,6 @@ components:
         - required: [cachePoint]
         - required: [toolSpec]
       additionalProperties: false
-      discriminator:
-        propertyName: "type"
-        mapping:
-          cachePoint: "#/components/schemas/CachePointBlock"
-          toolSpec: "#/components/schemas/ToolSpecification"
 
     # 工具规范定义
     ToolSpecification:
@@ -1344,12 +1321,6 @@ components:
         - required: [auto]
         - required: [tool]
       additionalProperties: false
-      discriminator:
-        propertyName: "type"
-        mapping:
-          any: "#/components/schemas/AnyToolChoice"
-          auto: "#/components/schemas/AutoToolChoice"
-          tool: "#/components/schemas/SpecificToolChoice"
       examples:
         force_any_tool:
           value: {"any": {}}

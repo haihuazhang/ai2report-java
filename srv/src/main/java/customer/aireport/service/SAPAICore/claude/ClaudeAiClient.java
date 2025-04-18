@@ -3,6 +3,7 @@ package customer.aireport.service.SAPAICore.claude;
 // import static customer.aireport.service.SAPAICore.claude.ClaudeAiUtils.getClaudeAiObjectMapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.Beta;
 import com.sap.ai.sdk.core.AiCoreService;
@@ -35,6 +36,7 @@ import com.sap.cloud.sdk.cloudplatform.connectivity.Destination;
 import com.sap.cloud.sdk.cloudplatform.connectivity.HttpDestination;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -53,9 +55,14 @@ import static com.sap.ai.sdk.core.JacksonConfiguration.getDefaultObjectMapper;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public final class ClaudeAiClient {
   // private static final String DEFAULT_API_VERSION = "2024-02-01";
-  static final ObjectMapper JACKSON = getDefaultObjectMapper();
-  // @Nonnull
-  // private ObjectMapper objectMapper;
+  static final ObjectMapper JACKSON;
+
+  static {
+    ObjectMapper mapper = getDefaultObjectMapper();
+    mapper.configOverride(Map.class)
+          .setInclude(JsonInclude.Value.construct(JsonInclude.Include.NON_EMPTY, null));
+    JACKSON = mapper;
+  }
 
   @Nullable
   private String systemPrompt = null;

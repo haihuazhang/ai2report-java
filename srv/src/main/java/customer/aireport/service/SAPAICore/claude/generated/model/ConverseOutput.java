@@ -19,15 +19,12 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import customer.aireport.service.SAPAICore.claude.generated.model.ConverseMessage;
+import customer.aireport.service.SAPAICore.claude.generated.model.ConverseResponseMessage;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -39,16 +36,13 @@ import javax.annotation.Nullable;
 /**
  * Output container for Converse API responses. IMPORTANT: This is a UNION type - currently only supports &#39;message&#39;. 
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", visible = true)
-@JsonSubTypes({
-})
 
 @Beta// CHECKSTYLE:OFF
 public class ConverseOutput 
 // CHECKSTYLE:ON
 {
   @JsonProperty("message")
-  private ConverseMessage message;
+  private ConverseResponseMessage message;
 
   @JsonAnySetter
   @JsonAnyGetter
@@ -60,7 +54,7 @@ public class ConverseOutput
    * @param message  The message of this {@link ConverseOutput}
    * @return The same instance of this {@link ConverseOutput} class
    */
-  @Nonnull public ConverseOutput message( @Nullable final ConverseMessage message) {
+  @Nonnull public ConverseOutput message( @Nullable final ConverseResponseMessage message) {
     this.message = message;
     return this;
   }
@@ -70,7 +64,7 @@ public class ConverseOutput
    * @return message  The message of this {@link ConverseOutput} instance.
    */
   @Nonnull
-  public ConverseMessage getMessage() {
+  public ConverseResponseMessage getMessage() {
     return message;
   }
 
@@ -79,7 +73,7 @@ public class ConverseOutput
    *
    * @param message  The message of this {@link ConverseOutput}
    */
-  public void setMessage( @Nullable final ConverseMessage message) {
+  public void setMessage( @Nullable final ConverseResponseMessage message) {
     this.message = message;
   }
 

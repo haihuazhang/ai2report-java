@@ -41,7 +41,7 @@ import javax.annotation.Nullable;
  */
 
 @Beta// CHECKSTYLE:OFF
-public class ConverseRequestAssistantMessage implements ConverseMessage 
+public class ConverseRequestAssistantMessage implements ConverseMessage, ConverseResponseMessage 
 // CHECKSTYLE:ON
 {
   /**

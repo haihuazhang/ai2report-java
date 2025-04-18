@@ -19,12 +19,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import customer.aireport.service.SAPAICore.claude.generated.model.S3Location;
@@ -39,9 +36,6 @@ import javax.annotation.Nullable;
 /**
  * Video content source (max 25MB base64 / 1GB S3). IMPORTANT: Requires us-east-1 for S3 sources. 
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", visible = true)
-@JsonSubTypes({
-})
 
 @Beta// CHECKSTYLE:OFF
 public class VideoSource 

@@ -19,12 +19,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
 import customer.aireport.service.SAPAICore.claude.generated.model.GuardrailConverseImageBlock;
@@ -40,9 +37,6 @@ import javax.annotation.Nullable;
 /**
  * A content block for selective guarding with the Converse or ConverseStream API operations. IMPORTANT: This is a UNION type - only one member can be specified. 
  */
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type", visible = true)
-@JsonSubTypes({
-})
 
 @Beta// CHECKSTYLE:OFF
 public class GuardrailConverseContentBlock 

@@ -36,7 +36,7 @@ aireport:
 aiService:
   service-type: SAPCLAUDE
   ai-core-destination: AICore
-  claude-max-tokens: 8192 
+  claude-max-tokens: 24000 
 
 
 # logging:

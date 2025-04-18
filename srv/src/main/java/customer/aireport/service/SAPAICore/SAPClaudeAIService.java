@@ -44,6 +44,8 @@ import customer.aireport.service.SAPAICore.claude.generated.model.ConverseReques
 import customer.aireport.service.SAPAICore.claude.generated.model.ConverseRequestToolConfig;
 import customer.aireport.service.SAPAICore.claude.generated.model.ConverseResponse;
 import customer.aireport.service.SAPAICore.claude.generated.model.ConverseTool;
+import customer.aireport.service.SAPAICore.claude.generated.model.ConverseToolChoice;
+import customer.aireport.service.SAPAICore.claude.generated.model.SpecificToolChoice;
 import customer.aireport.util.ConfigUtils;
 import customer.aireport.util.JsonUtils;
 
@@ -115,6 +117,7 @@ public class SAPClaudeAIService implements AIServiceI {
                 // Set tool config
                 ConverseRequestToolConfig toolConfig = new ConverseRequestToolConfig();
                 toolConfig.addToolsItem(tool);
+                toolConfig.setToolChoice(new ConverseToolChoice().tool(new SpecificToolChoice().name(tool.getToolSpec().getName())));
                 request.setToolConfig(toolConfig);
 
                 // Set system message if provided
@@ -201,8 +204,8 @@ public class SAPClaudeAIService implements AIServiceI {
                 // Call AI to process record content
                 ConverseResponse rawResult = callAIWithFunction(
                                 tool,
-                                originalRecord.getContent(),
-                                "");
+                                "get complete json from prompt",
+                                originalRecord.getContent());
 
                 // 使用适配器转换响应
                 AIResponse aiResponse = aiResponseHandlerFactory

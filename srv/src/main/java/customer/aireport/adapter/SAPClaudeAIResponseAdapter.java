@@ -2,14 +2,17 @@ package customer.aireport.adapter;
 
 import customer.aireport.dto.AIResponse;
 import customer.aireport.service.SAPAICore.claude.generated.model.InvokeResponse;
+import customer.aireport.service.SAPAICore.claude.generated.model.ContentBlock;
 import customer.aireport.service.SAPAICore.claude.generated.model.ConverseRequestAssistantMessage;
 import customer.aireport.service.SAPAICore.claude.generated.model.ConverseResponse;
 
-import java.util.List;
-import java.util.Map;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class SAPClaudeAIResponseAdapter implements AIResponse {
     private final String content;
+
+    private ObjectMapper objectMapper;
     // private final String stopReason;
 
     public SAPClaudeAIResponseAdapter(InvokeResponse response) {
@@ -17,7 +20,9 @@ public class SAPClaudeAIResponseAdapter implements AIResponse {
         // this.stopReason = response.getStopReason().getValue();
     }
 
-    public SAPClaudeAIResponseAdapter(ConverseResponse response) {
+    public SAPClaudeAIResponseAdapter(ConverseResponse response, ObjectMapper objectMapper)
+            throws JsonProcessingException {
+        this.objectMapper = objectMapper;
         this.content = extractContentFromConverseResponse(response);
         // this.stopReason = response.getStopReason().getValue();
     }
@@ -40,8 +45,8 @@ public class SAPClaudeAIResponseAdapter implements AIResponse {
         }
 
         // Handle normal chat completion case
-        if (response.getStopReason() == InvokeResponse.StopReasonEnum.END_TURN || 
-            response.getStopReason() == InvokeResponse.StopReasonEnum.STOP_SEQUENCE) {
+        if (response.getStopReason() == InvokeResponse.StopReasonEnum.END_TURN ||
+                response.getStopReason() == InvokeResponse.StopReasonEnum.STOP_SEQUENCE) {
             var content = response.getContent().get(0);
             if (content instanceof customer.aireport.service.SAPAICore.claude.generated.model.TextResponseContent) {
                 var textContent = (customer.aireport.service.SAPAICore.claude.generated.model.TextResponseContent) content;
@@ -52,7 +57,8 @@ public class SAPClaudeAIResponseAdapter implements AIResponse {
         // Default case - try to get text content if available
         for (var content : response.getContent()) {
             if (content instanceof customer.aireport.service.SAPAICore.claude.generated.model.TextResponseContent) {
-                return ((customer.aireport.service.SAPAICore.claude.generated.model.TextResponseContent) content).getText();
+                return ((customer.aireport.service.SAPAICore.claude.generated.model.TextResponseContent) content)
+                        .getText();
             }
         }
 
@@ -60,59 +66,46 @@ public class SAPClaudeAIResponseAdapter implements AIResponse {
         return "";
     }
 
-    private String extractContentFromConverseResponse(ConverseResponse response) {
+    private String extractContentFromConverseResponse(ConverseResponse response) throws JsonProcessingException {
         if (response == null) {
             return "";
         }
 
         // Handle tool use case
         if (ConverseResponse.StopReasonEnum.TOOL_USE.equals(response.getStopReason())) {
-            StringBuilder toolContent = new StringBuilder();
-            ConverseRequestAssistantMessage assistantMessage = (ConverseRequestAssistantMessage) response.getOutput().getMessage();
-
-            for (var content : assistantMessage.getContent()) {
-                toolContent.append(content.getToolUse().getInput());
-                // if (content instanceof customer.aireport.service.SAPAICore.claude.generated.model.ToolResponseContent) {
-                //     var toolResponse = (customer.aireport.service.SAPAICore.claude.generated.model.ToolResponseContent) content;
-                //     toolContent.append(toolResponse.getInput());
-                // }
+            // StringBuilder toolContent = new StringBuilder();
+            ConverseRequestAssistantMessage assistantMessage = (ConverseRequestAssistantMessage) response.getOutput()
+                    .getMessage();
+            ContentBlock toolUse = assistantMessage.getContent().stream()
+                    .filter(content -> content.getToolUse() != null)
+                    .findFirst().orElse(null);
+            if (toolUse != null && toolUse.getToolUse().getInput() != null) {
+                // toolContent.append(toolUse.getToolUse().getInput());
+                String jsonString = this.objectMapper.writeValueAsString(toolUse.getToolUse().getInput());
+                // Remove newline characters
+                return jsonString.replace("\\n", "").replace("\n", "");
             }
-            return toolContent.toString().trim();
-            // if (response.getOutput() instanceof Map) {
-            //     @SuppressWarnings("unchecked")
-            //     Map<String, Object> output = (Map<String, Object>) response.getOutput();
-            //     if (output.containsKey("tool_calls")) {
-            //         @SuppressWarnings("unchecked")
-            //         List<Map<String, Object>> toolCalls = (List<Map<String, Object>>) output.get("tool_calls");
-            //         StringBuilder toolContent = new StringBuilder();
-            //         for (Map<String, Object> toolCall : toolCalls) {
-            //             if (toolCall.containsKey("function")) {
-            //                 Map<String, Object> function = (Map<String, Object>) toolCall.get("function");
-            //                 if (function.containsKey("arguments")) {
-            //                     toolContent.append(function.get("arguments"));
-            //                 }
-            //             }
-            //         }
-            //         return toolContent.toString().trim();
-            //     }
+
+            // for (var content : assistantMessage.getContent()) {
+            // if (content.getToolUse() != null && content.getToolUse().getInput() != null)
+            // {
+            // toolContent.append(content.getToolUse().getInput());
             // }
+            // }
+            // return toolContent.toString().trim();
         }
 
         // Handle normal chat completion case
-        if (ConverseResponse.StopReasonEnum.STOP_SEQUENCE.equals(response.getStopReason()) || 
-            ConverseResponse.StopReasonEnum.MAX_TOKENS.equals(response.getStopReason()) || 
-            ConverseResponse.StopReasonEnum.CONTENT_FILTERED.equals(response.getStopReason())) {
-            // if (response.getOutput() instanceof Map) {
-            //     @SuppressWarnings("unchecked")
-            //     Map<String, Object> output = (Map<String, Object>) response.getOutput();
-            //     if (output.containsKey("content")) {
-            //         return output.get("content").toString();
-            //     }
-            // }
+        if (ConverseResponse.StopReasonEnum.STOP_SEQUENCE.equals(response.getStopReason()) ||
+                ConverseResponse.StopReasonEnum.MAX_TOKENS.equals(response.getStopReason()) ||
+                ConverseResponse.StopReasonEnum.CONTENT_FILTERED.equals(response.getStopReason())) {
             StringBuilder toolContent = new StringBuilder();
-            ConverseRequestAssistantMessage assistantMessage = (ConverseRequestAssistantMessage) response.getOutput().getMessage();
+            ConverseRequestAssistantMessage assistantMessage = (ConverseRequestAssistantMessage) response.getOutput()
+                    .getMessage();
             for (var content : assistantMessage.getContent()) {
-                toolContent.append(content.getText());
+                if (content.getText() != null) {
+                    toolContent.append(content.getText());
+                }
             }
             return toolContent.toString().trim();
         }
@@ -132,6 +125,6 @@ public class SAPClaudeAIResponseAdapter implements AIResponse {
 
     // @Override
     // public String getStopReason() {
-    //     return stopReason;
+    // return stopReason;
     // }
 }
