@@ -18,10 +18,13 @@ sap.ui.define([
             this.message = settings.message;
             this.binding = settings.binding;
             this.sender = settings.sender;
+            this.onCreatedEmptyAssistantMessage = settings.onCreatedEmptyAssistantMessage;
             this.streamingCallback = settings.streamingCallback;
+            this.onComplete = settings.onComplete;
+
         },
         // 创建消息及完成回复的异步方法
-        createMessageAndCompletion: function () {
+        createMessageAndCompletion: function (streaming, streamingUrl) {
             var chatService = ChatService.getInstance();
             let tempUserContext = null;
             // create a temporary chat record context for user
@@ -32,6 +35,7 @@ sap.ui.define([
             chatService.createEntity({
                 binding: this.binding,
                 entity: {
+                    role: "user",
                     content: this.message.trim(),
                     createdBy: this.sender
                 },
@@ -39,19 +43,33 @@ sap.ui.define([
                 submitBatch: false
             }).then((createdUserContext) => {
                 tempUserContext = createdUserContext;
-                return this.handleCompletion(createdUserContext);
+                if (streaming) {
+                    return this.handleStreamingCompletion(createdUserContext, streamingUrl);
+                } else {
+                    return this.handleCompletion(createdUserContext);
+                }
             }).then((result) => {
                 console.log("Message posted successfully");
-                // delete the temporary chat record context for user
-                return result.tempUserContext.delete();
-            }).then(() => {
-                // refresh the Reports Context(child records list will be refreshed automatically)
-                this.report.refresh();
-                // chatService.model.refresh();
+                if (streaming) {
+                    return chatService.submitChanges("changes");
+                } else {
+                    // delete the temporary chat record context for user
+                    return result.tempUserContext.delete();
+                }
+
+            }).then((a) => {
+                /** 
+                 * 非流式调用执行的是后端newRecord的操作，不会自动刷新
+                 * */
+                if (!streaming) {
+                    this.report.refresh();
+                }
             }).catch(function (error) {
-                // delete the temporary chat record context for user
-                tempUserContext.delete();
                 console.error("Error posting message:", error);
+                if (streaming) {
+                    // delete the temporary chat record context for user
+                    tempUserContext.delete();
+                }
             });
         },
         // 处理非流式完成回复的异步方法
@@ -64,7 +82,40 @@ sap.ui.define([
             });
         },
         // 处理流式完成回复的异步方法
-        handleStreamingCompletion: function () {
+        handleStreamingCompletion: function (createdUserContext, streamingUrl) {
+            var chatService = ChatService.getInstance();
+            //执行一些初始化操作，比如创建一个空的助手消息上下文
+            return chatService.createEntity({
+                binding: this.binding,
+                entity: {
+                    content: "",
+                    createdBy: "AI",
+                    role: "assistant"
+                },
+                atEnd: true,
+                submitBatch: false
+            }).then((createdAIContext) => {
+
+                // 流式开始的回调(对创建的空的助手消息上下文做一些操作)
+                this.onCreatedEmptyAssistantMessage?.(createdAIContext);
+
+                return chatService.getCompletionAsStream({
+                    report: this.report,
+                    message: this.message.trim(),
+                    tempUserContext: createdUserContext,
+                    streamingUrl: streamingUrl
+                },
+                    (chunk) => {
+                        if (chunk) {
+                            //流式消息回调
+                            this.streamingCallback?.(chunk, createdAIContext);
+                        }
+                    }
+                ).finally(() => {
+                    // 完成流式后的回调
+                    this.onComplete?.();
+                });
+            });
 
         }
 

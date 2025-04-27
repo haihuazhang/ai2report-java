@@ -26,4 +26,11 @@ public class AIServiceResolver {
             default -> throw new IllegalStateException("Unsupported AI service type: " + type);
         };
     }
+
+    public AIServiceI getSAPAiService() {
+        return sapOpenAIService;
+    }
+    public AIServiceI getSAPClaudeAiService() {
+        return sapClaudeAIService;
+    }
 }

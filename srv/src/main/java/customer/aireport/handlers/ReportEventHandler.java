@@ -3,13 +3,18 @@ package customer.aireport.handlers;
 // Generic imports
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.sap.cds.Result;
+import com.sap.cds.services.cds.CqnService;
+import com.sap.cds.services.draft.DraftService;
 import com.sap.cds.services.handler.EventHandler;
+import com.sap.cds.services.handler.annotations.Before;
 import com.sap.cds.services.handler.annotations.On;
 import com.sap.cds.services.handler.annotations.ServiceName;
+import java.time.Instant;
 
 // Application imports
 import customer.aireport.config.AIProperties;
@@ -66,6 +71,9 @@ public class ReportEventHandler implements EventHandler {
         @Autowired
         private AIServiceResolver aiServiceResolver;
 
+        // @Autowired
+        // private SAPOpenAIService sapOpenAIService;
+
         /**
          * Handles new message events in the chat service.
          * Creates a new chat record or appends to existing conversation.
@@ -78,7 +86,8 @@ public class ReportEventHandler implements EventHandler {
                 EntityInfo entityInfo = requestUtils.analyzeRequest(context.getCqn(), context.getModel());
 
                 // Retrieve existing records and report
-                List<Records> records = entityService.selectRecordsByReportId(aiService, entityInfo.getId());
+                List<Records> records = entityService.selectRecordsByReportId(aiService, entityInfo.getId(),
+                                entityInfo.getIsActiveEntity());
                 Reports report = entityService.selectSingle(
                                 aiService,
                                 context.getCqn(),
@@ -107,7 +116,7 @@ public class ReportEventHandler implements EventHandler {
                                         entityInfo.getIsActiveEntity());
                 } else {
                         // Add existing chat history
-                        chatHelper.handleExistingChat(commonAIMessages, records);
+                        chatHelper.handleExistingChat(context.getContent(), commonAIMessages, records);
                 }
 
                 // Get AI response and handle it
@@ -117,6 +126,65 @@ public class ReportEventHandler implements EventHandler {
                                 context.getContent(),
                                 entityInfo,
                                 context);
+        }
+
+        /**
+         * Handles new message events with streaming response.
+         * Creates a new chat record or appends to existing conversation.
+         */
+        @On(event = ReportsNewRecordWithStreamContext.CDS_NAME, entity = Reports_.CDS_NAME)
+        public void newRecordWithStream(ReportsNewRecordWithStreamContext context) {
+                // Get entity info from request
+                EntityInfo entityInfo = requestUtils.analyzeRequest(context.getCqn(), context.getModel());
+
+                // Retrieve existing records and report
+                List<Records> records = entityService.selectRecordsByReportId(aiService, entityInfo.getId(),
+                                entityInfo.getIsActiveEntity());
+
+                // Get system prompt content
+                String promptContent = configUtils.getPrompt(
+                                aiService,
+                                context.getParameterInfo().getLocale(),
+                                aiProperties.getOpenai().getPromptPrefixForReport());
+
+                // Prepare chat parameters
+                List<CommonAIMessage> commonAIMessages = new ArrayList<>();
+
+                // Handle new or existing chat
+                if (records.isEmpty()) {
+                        // Create new system record for first-time chat
+                        Records systemRecord = chatHelper.handleNewChat(
+                                        commonAIMessages,
+                                        promptContent,
+                                        context.getContent(),
+                                        entityInfo.getId(),
+                                        entityInfo.getIsActiveEntity());
+                        entityService.insertRecord(aiService, aiServiceDraft, systemRecord,
+                                        entityInfo.getIsActiveEntity());
+                } else {
+                        // Add existing chat history
+                        chatHelper.handleExistingChat(context.getContent(), commonAIMessages, records);
+                }
+
+                CompletableFuture.runAsync(() -> {
+                        try {
+
+                                // Create response handler
+                                // StreamResponseHandler streamHandler = new StreamResponseHandler(socket);
+
+                                // Get AI response with streaming (using SAPOpenAIService directly)
+                                // sapOpenAIService.streamAICompletion(
+                                // commonAIMessages,
+                                // report,
+                                // context.getContent(),
+                                // entityInfo,
+                                // context,
+                                // streamHandler::handleResponse);
+
+                        } catch (Exception e) {
+                                // socket.error(e);
+                        }
+                });
         }
 
         /**
@@ -222,6 +290,7 @@ public class ReportEventHandler implements EventHandler {
          * 
          * @param generateCDSContext The CDS generation context
          */
+
         @On(event = ReportsGenerateCDSContext.CDS_NAME, entity = Reports_.CDS_NAME)
         public void generateCDS(ReportsGenerateCDSContext generateCDSContext) {
                 // Get entity info from request
@@ -242,8 +311,19 @@ public class ReportEventHandler implements EventHandler {
                                 entityInfo.getId());
                 String fieldsJson = jsonUtils.convertFieldsToJson(reportFields);
 
-                aiServiceResolver.getActiveAIService().callAIforGenerateCDS(fieldsJson, aiService, generateCDSContext, report);
+                aiServiceResolver.getActiveAIService().callAIforGenerateCDS(fieldsJson, aiService, generateCDSContext,
+                                report);
 
                 generateCDSContext.setCompleted();
+        }
+
+        /**
+         * Before creating a new Records entity, ensure chatTime is set
+         */
+        @Before(event = { CqnService.EVENT_CREATE, DraftService.EVENT_DRAFT_NEW }, entity = Records_.CDS_NAME)
+        public void beforeRecordCreate(Records record) {
+                if (record.getChatTime() == null) {
+                        record.setChatTime(Instant.now());
+                }
         }
 }

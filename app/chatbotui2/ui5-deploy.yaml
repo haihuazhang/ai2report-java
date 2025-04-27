@@ -18,3 +18,4 @@ builder:
         archiveName: chatbotui2
         additionalFiles:
           - xs-app.json
+        relativePaths: true

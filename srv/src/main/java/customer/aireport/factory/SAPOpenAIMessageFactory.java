@@ -20,6 +20,7 @@ public class SAPOpenAIMessageFactory {
     }
 
     public OpenAiChatMessage[] createAssistantMessage(String content) {
+        // return 
         return new OpenAiChatMessage[] {
             (new OpenAiChatAssistantMessage2()).setContent(content)
         };

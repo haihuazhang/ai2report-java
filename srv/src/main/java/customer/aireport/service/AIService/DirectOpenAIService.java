@@ -12,6 +12,7 @@ import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.ai.openai.api.OpenAiApi.ChatModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import cds.gen.chatservice.ChatService;
 import cds.gen.chatservice.Pcls;
@@ -35,6 +36,7 @@ import customer.aireport.helper.AIResponseHelper;
 import customer.aireport.model.AIParameters;
 
 import customer.aireport.model.EntityInfo;
+import customer.aireport.model.StreamChatRequest;
 import customer.aireport.util.ConfigUtils;
 import customer.aireport.util.JsonUtils;
 
@@ -98,6 +100,12 @@ public class DirectOpenAIService implements AIServiceI {
                         ReportsGenerateCDSContext generateCDSContext, Reports report) {
                 // TODO Auto-generated method stub
                 throw new UnsupportedOperationException("Unimplemented method 'callAIforGenerateCDS'");
+        }
+
+        @Override
+        public SseEmitter callAIforStream(List<CommonAIMessage> messages, Reports report, StreamChatRequest request) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'callAIforStream'");
         }
 
         

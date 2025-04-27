@@ -2,18 +2,27 @@ package customer.aireport.service;
 
 import java.util.List;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.request.RequestContextHolder;
+
 import com.sap.cds.CdsData;
 import com.sap.cds.Result;
 import com.sap.cds.ql.Delete;
 import com.sap.cds.ql.Insert;
+import com.sap.cds.ql.Predicate;
 import com.sap.cds.ql.Select;
 import com.sap.cds.ql.StructuredType;
 import com.sap.cds.ql.Update;
 import com.sap.cds.ql.cqn.CqnDelete;
 import com.sap.cds.ql.cqn.CqnSelect;
+import com.sap.cds.services.environment.CdsProperties.Security.Mock.User;
+import com.sap.cds.services.request.UserInfo;
 
 import cds.gen.chatservice.ChatService;
+import cds.gen.chatservice.DraftAdministrativeData_;
 import cds.gen.chatservice.ParameterItems;
 import cds.gen.chatservice.ParameterItems_;
 import cds.gen.chatservice.Pcls;
@@ -29,6 +38,15 @@ import customer.aireport.exception.BusinessException; // Changed from AIServiceE
 // Rename from EntityServiceUtil.java
 @Service
 public class EntityService {
+    // Xsuaa
+    // private final UserInfo userInfo;
+    // // private final RequestContextHolder requestContextHolder;
+
+    // public EntityService(UserInfo userInfo) {
+    //     this.userInfo = userInfo;
+    //     // this.requestContextHolder = requestContextHolder;
+    // }
+
     // Select operations
     public <T extends CdsData> T selectSingle(ChatService service, CqnSelect select, Class<T> type,
             String errorMessage) {
@@ -44,16 +62,36 @@ public class EntityService {
         return result.listOf(type);
     }
 
-    public Records selectRecordById(ChatService service, String reportId) {
+    public Records selectRecordById(ChatService service, String reportId, boolean isActiveEntity) {
         CqnSelect select = Select.from(Records_.class)
-                .where(b -> b.report_ID().eq(reportId))
+                .where(b -> {
+                    /**  前面RestController里已经手动设置了SecurityContext，CAP 的Security上下文也自动继承了,这边不需要再额外判断了。 */
+
+                    // if (isNonCapFrameworkCallInDraft(isActiveEntity)) {
+                    //     return b.report_ID().eq(reportId).and(
+                    //             b.DraftAdministrativeData().CreatedByUser().eq(getCurrentUser())
+                    //                     .or(b.DraftAdministrativeData().CreatedByUser().isNull()));
+                    // }
+                    return b.report_ID().eq(reportId);
+
+                })
                 .orderBy(c -> c.createdAt().asc());
         return selectSingle(service, select, Records.class, "Record_Not_Found");
     }
 
-    public List<Records> selectRecordsByReportId(ChatService service, String reportId) {
+    public List<Records> selectRecordsByReportId(ChatService service, String reportId, Boolean isActiveEntity) {
         CqnSelect select = Select.from(Records_.class)
-                .where(b -> b.report_ID().eq(reportId))
+                .where(b -> {
+
+                    // if (isNonCapFrameworkCallInDraft(isActiveEntity)) {
+                    //     return b.report_ID().eq(reportId).and(
+                    //             b.DraftAdministrativeData().CreatedByUser().eq(getCurrentUser())
+                    //                     .or(b.DraftAdministrativeData().CreatedByUser().isNull()));
+                    // }
+                    return b.report_ID().eq(reportId);
+                }
+                // b -> b.report_ID().eq(reportId)
+                )
                 .orderBy(c -> c.createdAt().asc());
         return selectList(service, select, Records.class);
     }
@@ -70,14 +108,52 @@ public class EntityService {
         return selectSingle(service, select, ParameterItems.class, errorMessage);
     }
 
+    // 修改 selectReportById 方法
     public Reports selectReportById(ChatService service, String reportId, boolean isActiveEntity, String errorMessage) {
-        return selectSingle(
-                service,
-                Select.from(Reports_.class)
-                        .where(b -> b.ID().eq(reportId)
-                                .and(b.IsActiveEntity().eq(isActiveEntity))),
-                Reports.class,
-                errorMessage);
+
+        CqnSelect select = Select.from(Reports_.class)
+                .where(b -> {
+                    // // 判断是否是 CAP 框架调用
+                    // if (isNonCapFrameworkCallInDraft(isActiveEntity)) {
+                    //     return b.ID().eq(reportId).and(b.IsActiveEntity().eq(isActiveEntity),
+                    //             b.DraftAdministrativeData().CreatedByUser().eq(getCurrentUser())
+                    //                     .or(b.DraftAdministrativeData().CreatedByUser().isNull()));
+                    // }
+                    return b.ID().eq(reportId).and(b.IsActiveEntity().eq(isActiveEntity));
+                });
+
+        return selectSingle(service, select, Reports.class, errorMessage);
+    }
+
+    // 添加判断是否是 CAP 框架调用的方法
+    private boolean isNonCapFrameworkCallInDraft(Boolean isActiveEntity) {
+        // 获取调用堆栈
+        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+        boolean isCapFrameworkCall = false;
+
+        // 检查调用链中是否包含 CAP 框架的类
+        for (StackTraceElement element : stackTrace) {
+            if (element.getClassName().startsWith("com.sap.cds.services.handler") ||
+                    element.getClassName().contains("EventHandler")) {
+                isCapFrameworkCall = true;
+            }
+        }
+        if (!isCapFrameworkCall && isActiveEntity) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /* Get current user using SecurityContextHolder */
+    public String getCurrentUser() {
+        // Get the current user from the SecurityContextHolder
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        Authentication authentication = securityContext.getAuthentication();
+        String username = authentication.getName();
+        // .getAttribute("user", RequestAttributes.SCOPE_REQUEST);
+        // return user != null ? user.getName() : null;
+        return username;
     }
 
     // Insert operations

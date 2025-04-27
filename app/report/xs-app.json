@@ -3,24 +3,27 @@
   "authenticationMethod": "route",
   "routes": [
     {
-      "source": "^/odata/v4/ai2report/(.*)$",
+      "source": "^/odata/(.*)$",
+      "target": "/odata/$1",
+      "destination": "aireport-srv-api",
       "authenticationType": "xsuaa",
-      "csrfProtection": false,
-      "target": "/odata/v4/ai2report/$1",
-      "destination": "aireport-srv-api"
+      "csrfProtection": true
+    },
+    {
+      "source": "^/api/(.*)$",
+      "target": "/api/$1",
+      "destination": "aireport-srv-api",
+      "authenticationType": "xsuaa",
+      "csrfProtection": false
     },
     {
       "source": "^(.*)$",
       "target": "$1",
       "service": "html5-apps-repo-rt",
       "authenticationType": "xsuaa"
-    },
-    {
-      "source": "^/?odata/(.*)$",
-      "target": "/odata/$1",
-      "destination": "aireport-srv-api",
-      "authenticationType": "xsuaa",
-      "csrfProtection": true
     }
-  ]
+  ],
+  "compression":{
+    "enabled": false
+  }
 }

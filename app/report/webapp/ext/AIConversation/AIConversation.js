@@ -17,8 +17,13 @@ sap.ui.define([
 
             this.pDialog.then((oDialog) => {
                 that._dialog = oDialog;
-                // oDialog.getContent()[0].getFooter().getContent()[0].attachPost(that.onPostMessage.bind(that));
+
                 oDialog.open();
+                // 添加列表数据加载完成的事件处理
+                const messageList = oDialog.getContent()[0].getContent()[0].getItems()[0];
+                messageList.getBinding("items").attachDataReceived(() => {
+                    this.scrollToListEnd();
+                });
             });
 
             this.onAIConversationClose = function (oEvent) {
@@ -40,13 +45,7 @@ sap.ui.define([
                     report: report,
                     binding: binding,
                     message: message,
-                    sender: userModel.getUser().displayName,
-                    streamingCallback: function (chunk, replyContext) {
-                        if (!chunk) return;
-                        replyContext.setProperty("text", `${replyContext.getProperty("text")}${chunk}`);
-                        const listEndMarker = this._dialog.getContent()[0].getContent()[0].getItems()[1];
-                        UIHelper.scrollToElement(listEndMarker.getDomRef());
-                    }.bind(this)
+                    sender: userModel.getUser().displayName
                 });
 
                 messageHandler.createMessageAndCompletion();
@@ -72,6 +71,19 @@ sap.ui.define([
                     // refresh Reports Context
                     this.getEditFlow().getView().getBindingContext().refresh();
                 });
+            };
+            this.scrollToListEnd = function () {
+                if (!this._dialog) {
+                    return;
+                }
+
+                const listEndMarker = this._dialog.getContent()[0].getContent()[0].getItems()[1];
+                if (listEndMarker && listEndMarker.getDomRef()) {
+                    UIHelper.scrollToElement(listEndMarker.getDomRef());
+                } else {
+                    // 如果元素还没有渲染完成，延迟执行
+                    setTimeout(() => this.scrollToListEnd(), 100);
+                }
             };
         }
     };

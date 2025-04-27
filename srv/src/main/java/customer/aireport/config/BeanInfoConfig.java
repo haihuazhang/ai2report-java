@@ -10,8 +10,8 @@ import java.util.Arrays;
 @Configuration
 public class BeanInfoConfig implements ApplicationListener<ContextRefreshedEvent> {
     
-    @Autowired
-    private ApplicationContext applicationContext;
+    // @Autowired
+    // private ApplicationContext applicationContext;
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {

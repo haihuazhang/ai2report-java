@@ -97,7 +97,7 @@ public class SAPClaudeAIResponseAdapter implements AIResponse {
 
         // Handle normal chat completion case
         if (ConverseResponse.StopReasonEnum.STOP_SEQUENCE.equals(response.getStopReason()) ||
-                ConverseResponse.StopReasonEnum.MAX_TOKENS.equals(response.getStopReason()) ||
+                ConverseResponse.StopReasonEnum.END_TURN.equals(response.getStopReason()) ||
                 ConverseResponse.StopReasonEnum.CONTENT_FILTERED.equals(response.getStopReason())) {
             StringBuilder toolContent = new StringBuilder();
             ConverseRequestAssistantMessage assistantMessage = (ConverseRequestAssistantMessage) response.getOutput()

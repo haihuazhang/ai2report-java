@@ -1,11 +1,13 @@
 name,description
-prompt_repname,function get_report_name
-prompt_report,prompt report
+prompt_report,init_prompt
 prompt_json,function get_report_field
-prompt_json_claude,function for claude get_report_field
-prompt_pcl,prompt pcl
+prompt_pcl,prompt_pcl
 func_pcl,function generate_pcl
+prompt_cds_claude,Claude3.5 prompt for generate CDS
+func_cds_claude,funcation_cds_claude
+prompt_fixcds,Fix cds prompt
+rag_threshold,0.65
+rag_top,5
+record_top,20
+prompt_json_claude,function for claude get_report_field
 func_pcl_claude,function generate_pcl
-prompt_cds,prompt cds
-func_cds,function cds
-func_cds_claude,function cds

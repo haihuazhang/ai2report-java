@@ -81,10 +81,6 @@ modules:
     build-parameters:
       build-result: resources
       requires:
-        - name: aireportchatbotui
-          artifacts:
-            - chatbotui.zip
-          target-path: resources
         - name: aireportchatbotui2
           artifacts:
             - chatbotui2.zip
@@ -102,17 +98,6 @@ modules:
             - cap-rag-app.zip
           target-path: resources
 
-  - name: aireportchatbotui
-    type: html5
-    path: app/chat-bot-ui
-    build-parameters:
-      build-result: dist
-      builder: custom
-      commands:
-        - npm ci
-        - npm run build
-      supported-platforms:
-        []
   - name: aireportchatbotui2
     type: html5
     path: app/chatbotui2

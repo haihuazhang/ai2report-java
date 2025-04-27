@@ -32,17 +32,22 @@ aireport:
     prompt-prefix-for-pcl: prompt_pcl
     function-for-pcl: func_pcl_claude
     function-for-cds: func_cds_claude
-    prompt-prefix-for-cds: prompt_cds
+    prompt-prefix-for-cds: prompt_cds_claude
 aiService:
   service-type: SAPCLAUDE
   ai-core-destination: AICore
   claude-max-tokens: 24000 
 
+spring:
+  ai:
+    openai:
+      api-key: your-openai-api-key-here
+
 
 # logging:
 #   level:
-#     '[com.sap.cds.adapter.odata]': TRACE
-#     '[com.sap.cds.odata.v4]': TRACE
+# #     '[com.sap.cds.adapter.odata]': TRACE
+# #     '[com.sap.cds.odata.v4]': TRACE
 #     '[com.sap.cds.persistence.sql]': TRACE
 #     '[com.sap.cds.persistence.sql-tx]': TRACE
 ---

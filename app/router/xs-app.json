@@ -14,9 +14,12 @@
     {
       "source": "^/(.*)$",
       "target": "$1",
-      "destination": "srv-api",
-      "csrfProtection": true,
+      "destination": "aireport-srv-api",
+      "csrfProtection": false,
       "authenticationType": "xsuaa"
     }
-  ]
+  ],
+  "compression":{
+    "enabled": false
+  }
 }

@@ -1,7 +1,7 @@
 {
     "destinations": [
         {
-            "name": "srv-api",
+            "name": "aireport-srv-api",
             "url": "http://localhost:8080",
             "forwardAuthToken": true,
             "strictSSL":false,

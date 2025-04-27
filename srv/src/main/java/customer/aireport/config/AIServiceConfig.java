@@ -5,6 +5,12 @@ import customer.aireport.service.SAPAICore.SAPOpenAIService;
 import customer.aireport.service.AIService.AIServiceI;
 import customer.aireport.constant.AIServiceType;
 import customer.aireport.resolver.AIServiceResolver;
+import customer.aireport.factory.AIResponseHandlerFactory;
+import customer.aireport.factory.SAPClaudeAIMessageFactory;
+import customer.aireport.factory.SAPOpenAIMessageFactory;
+import customer.aireport.helper.AIResponseHelper;
+import customer.aireport.util.ConfigUtils;
+import customer.aireport.util.JsonUtils;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -17,17 +23,43 @@ public class AIServiceConfig {
     @Bean
     @Primary
     @Qualifier("sapOpenAIService")
-    public SAPOpenAIService sapOpenAIService() {
-        // Your existing SAP AIService implementation
-        return new SAPOpenAIService();
+    public SAPOpenAIService sapOpenAIService(
+            AIProperties aiProperties,
+            AIServiceKeysConfig aiServiceKeys,
+            SAPOpenAIMessageFactory messageFactory,
+            AIResponseHelper aiResponseHelper,
+            ConfigUtils configUtils,
+            JsonUtils jsonUtils,
+            AIResponseHandlerFactory aiResponseHandlerFactory) {
+        return new SAPOpenAIService(
+                aiProperties,
+                aiServiceKeys,
+                messageFactory,
+                aiResponseHelper,
+                configUtils,
+                jsonUtils,
+                aiResponseHandlerFactory);
     }
 
     @Bean
     @Primary
     @Qualifier("sapClaudeAIService")
-    public SAPClaudeAIService sapClaudeAIService() {
-        // Your existing SAP AIService implementation
-        return new SAPClaudeAIService();
+    public SAPClaudeAIService sapClaudeAIService(
+            AIProperties aiProperties,
+            AIServiceKeysConfig aiServiceKeys,
+            SAPClaudeAIMessageFactory messageFactory,
+            AIResponseHelper aiResponseHelper,
+            ConfigUtils configUtils,
+            JsonUtils jsonUtils,
+            AIResponseHandlerFactory aiResponseHandlerFactory) {
+        return new SAPClaudeAIService(
+                aiProperties,
+                aiServiceKeys,
+                messageFactory,
+                aiResponseHelper,
+                configUtils,
+                jsonUtils,
+                aiResponseHandlerFactory);
     }
 
     @Bean
@@ -37,18 +69,4 @@ public class AIServiceConfig {
             AIServiceKeysConfig aiServiceKeys) {
         return new AIServiceResolver(sapOpenAIService, sapClaudeAIService, aiServiceKeys);
     }
-
-    // @Bean
-    // @Qualifier("directOpenAIService")
-    // public AIService directOpenAIService() {
-    // // Your DirectOpenAIService implementation
-    // return new DirectOpenAIService();
-    // }
-
-    // @Bean
-    // @Qualifier("deepSeekService")
-    // public AIService deepSeekService() {
-    // // DeepSeek implementation
-    // return new DeepSeekService();
-    // }
 }

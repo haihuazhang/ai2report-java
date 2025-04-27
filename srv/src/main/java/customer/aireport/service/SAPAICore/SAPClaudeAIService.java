@@ -9,6 +9,7 @@ import javax.annotation.Nonnull;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.sap.ai.sdk.core.AiCoreService;
 
@@ -36,6 +37,7 @@ import customer.aireport.factory.SAPClaudeAIMessageFactory;
 import customer.aireport.helper.AIResponseHelper;
 import customer.aireport.model.AIParameters;
 import customer.aireport.model.EntityInfo;
+import customer.aireport.model.StreamChatRequest;
 import customer.aireport.service.AIService.AIServiceI;
 import customer.aireport.service.SAPAICore.claude.ClaudeAiClient;
 import customer.aireport.service.SAPAICore.claude.ClaudeAiModel;
@@ -51,34 +53,33 @@ import customer.aireport.util.JsonUtils;
 
 @Service
 public class SAPClaudeAIService implements AIServiceI {
-        private final ClaudeAiModel DEFAULT_MODEL = ClaudeAiModel.CLAUDE_3_7_SONNET;
+    private final ClaudeAiModel DEFAULT_MODEL = ClaudeAiModel.CLAUDE_3_7_SONNET;
+    private final AIProperties aiProperties;
+    private final AIServiceKeysConfig aiServiceKeys;
+    private final SAPClaudeAIMessageFactory messageFactory;
+    private final AIResponseHelper aiResponseHelper;
+    private final ConfigUtils configUtils;
+    private final JsonUtils jsonUtils;
+    private final AIResponseHandlerFactory aiResponseHandlerFactory;
 
-        @Autowired
-        private AIProperties aiProperties; // Changed from AIReportProperties
+    public SAPClaudeAIService(
+            AIProperties aiProperties,
+            AIServiceKeysConfig aiServiceKeys,
+            SAPClaudeAIMessageFactory messageFactory,
+            AIResponseHelper aiResponseHelper,
+            ConfigUtils configUtils,
+            JsonUtils jsonUtils,
+            AIResponseHandlerFactory aiResponseHandlerFactory) {
+        this.aiProperties = aiProperties;
+        this.aiServiceKeys = aiServiceKeys;
+        this.messageFactory = messageFactory;
+        this.aiResponseHelper = aiResponseHelper;
+        this.configUtils = configUtils;
+        this.jsonUtils = jsonUtils;
+        this.aiResponseHandlerFactory = aiResponseHandlerFactory;
+    }
 
-        @Autowired
-        private AIServiceKeysConfig aiServiceKeys; // Changed from AIServiceKeys
-        // public void setAiProperties(AIProperties aiProperties) { // Changed method
-        // name and parameter type
-        // this.aiProperties = aiProperties; // Changed from AIUtil
-        // }
-
-        @Autowired
-        private SAPClaudeAIMessageFactory messageFactory;
-
-        @Autowired
-        private AIResponseHelper aiResponseHelper;
-
-        @Autowired
-        private ConfigUtils configUtils; // Add ConfigUtils injection
-
-        @Autowired
-        private JsonUtils jsonUtils;
-
-        @Autowired
-        private AIResponseHandlerFactory aiResponseHandlerFactory;
-
-        public ClaudeAiClient getAiClientbyModelUsingBTPDestination(@Nonnull ClaudeAiModel foundationModel) {
+    public ClaudeAiClient getAiClientbyModelUsingBTPDestination(@Nonnull ClaudeAiModel foundationModel) {
                 // build api destination
                 Destination destination = DestinationAccessor.getDestination(aiServiceKeys.getAiCoreDestination());
                 AiCoreService aiCoreService = new AiCoreService().withBaseDestination(destination.asHttp());
@@ -283,5 +284,11 @@ public class SAPClaudeAIService implements AIServiceI {
                 // Process response and update CDS
                 aiResponseHelper.handleCDSResponse(aiResponse, report);
 
+        }
+
+        @Override
+        public SseEmitter callAIforStream(List<CommonAIMessage> messages, Reports report, StreamChatRequest request) {
+                // TODO Auto-generated method stub
+                throw new UnsupportedOperationException("Unimplemented method 'callAIforStream'");
         }
 }

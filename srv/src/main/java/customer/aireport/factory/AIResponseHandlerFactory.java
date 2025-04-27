@@ -1,25 +1,22 @@
 package customer.aireport.factory;
 
 import customer.aireport.constant.AIServiceType;
-// import static customer.aireport.constant.AIServiceType.SAP;
 import customer.aireport.handler.AIResponseHandler;
 import customer.aireport.handler.SAPClaudeAIResponseHandler;
 import customer.aireport.handler.SAPOpenAIResponseHandler;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AIResponseHandlerFactory {
-    @Autowired
-    private SAPOpenAIResponseHandler sapOpenAIHandler;
+    private final SAPOpenAIResponseHandler sapOpenAIHandler;
+    private final SAPClaudeAIResponseHandler sapClaudeHandler;
 
-    @Autowired
-    private SAPClaudeAIResponseHandler sapClaudeHandler;
-
-    // public AIResponseHandlerFactory(SAPOpenAIResponseHandler sapOpenAIHandler) {
-    //     this.sapOpenAIHandler = sapOpenAIHandler;
-    // }
+    public AIResponseHandlerFactory(
+            SAPOpenAIResponseHandler sapOpenAIHandler,
+            SAPClaudeAIResponseHandler sapClaudeHandler) {
+        this.sapOpenAIHandler = sapOpenAIHandler;
+        this.sapClaudeHandler = sapClaudeHandler;
+    }
 
     public AIResponseHandler getHandler(AIServiceType type) {
         switch (type) {

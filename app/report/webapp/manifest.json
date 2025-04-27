@@ -167,6 +167,13 @@
                       "enabled": true,
                       "requiresSelection": false,
                       "text": "{@i18n>chatWithAi}"
+                    },
+                    "AIConversationWithStream": {
+                      "press": "report.ext.AIConversation.AIConversationWithStream.onPressAIConversationWithStream",
+                      "visible": true,
+                      "enabled": true,
+                      "requiresSelection": false,
+                      "text": "{@i18n>chatWithAiWithStream}"
                     }
                   }
                 },

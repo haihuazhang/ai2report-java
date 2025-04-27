@@ -1,28 +1,26 @@
 sap.ui.define([
-    // "sap/ui/core/RenderManager",
-    // "sap/m/ListItemBase",
     "sap/ui/core/Renderer",
-    // "./ChatMessageListItem",
     "sap/m/Text",
-    // "sap/m/Avatar",
-    // "./showdown",
-    // "./showdownhighlight"
+    "sap/m/BusyIndicator",
     "./marked",
     "./showdown"
 ],
-    function (
-        // RenderManager, 
-        // ListItemBase,
-        Renderer,
-        //  MessageListItem,
-        Text,
-        //   Avatar,
-        markedImport,
-        showdownImport) {
+    function (Renderer, Text, BusyIndicator, markedImport, showdownImport) {
         return Renderer.extend("report.control.ChatMessageListItemRenderer", {
             renderLIContent: function (rm, control) {
                 rm.openStart("div").class("sapMMessageListItem").openEnd();
+
+                // 消息内容区域
                 rm.openStart("div").class("sapMMessageListItemText").openEnd();
+                if (control.getLoading()) {
+                    // 显示 busy 指示器
+                    rm.renderControl(new BusyIndicator({
+                        size: "1rem",
+                        text: "AI is thinking..."
+                    }));
+                    // } else {
+
+                }
                 rm.unsafeHtml(this.markdownToHtml(control.getMessage()));
                 rm.close("div");
 
@@ -44,19 +42,7 @@ sap.ui.define([
                 rm.close("div");
             },
             markdownToHtml: function (text) {
-                // const converter = new showdown.Converter({
-                // extensions: [
-                // showdownHighlight({
-                // pre: true,
-                // auto_detection: true,
-                // }),
-                // ],
-                // });
-                // converter.setFlavor("github");
-                // return converter.makeHtml(text);
                 return marked.parse(text);
-                // return new showdown.Converter().makeHtml(text);
-
             }
         });
     });

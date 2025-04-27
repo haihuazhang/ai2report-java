@@ -44,7 +44,51 @@
 }
 
 
+
+/** * CSS for Markdown Dialog */
+.markdownDialog .sapMMessageListItemText {
+    font-family: var(--sapFontFamily);
+    line-height: 1.4;
+}
+
+.markdownDialog .sapMMessageListItemText pre {
+    background-color: var(--sapList_Background);
+    padding: 1rem;
+    border-radius: 0.25rem;
+    overflow-x: auto;
+}
+
+.markdownDialog .sapMMessageListItemText code {
+    font-family: 'Courier New', Courier, monospace;
+    background-color: var(--sapList_Background);
+    padding: 0.2rem 0.4rem;
+    border-radius: 0.25rem;
+}
+
+.markdownDialog .sapMMessageListItemText p {
+    margin: 0.5rem 0;
+}
+
+.markdownDialog .sapMMessageListItemText ul,
+.markdownDialog .sapMMessageListItemText ol {
+    padding-left: 2rem;
+    margin: 0.5rem 0;
+}
+
+
 /* .chatPage .sapMFeedIn {
     padding: 0.5rem;
     width: 100%;
 } */
+.customMessageListItem .sapMBusyIndicator {
+    margin: 1rem;
+    display: flex;
+    align-items: center;
+}
+
+.customMessageListItem .sapMBusyIndicator .sapMBusyIndicatorTextContainer {
+    margin-left: 0.5rem;
+    font-style: italic;
+    color: var(--sapContent_LabelColor);
+}
+

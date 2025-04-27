@@ -4,11 +4,18 @@ import static com.sap.ai.sdk.foundationmodels.openai.OpenAiModel.GPT_4O;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 // import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.sap.ai.sdk.core.AiCoreService;
 import com.sap.ai.sdk.foundationmodels.openai.OpenAiClient;
@@ -30,6 +37,7 @@ import cds.gen.chatservice.ReportFields;
 import cds.gen.chatservice.ReportsGenerateCDSContext;
 import cds.gen.chatservice.ReportsGeneratePCLContext;
 import cds.gen.chatservice.ReportsNewRecordContext;
+import customer.aireport.adapter.SAPOpenAIStreamResponseAdapter;
 import customer.aireport.config.AIProperties; // Changed from AIReportProperties
 import customer.aireport.config.AIServiceKeysConfig; // Changed from AIServiceKeys
 import customer.aireport.constant.AIConstants;
@@ -44,6 +52,7 @@ import customer.aireport.helper.AIResponseHelper;
 import customer.aireport.model.AIParameters;
 
 import customer.aireport.model.EntityInfo;
+import customer.aireport.model.StreamChatRequest;
 import customer.aireport.service.AIService.AIServiceI;
 import customer.aireport.util.ConfigUtils;
 import customer.aireport.util.JsonUtils;
@@ -52,31 +61,30 @@ import customer.aireport.util.JsonUtils;
 // @Service("aiCoreOpenAIService") // Changed bean name to avoid conflict
 public class SAPOpenAIService implements AIServiceI {
         private final OpenAiModel DEFAULT_MODEL = GPT_4O;
+        private final AIProperties aiProperties;
+        private final AIServiceKeysConfig aiServiceKeys;
+        private final SAPOpenAIMessageFactory messageFactory;
+        private final AIResponseHelper aiResponseHelper;
+        private final ConfigUtils configUtils;
+        private final JsonUtils jsonUtils;
+        private final AIResponseHandlerFactory aiResponseHandlerFactory;
 
-        @Autowired
-        private AIProperties aiProperties; // Changed from AIReportProperties
-
-        @Autowired
-        private AIServiceKeysConfig aiServiceKeys; // Changed from AIServiceKeys
-        // public void setAiProperties(AIProperties aiProperties) { // Changed method
-        // name and parameter type
-        // this.aiProperties = aiProperties; // Changed from AIUtil
-        // }
-
-        @Autowired
-        private SAPOpenAIMessageFactory messageFactory;
-
-        @Autowired
-        private AIResponseHelper aiResponseHelper;
-
-        @Autowired
-        private ConfigUtils configUtils; // Add ConfigUtils injection
-
-        @Autowired
-        private JsonUtils jsonUtils;
-
-        @Autowired
-        private AIResponseHandlerFactory aiResponseHandlerFactory;
+        public SAPOpenAIService(
+                        AIProperties aiProperties,
+                        AIServiceKeysConfig aiServiceKeys,
+                        SAPOpenAIMessageFactory messageFactory,
+                        AIResponseHelper aiResponseHelper,
+                        ConfigUtils configUtils,
+                        JsonUtils jsonUtils,
+                        AIResponseHandlerFactory aiResponseHandlerFactory) {
+                this.aiProperties = aiProperties;
+                this.aiServiceKeys = aiServiceKeys;
+                this.messageFactory = messageFactory;
+                this.aiResponseHelper = aiResponseHelper;
+                this.configUtils = configUtils;
+                this.jsonUtils = jsonUtils;
+                this.aiResponseHandlerFactory = aiResponseHandlerFactory;
+        }
 
         public OpenAiClient getAiClientbyModelUsingBTPDestination(@Nonnull OpenAiModel foundationModel) {
                 // build api destination
@@ -156,9 +164,59 @@ public class SAPOpenAIService implements AIServiceI {
                 aiResponseHelper.handleChatResponse(
                                 aiResponse,
                                 report,
-                                context.getContent(),
+                                userContent,
                                 entityInfo,
                                 context);
+        }
+
+        public Stream<OpenAiChatCompletionDelta> streamAICompletion(
+                        List<CommonAIMessage> messages,
+                        Reports report,
+                        String userContent,
+                        EntityInfo entityInfo) {
+
+                // StringBuilder fullResponse = new StringBuilder();
+                // Create streaming chat completion request
+                OpenAiChatCompletionParameters params = new OpenAiChatCompletionParameters();
+                messages.stream()
+                                .map(msg -> switch (msg.role()) {
+                                        case AIConstants.Roles.SYSTEM ->
+                                                messageFactory.createSystemMessage(msg.message());
+                                        case AIConstants.Roles.USER ->
+                                                messageFactory.createUserMessage(msg.message());
+                                        case AIConstants.Roles.ASSISTANT ->
+                                                messageFactory.createAssistantMessage(msg.message());
+                                        default -> throw new BusinessException(AIConstants.Messages.UNEXPECTED_ROLE +
+                                                        msg.role());
+                                })
+                                .forEach(params::addMessages);
+
+                // Call OpenAI API with streaming
+                OpenAiClient aiClient = getAiClientbyModelUsingBTPDestination(DEFAULT_MODEL);
+                return aiClient.streamChatCompletionDeltas(params);
+
+                // .map(delta -> {
+                // String content = delta.getDeltaContent();
+                // if (content != null) {
+                // fullResponse.append(content);
+
+                // }
+                // return delta;
+
+                // })
+                // .onClose(() -> {
+                // // Create AIResponse from accumulated response
+                // AIResponse aiResponse = new SAPOpenAIStreamResponseAdapter(
+                // fullResponse.toString());
+
+                // // Handle the complete response after stream finishes
+                // aiResponseHelper.handleChatResponse(
+                // aiResponse,
+                // report,
+                // userContent,
+                // entityInfo,
+                // null);
+                // });
         }
 
         @Override
@@ -259,7 +317,47 @@ public class SAPOpenAIService implements AIServiceI {
                 aiResponseHelper.handleCDSResponse(aiResponse, report);
 
         }
-}
 
-// filepath:
-// /D:/code/AI/ai2report_java/srv/src/main/java/customer/aireport/service/EntityService.java
+        @Override
+        public SseEmitter callAIforStream(List<CommonAIMessage> commonAIMessages, Reports report,
+                        StreamChatRequest request) {
+                // SecurityContextHolder
+                final ExecutorService executor = Executors.newCachedThreadPool();
+                SecurityContext securityContext = SecurityContextHolder.getContext();
+                final var totalUsage = new AtomicReference<OpenAiUsage>();
+
+                SseEmitter emitter = new SseEmitter(20 * 60 * 1000L); // 3 minutes timeout
+
+                executor.execute(() -> {
+                        try {
+                                // Set the security context in the new thread
+                                SecurityContextHolder.setContext(securityContext);
+                                // Get existing records and report
+
+                                // Stream AI completion
+
+                                this.streamAICompletion(
+                                                commonAIMessages,
+                                                report,
+                                                request.getContent(),
+                                                new EntityInfo(request.getId(), request.getIsActiveEntity()))
+                                                .forEach(delta -> {
+                                                        final var usage = delta.getUsage();
+                                                        totalUsage.compareAndExchange(null, usage);
+                                                        AIServiceI.send(emitter, delta.getDeltaContent());
+                                                });
+
+                        } finally {
+                                // Clear the security context
+                                SecurityContextHolder.clearContext();
+
+                                AIServiceI.send(emitter, "-----Total Usage-----" + totalUsage.get());
+                                // Complete the emitter after streaming
+                                emitter.complete();
+                        }
+
+                });
+
+                return emitter;
+        }
+}

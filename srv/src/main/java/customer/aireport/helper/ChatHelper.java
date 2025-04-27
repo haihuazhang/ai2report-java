@@ -1,6 +1,5 @@
 package customer.aireport.helper;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import cds.gen.chatservice.*;
 import customer.aireport.constant.AIConstants;
@@ -10,23 +9,22 @@ import java.util.List;
 
 @Component
 public class ChatHelper {
-    
+    private final RecordFactory recordFactory;
 
-    
-    @Autowired
-    private RecordFactory recordFactory;
-
+    public ChatHelper(RecordFactory recordFactory) {
+        this.recordFactory = recordFactory;
+    }
     public Records handleNewChat(
             // OpenAiChatCompletionParameters params,
             List<CommonAIMessage> messages,
             String promptContent,
-            String content,
+            String userContent,
             String reportId,
             Boolean isActiveEntity) {
         // params.addMessages(messageFactory.createSystemMessage(promptContent));
         // params.addMessages(messageFactory.createUserMessage(content));
         messages.add(new CommonAIMessage(AIConstants.Roles.SYSTEM, promptContent));
-        messages.add(new CommonAIMessage(AIConstants.Roles.USER, content));
+        messages.add(new CommonAIMessage(AIConstants.Roles.USER, userContent));
 
         return recordFactory.createSystemRecord(
             promptContent,
@@ -37,6 +35,7 @@ public class ChatHelper {
 
     public void handleExistingChat(
         // OpenAiChatCompletionParameters params, 
+        String userContent,
         List<CommonAIMessage> messages,
         List<Records> records) {
         records.forEach(record -> {
@@ -49,5 +48,6 @@ public class ChatHelper {
             // params.addMessages(message);
             messages.add(new CommonAIMessage(record.getRole(), record.getContent()));
         });
+        messages.add(new CommonAIMessage(AIConstants.Roles.USER, userContent));
     }
 }
