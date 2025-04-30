@@ -1,6 +1,6 @@
 sap.ui.define(
-    ["sap/fe/core/AppComponent", "./model/models", "./service/ChatService"],
-    function (Component, models, ChatService) {
+    ["sap/fe/core/AppComponent", "./model/models", "./service/ChatService","./util/IconFonts"],
+    function (Component, models, ChatService,IconFonts) {
         "use strict";
 
         return Component.extend("report.Component", {
@@ -19,6 +19,7 @@ sap.ui.define(
 
                 // 初始化 ChatService
                 ChatService.getInstance().setModel(this.getModel());
+                IconFonts.register();
             }
         });
     }

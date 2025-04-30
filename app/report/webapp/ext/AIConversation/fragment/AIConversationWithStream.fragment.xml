@@ -45,8 +45,7 @@
                             message="{content}"
                             sender="{role}"
                             date="{chatTime}"
-                            class="customMessageListItem sapUiSmallMargin"
-                            data-sender="{role}">
+                            class="customMessageListItem sapUiSmallMargin">
                             <custom:customData>
                                 <core:CustomData 
                                     key="sender" 
