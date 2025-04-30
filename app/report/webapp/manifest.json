@@ -214,6 +214,6 @@
   },
   "sap.cloud": {
     "public": true,
-    "service": "aireport.service"
+    "service": "ai2report-java.service"
   }
 }

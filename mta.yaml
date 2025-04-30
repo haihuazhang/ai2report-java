@@ -1,12 +1,12 @@
 _schema-version: 3.3.0
-ID: aireport
+ID: ai2report-java
 version: 1.0.0-SNAPSHOT
 description: "A simple CAP project."
 parameters:
   enable-parallel-deployments: true
   deploy_mode: html5-repo
 modules:
-  - name: aireport-srv
+  - name: ai2report-java-srv
     type: java
     path: srv
     parameters:
@@ -28,14 +28,14 @@ modules:
         properties:
           srv-url: ${default-url}
     requires:
-      - name: aireport-db
-      - name: aireport-auth
+      - name: ai2report-java-db
+      - name: ai2report-java-auth
       - name: app-api
         properties:
           CDS_MULTITENANCY_APPUI_URL: ~{url}
-      - name: aireport-destination
+      - name: ai2report-java-destination
 
-  - name: aireport-db-deployer
+  - name: ai2report-java-db-deployer
     type: hdb
     path: db
     parameters:
@@ -45,9 +45,9 @@ modules:
       commands:
         - npm run build
     requires:
-      - name: aireport-db
+      - name: ai2report-java-db
 
-  - name: aireport
+  - name: ai2report-java
     type: approuter.nodejs
     path: app\router
     parameters:
@@ -61,9 +61,9 @@ modules:
           name: srv-api # must be used in xs-app.json as well
           url: ~{srv-url}
           forwardAuthToken: true
-      - name: aireport-auth
-      - name: aireport-destination
-      - name: aireport-html5-runtime
+      - name: ai2report-java-auth
+      - name: ai2report-java-destination
+      - name: ai2report-java-html5-runtime
     provides:
       - name: app-api
         properties:
@@ -71,34 +71,34 @@ modules:
           app-protocol: ${protocol}
           app-uri: ${default-uri}
 
-  - name: aireport-app-deployer
+  - name: ai2report-java-app-deployer
     type: com.sap.application.content
     path: .
     requires:
-      - name: aireport-html5-repo-host
+      - name: ai2report-java-html5-repo-host
         parameters:
           content-target: true
     build-parameters:
       build-result: resources
       requires:
-        - name: aireportchatbotui2
+        - name: ai2report-javachatbotui2
           artifacts:
             - chatbotui2.zip
           target-path: resources
-        - name: aireportparameters
+        - name: ai2report-javaparameters
           artifacts:
             - parameters.zip
           target-path: resources
-        - name: aireportreport
+        - name: ai2report-javareport
           artifacts:
             - report.zip
           target-path: resources
-        - name: aireportcapragapp
+        - name: ai2report-javacapragapp
           artifacts:
             - cap-rag-app.zip
           target-path: resources
 
-  - name: aireportchatbotui2
+  - name: ai2report-javachatbotui2
     type: html5
     path: app/chatbotui2
     build-parameters:
@@ -109,7 +109,7 @@ modules:
         - npm run build
       supported-platforms:
         []
-  - name: aireportparameters
+  - name: ai2report-javaparameters
     type: html5
     path: app/parameters
     build-parameters:
@@ -120,7 +120,7 @@ modules:
         - npm run build
       supported-platforms:
         []
-  - name: aireportreport
+  - name: ai2report-javareport
     type: html5
     path: app/report
     build-parameters:
@@ -132,19 +132,19 @@ modules:
       supported-platforms:
         []
 
-  - name: aireport-destinations
+  - name: ai2report-java-destinations
     type: com.sap.application.content
     requires:
-      - name: aireport-auth
+      - name: ai2report-java-auth
         parameters:
           service-key:
-            name: aireport-auth-key
-      - name: aireport-html5-repo-host
+            name: ai2report-java-auth-key
+      - name: ai2report-java-html5-repo-host
         parameters:
           service-key:
-            name: aireport-html5-repo-host-key
+            name: ai2report-java-html5-repo-host-key
       - name: srv-api
-      - name: aireport-destination
+      - name: ai2report-java-destination
         parameters:
           content-target: true
     build-parameters:
@@ -154,17 +154,17 @@ modules:
         instance:
           existing_destinations_policy: update
           destinations:
-            - Name: aireport-html5-repository
-              ServiceInstanceName: aireport-html5-repo-host
-              ServiceKeyName: aireport-html5-repo-host-key
-              sap.cloud.service: aireport.service
-            - Name: aireport-auth
+            - Name: ai2report-java-html5-repository
+              ServiceInstanceName: ai2report-java-html5-repo-host
+              ServiceKeyName: ai2report-java-html5-repo-host-key
+              sap.cloud.service: ai2report-java.service
+            - Name: ai2report-java-auth
               Authentication: OAuth2UserTokenExchange
-              ServiceInstanceName: aireport-auth
-              ServiceKeyName: aireport-auth-key
-              sap.cloud.service: aireport.service
+              ServiceInstanceName: ai2report-java-auth
+              ServiceKeyName: ai2report-java-auth-key
+              sap.cloud.service: ai2report-java.service
 
-  - name: aireportcapragapp
+  - name: ai2report-javacapragapp
     type: html5
     path: app/cap-rag-app
     build-parameters:
@@ -177,21 +177,21 @@ modules:
         []
 
 resources:
-  - name: aireport-db
+  - name: ai2report-java-db
     type: com.sap.xs.hdi-container
     parameters:
       service: hana
       service-plan: hdi-shared
-  - name: aireport-auth
+  - name: ai2report-java-auth
     type: org.cloudfoundry.managed-service
     parameters:
       service: xsuaa
       service-plan: application
       path: ./xs-security.json
       config:
-        xsappname: aireport
+        xsappname: ai2report-java
         tenant-mode: dedicated
-  - name: aireport-destination
+  - name: ai2report-java-destination
     type: org.cloudfoundry.managed-service
     parameters:
       service: destination
@@ -202,7 +202,7 @@ resources:
           instance:
             existing_destinations_policy: update
             destinations:
-              - Name: aireport-srv-api
+              - Name: ai2report-java-srv-api
                 URL: ~{srv-api/srv-url}
                 Authentication: NoAuthentication
                 Type: HTTP
@@ -223,12 +223,12 @@ resources:
           url: ~{srv-url}
           forwardAuthToken: true
 
-  - name: aireport-html5-repo-host
+  - name: ai2report-java-html5-repo-host
     type: org.cloudfoundry.managed-service
     parameters:
       service: html5-apps-repo
       service-plan: app-host
-  - name: aireport-html5-runtime
+  - name: ai2report-java-html5-runtime
     type: org.cloudfoundry.managed-service
     parameters:
       service: html5-apps-repo

@@ -2,7 +2,7 @@
   "_version": "1.59.0",
   "sap.cloud": {
     "public": true,
-    "service": "aireport.service"
+    "service": "ai2report-java.service"
   },
   "sap.app": {
     "id": "chatbotui",

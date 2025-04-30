@@ -7,11 +7,11 @@
           "apiEndpoint": "https://api.cf.us10-001.hana.ondemand.com",
           "org": "79933043trial",
           "space": "dev",
-          "instance": "aireport-db",
-          "key": "aireport-db-key",
+          "instance": "ai2report-java-db",
+          "key": "ai2report-java-db-key",
           "resolved": false
         },
-        "kind": "hana",
+        "kind": "hana-cloud",
         "vcap": {
           "name": "db"
         }
@@ -22,8 +22,8 @@
           "apiEndpoint": "https://api.cf.us10-001.hana.ondemand.com",
           "org": "79933043trial",
           "space": "dev",
-          "instance": "aireport-destination",
-          "key": "aireport-destination-key",
+          "instance": "ai2report-java-destination",
+          "key": "ai2report-java-destination-key",
           "resolved": false
         },
         "kind": "destinations",
@@ -37,8 +37,8 @@
           "apiEndpoint": "https://api.cf.us10-001.hana.ondemand.com",
           "org": "79933043trial",
           "space": "dev",
-          "instance": "aireport-auth",
-          "key": "aireport-auth-key",
+          "instance": "ai2report-java-auth",
+          "key": "ai2report-java-auth-key",
           "resolved": false
         },
         "kind": "xsuaa-auth",

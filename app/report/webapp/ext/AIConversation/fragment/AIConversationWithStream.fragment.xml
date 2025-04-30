@@ -15,7 +15,7 @@
     height="100%"
 >
     <Dialog id="_IDGenDialog1WithStream" title="{i18n>AIConversationTitle}" contentHeight="100%"
-        contentWidth="200%"
+        contentWidth="100%"
         verticalScrolling="true"
         resizable="true"
         class="dialogToRight markdownDialog"
@@ -45,7 +45,14 @@
                             message="{content}"
                             sender="{role}"
                             date="{chatTime}"
-                            class="customMessageListItem">
+                            class="customMessageListItem sapUiSmallMargin"
+                            data-sender="{role}">
+                            <custom:customData>
+                                <core:CustomData 
+                                    key="sender" 
+                                    value="{role}"
+                                    writeToDom="true"/>
+                            </custom:customData>
                             <custom:avatar>
                                 <Avatar id="_IDGenAvatarWithStream"
                                     displaySize="S"

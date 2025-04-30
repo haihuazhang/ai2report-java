@@ -5,14 +5,14 @@
     {
       "source": "^/odata/(.*)$",
       "target": "/odata/$1",
-      "destination": "aireport-srv-api",
+      "destination": "ai2report-java-srv-api",
       "authenticationType": "xsuaa",
       "csrfProtection": true
     },
     {
       "source": "^/api/(.*)$",
       "target": "/api/$1",
-      "destination": "aireport-srv-api",
+      "destination": "ai2report-java-srv-api",
       "authenticationType": "xsuaa",
       "csrfProtection": false
     },
@@ -22,8 +22,5 @@
       "service": "html5-apps-repo-rt",
       "authenticationType": "xsuaa"
     }
-  ],
-  "compression":{
-    "enabled": false
-  }
+  ]
 }

@@ -5,7 +5,7 @@
     {
       "source": "^/?odata/(.*)$",
       "target": "/odata/$1",
-      "destination": "aireport-srv-api",
+      "destination": "ai2report-java-srv-api",
       "authenticationType": "xsuaa",
       "csrfProtection": true
     },

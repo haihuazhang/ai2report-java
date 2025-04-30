@@ -92,3 +92,26 @@
     color: var(--sapContent_LabelColor);
 }
 
+
+/**
+*   Css for chat page message list item 
+*/
+.customMessageListItem {
+    border-radius: 0.75rem;
+    background-color: var(--sapList_Background);
+    box-shadow: var(--sapContent_Shadow0);
+}
+
+/* 区分用户和AI消息的样式 */
+.customMessageListItem[data-sender="user"] {
+    margin-right: 0rem !important;
+    background-color: var(--sapButton_Selected_Background);
+    width: 70%;
+    justify-self: right;
+}
+
+.customMessageListItem[data-sender="assistant"] {
+    margin-left: 0rem !important;
+    background-color: var(--sapList_Background);
+}
+

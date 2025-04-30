@@ -10,6 +10,7 @@ sap.ui.define([
             renderLIContent: function (rm, control) {
                 rm.openStart("div").class("sapMMessageListItem").openEnd();
 
+
                 // 消息内容区域
                 rm.openStart("div").class("sapMMessageListItemText").openEnd();
                 if (control.getLoading()) {

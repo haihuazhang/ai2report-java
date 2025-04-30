@@ -12,14 +12,21 @@
       "cacheControl": "no-cache, no-store, must-revalidate"
     },
     {
+      "source": "^/report/webapp/api/(.*)$",
+      "target": "api/$1",
+      "destination": "ai2report-java-srv-api",
+      "csrfProtection": false,
+      "authenticationType": "xsuaa"
+    },
+    {
       "source": "^/(.*)$",
       "target": "$1",
-      "destination": "aireport-srv-api",
+      "destination": "ai2report-java-srv-api",
       "csrfProtection": false,
       "authenticationType": "xsuaa"
     }
   ],
-  "compression":{
+  "compression": {
     "enabled": false
   }
 }

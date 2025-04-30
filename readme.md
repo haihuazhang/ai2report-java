@@ -47,15 +47,15 @@ run command cds deploy in the root folder.
 
 ### `Step2` Create SAP BTP services and bind to local app.
 1. run cf create-service command for service XUSAA and Destination.
-   - cf create-service xusaa application aireport-auth -c xs-security.json
-   - cf create-service destination lite aireport-destination 
+   - cf create-service xsuaa application ai2report-java-auth -c xs-security.json
+   - cf create-service destination lite ai2report-java-destination
 2. run cf create-service-key command for service XSUAA and Destination. 
-   - cf create-service-key aireport-auth aireport-auth-key
-   - cf create-service-key aireport-destination aireport-destination-key
+   - cf create-service-key ai2report-java-auth ai2report-java-auth-key
+   - cf create-service-key ai2report-java-destination ai2report-java-destination-key
 3. run cds bind command for service HANA Cloud, xusaa and Destination.
-   - cds bind -2 aireport-db
-   - cds bind -2 aireport-auth
-   - cds bind -2 aireport-destination
+   - cds bind -2 ai2report-java-db
+   - cds bind -2 ai2report-java-auth
+   - cds bind -2 ai2report-java-destination
 4. check the content of file '.cdsrc-private.json'.
    - make sure the property apiEndpoint/org/space has the right value.  
 
@@ -67,6 +67,6 @@ run command cds deploy in the root folder.
 
 - Deploy the application to the SAP BTP Cloud Foundry Environment.
   - Run command: mbt build
-  - Run command: cf deploy mta_archives/aireport_1.0.0.mtar
+  - Run command: cf deploy mta_archives/ai2report-java_1.0.0.mtar
 
 
