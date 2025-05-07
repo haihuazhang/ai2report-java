@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 
 	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -14,19 +15,38 @@
 		};
 	</script>
 
-	<script id="sap-ushell-bootstrap" src="https://sapui5.hana.ondemand.com/1.133.1/test-resources/sap/ushell/bootstrap/sandbox.js"></script>
-    <script id="sap-ui-bootstrap" src="https://sapui5.hana.ondemand.com/1.133.1/resources/sap-ui-core.js"
-      data-sap-ui-libs="sap.m, sap.ushell, sap.collaboration, sap.ui.layout"
-      data-sap-ui-compatVersion="edge"
-      data-sap-ui-async="true"
-      data-sap-ui-preload="async"
-      data-sap-ui-theme="sap_horizon"
-      data-sap-ui-frameOptions="allow"
-    ></script>
+	<script id="sap-ushell-bootstrap"
+		src="https://sapui5.hana.ondemand.com/1.133.1/test-resources/sap/ushell/bootstrap/sandbox.js"></script>
+	<script id="sap-ui-bootstrap" src="https://sapui5.hana.ondemand.com/1.133.1/resources/sap-ui-core.js"
+		data-sap-ui-libs="sap.m, sap.ushell, sap.collaboration, sap.ui.layout" data-sap-ui-compatVersion="edge"
+		data-sap-ui-async="true" data-sap-ui-preload="async" data-sap-ui-theme="sap_horizon"
+		data-sap-ui-frameOptions="allow"></script>
 	<script>
-		sap.ui.getCore().attachInit(()=> sap.ushell.Container.createRenderer().placeAt("content"))
+		sap.ui.getCore().attachInit(() => {
+			sap.ushell.Container.createRenderer().placeAt("content");
+
+			// 拦截登出事件，跳转到 Approuter 配置的登出端点
+			// sap.ushell.Container.attachLogoutEvent(e => {
+			// 	e.preventDefault();
+			// 	window.location.replace('/logout');
+			// }, false);
+			sap.ushell.Container.registerLogout(() => {
+				// window.location.replace('/logout');
+				return fetch('/logout', {
+					method: 'POST',
+					// headers: {
+						// 'Content-Type': 'application/json'
+					// }
+				});
+				// .then(() => {
+					// window.location.replace('/logout');
+				// });
+			});
+		})
 	</script>
 
 </head>
+
 <body class="sapUiBody" id="content"></body>
+
 </html>

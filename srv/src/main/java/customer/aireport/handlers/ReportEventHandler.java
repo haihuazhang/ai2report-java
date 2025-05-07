@@ -19,9 +19,9 @@ import java.time.Instant;
 // Application imports
 import customer.aireport.config.AIProperties;
 import customer.aireport.constant.AIConstants;
-import customer.aireport.dto.CommonAIMessage;
 import customer.aireport.factory.RecordFactory;
 import customer.aireport.helper.ChatHelper;
+import customer.aireport.model.CommonAIMessage;
 import customer.aireport.model.EntityInfo;
 import customer.aireport.resolver.AIServiceResolver;
 import customer.aireport.service.EntityService;

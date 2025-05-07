@@ -16,7 +16,11 @@
                 "<node_internals>/**"
             ],
             "type": "node",
-            "localRoot": "${workspaceFolder}/app/router"
+            "localRoot": "${workspaceFolder}/app/router",
+            "env": {
+                "CF_NODEJS_LOGGING_LEVEL": "debug",
+                "XS_APP_LOG_LEVEL": "debug"
+            }
         },
         {
             "type": "java",

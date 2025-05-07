@@ -63,7 +63,7 @@
               "resolutionResult": {
                 "applicationType": "SAPUI5",
                 "additionalInformation": "SAPUI5.Component=report",
-                "url": "report/webapp"
+                "url": "/app/report/webapp"
               }
             },
             "ChatBotUI2": {
@@ -77,7 +77,7 @@
               "resolutionResult": {
                 "applicationType": "SAPUI5",
                 "additionalInformation": "SAPUI5.Component=chatbotui2",
-                "url": "chatbotui2/webapp"
+                "url": "/app/chatbotui2/webapp"
               }
             },
             "Parameter": {
@@ -91,7 +91,7 @@
               "resolutionResult": {
                 "applicationType": "SAPUI5",
                 "additionalInformation": "SAPUI5.Component=parameters",
-                "url": "parameters/webapp"
+                "url": "/app/parameters/webapp"
               }
             },
             "RAG": {
@@ -105,7 +105,7 @@
               "resolutionResult": {
                 "applicationType": "SAPUI5",
                 "additionalInformation": "SAPUI5.Component=capragapp",
-                "url": "cap-rag-app/webapp"
+                "url": "/app/cap-rag-app/webapp"
               }
             }
           }

@@ -1,4 +1,4 @@
-package customer.aireport.dto;
+package customer.aireport.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

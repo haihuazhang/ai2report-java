@@ -2,10 +2,9 @@ sap.ui.define([
     "sap/ui/core/Renderer",
     "sap/m/Text",
     "sap/m/BusyIndicator",
-    "./marked",
-    "./showdown"
+    "./marked"
 ],
-    function (Renderer, Text, BusyIndicator, markedImport, showdownImport) {
+    function (Renderer, Text, BusyIndicator, markedImport) {
         return Renderer.extend("report.control.ChatMessageListItemRenderer", {
             renderLIContent: function (rm, control) {
                 rm.openStart("div").class("sapMMessageListItem").openEnd();

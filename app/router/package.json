@@ -7,6 +7,10 @@
     "node": "^20"
   },
   "scripts": {
-    "start": "node node_modules/@sap/approuter/approuter.js"
+    "start": "set CF_NODEJS_LOGGING_LEVEL=debug && node node_modules/@sap/approuter/approuter.js",
+    "dev": "node node_modules/dev-approuter"
+  },
+  "devDependencies": {
+    "dev-approuter": "^0.5.1"
   }
 }

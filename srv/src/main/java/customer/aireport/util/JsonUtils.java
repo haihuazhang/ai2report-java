@@ -6,8 +6,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.core.JsonProcessingException;
 // import com.sap.ai.sdk.foundationmodels.openai.model.OpenAiChatCompletionFunction;
 import cds.gen.chatservice.*;
-import customer.aireport.dto.FieldSummary;
 import customer.aireport.exception.BusinessException;
+import customer.aireport.model.FieldSummary;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;

@@ -1,32 +1,45 @@
 {
   "routes": [
     {
-      "source": "^/app/(.*)$",
-      "target": "$1",
-      "localDir": ".",
-      "cacheControl": "no-cache, no-store, must-revalidate"
-    },
-    {
-      "source": "^/appconfig/",
-      "localDir": ".",
-      "cacheControl": "no-cache, no-store, must-revalidate"
-    },
-    {
-      "source": "^/report/webapp/api/(.*)$",
+      "source": "^/app/report/webapp/api/(.*)$",
       "target": "api/$1",
       "destination": "ai2report-java-srv-api",
       "csrfProtection": false,
       "authenticationType": "xsuaa"
     },
     {
-      "source": "^/(.*)$",
-      "target": "$1",
+      "source": "^/odata/(.*)$",
+      "target": "/odata/$1",
       "destination": "ai2report-java-srv-api",
-      "csrfProtection": false,
-      "authenticationType": "xsuaa"
+      "authenticationType": "xsuaa",
+      "csrfProtection": true
+    },
+    {
+      "source": "^/api/(.*)$",
+      "target": "/api/$1",
+      "destination": "ai2report-java-srv-api",
+      "authenticationType": "xsuaa",
+      "csrfProtection": false
+    },
+    {
+      "source": "^/app/(.*)$",
+      "target": "$1",
+      "localDir": "../",
+      "cacheControl": "no-cache, no-store, must-revalidate"
+    },
+    {
+      "source": "^/appconfig/",
+      "localDir": ".",
+      "cacheControl": "no-cache, no-store, must-revalidate"
     }
   ],
   "compression": {
     "enabled": false
+  },
+  "welcomeFile": "/app/index.html",
+  "logout": {
+    "logoutEndpoint": "/logout",
+    "logoutMethod": "POST",
+    "csrfProtection": false
   }
 }

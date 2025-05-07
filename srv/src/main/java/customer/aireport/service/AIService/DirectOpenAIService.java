@@ -28,13 +28,12 @@ import customer.aireport.config.AIServiceKeysConfig; // Changed from AIServiceKe
 import customer.aireport.constant.AIConstants;
 import customer.aireport.constant.AIServiceType;
 import customer.aireport.dto.AIResponse;
-import customer.aireport.dto.CommonAIMessage;
 import customer.aireport.exception.BusinessException;
 import customer.aireport.factory.AIResponseHandlerFactory;
 import customer.aireport.factory.SAPOpenAIMessageFactory;
 import customer.aireport.helper.AIResponseHelper;
 import customer.aireport.model.AIParameters;
-
+import customer.aireport.model.CommonAIMessage;
 import customer.aireport.model.EntityInfo;
 import customer.aireport.model.StreamChatRequest;
 import customer.aireport.util.ConfigUtils;

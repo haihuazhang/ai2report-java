@@ -3,8 +3,9 @@ package customer.aireport.helper;
 import org.springframework.stereotype.Component;
 import cds.gen.chatservice.*;
 import customer.aireport.constant.AIConstants;
-import customer.aireport.dto.CommonAIMessage;
 import customer.aireport.factory.RecordFactory;
+import customer.aireport.model.CommonAIMessage;
+
 import java.util.List;
 
 @Component

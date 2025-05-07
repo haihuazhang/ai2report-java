@@ -45,25 +45,30 @@
 
 
 
-/** * CSS for Markdown Dialog */
+/** * CSS for Markdown */
+
 .markdownDialog .sapMMessageListItemText {
     font-family: var(--sapFontFamily);
     line-height: 1.4;
 }
 
-.markdownDialog .sapMMessageListItemText pre {
+/***   CSS for Markdown Code Preview Section
+*/
+/* .markdownDialog .sapMMessageListItemText pre {
     background-color: var(--sapList_Background);
     padding: 1rem;
     border-radius: 0.25rem;
     overflow-x: auto;
-}
+} */
 
-.markdownDialog .sapMMessageListItemText code {
+/***   CSS for Markdown Code Preview Content
+*/
+/* .markdownDialog .sapMMessageListItemText code {
     font-family: 'Courier New', Courier, monospace;
     background-color: var(--sapList_Background);
     padding: 0.2rem 0.4rem;
     border-radius: 0.25rem;
-}
+} */
 
 .markdownDialog .sapMMessageListItemText p {
     margin: 0.5rem 0;

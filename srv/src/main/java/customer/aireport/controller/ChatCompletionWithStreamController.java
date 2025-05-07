@@ -23,8 +23,8 @@ import javax.annotation.Nonnull;
 
 import customer.aireport.config.AIProperties;
 import customer.aireport.constant.AIConstants;
-import customer.aireport.dto.CommonAIMessage;
 import customer.aireport.helper.ChatHelper;
+import customer.aireport.model.CommonAIMessage;
 import customer.aireport.model.EntityInfo;
 import customer.aireport.model.StreamChatRequest;
 import customer.aireport.service.EntityService;

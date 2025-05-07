@@ -17,7 +17,7 @@ import cds.gen.chatservice.Reports;
 import cds.gen.chatservice.ReportsGenerateCDSContext;
 import cds.gen.chatservice.ReportsGeneratePCLContext;
 import cds.gen.chatservice.ReportsNewRecordContext;
-import customer.aireport.dto.CommonAIMessage;
+import customer.aireport.model.CommonAIMessage;
 import customer.aireport.model.EntityInfo;
 import customer.aireport.model.StreamChatRequest;
 
