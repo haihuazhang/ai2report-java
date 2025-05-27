@@ -20,16 +20,18 @@ import javax.annotation.Nullable;
 @Getter
 @ToString
 @EqualsAndHashCode
-public class ClaudeAIChatCompletionDelta implements StreamedDelta {
+public class ClaudeAIChatCompletionDelta extends ConverseStreamResponse implements StreamedDelta {
 
-    @Nonnull
-    private final ConverseStreamResponse originalResponse;
+    // @Nonnull
+    // private final ConverseStreamResponse originalResponse;
+
+
 
     @Nonnull
     @Override
     public String getDeltaContent() {
         // return deltaContent;
-        final var delta = getOriginalResponse().getContentBlockDelta();
+        final var delta = getContentBlockDelta();
         if (delta != null) {
             return delta.getDelta() == null ? "" : delta.getDelta().getText();
         }
@@ -41,7 +43,7 @@ public class ClaudeAIChatCompletionDelta implements StreamedDelta {
     @Override
     public String getFinishReason() {
         // return finishReason;
-        final var messageStop = getOriginalResponse().getMessageStop();
+        final var messageStop = getMessageStop();
         if (messageStop != null) {
             return messageStop.getStopReason() != null ? messageStop.getStopReason().getValue() : null;
         }

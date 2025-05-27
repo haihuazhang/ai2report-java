@@ -356,6 +356,7 @@ public class SAPClaudeAIService implements AIServiceI {
                 // Extract system message if present
                 String systemMessage = messages.stream()
                                 .filter(msg -> AIConstants.Roles.SYSTEM.equals(msg.role()))
+                                .filter(msg -> msg.message() != null && !msg.message().trim().isEmpty()) // 过滤空消息
                                 .map(CommonAIMessage::message)
                                 .findFirst()
                                 .orElse(null);
@@ -364,9 +365,10 @@ public class SAPClaudeAIService implements AIServiceI {
                         request.addSystemItem(messageFactory.createSystemBlock(systemMessage));
                 }
 
-                // Add other messages (user and assistant)
+                // Add other messages (user and assistant), filtering out empty messages
                 messages.stream()
                                 .filter(msg -> !AIConstants.Roles.SYSTEM.equals(msg.role()))
+                                .filter(msg -> msg.message() != null && !msg.message().trim().isEmpty()) // 过滤空消息
                                 .forEach(msg -> {
                                         if (AIConstants.Roles.USER.equals(msg.role())) {
                                                 request.addMessagesItem(

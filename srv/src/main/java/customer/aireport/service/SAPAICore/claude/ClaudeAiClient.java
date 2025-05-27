@@ -1,5 +1,7 @@
 package customer.aireport.service.SAPAICore.claude;
 
+import com.fasterxml.jackson.core.JsonParser;
+
 // import static customer.aireport.service.SAPAICore.claude.ClaudeAiUtils.getClaudeAiObjectMapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -553,6 +555,7 @@ public final class ClaudeAiClient {
   @Nonnull
   private <D extends StreamedDelta> Stream<D> streamRequest(
       final BasicClassicHttpRequest request, @Nonnull final Class<D> deltaType) {
+        JACKSON.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
     try {
       final var client = ApacheHttpClient5Accessor.getHttpClient(destination);
       return new ClientStreamingHandler<>(deltaType, ClaudeAiError.class,
