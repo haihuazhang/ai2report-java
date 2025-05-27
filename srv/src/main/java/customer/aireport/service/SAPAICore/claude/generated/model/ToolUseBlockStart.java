@@ -24,7 +24,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import customer.aireport.service.SAPAICore.claude.generated.model.ConverseRequestAssistantMessage;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -34,51 +33,83 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Output container for Converse API responses. IMPORTANT: This is a UNION type - currently only supports &#39;message&#39;. 
+ * Initial metadata for tool usage
  */
 
 @Beta// CHECKSTYLE:OFF
-public class ConverseOutput 
+public class ToolUseBlockStart 
 // CHECKSTYLE:ON
 {
-  @JsonProperty("message")
-  private ConverseRequestAssistantMessage message;
+  @JsonProperty("toolUseId")
+  private String toolUseId;
+
+  @JsonProperty("name")
+  private String name;
 
   @JsonAnySetter
   @JsonAnyGetter
   private final Map<String, Object> cloudSdkCustomFields = new LinkedHashMap<>();
 
   /**
-   * Set the message of this {@link ConverseOutput} instance and return the same instance.
+   * Set the toolUseId of this {@link ToolUseBlockStart} instance and return the same instance.
    *
-   * @param message  The message of this {@link ConverseOutput}
-   * @return The same instance of this {@link ConverseOutput} class
+   * @param toolUseId  Unique identifier for this tool invocation
+   * @return The same instance of this {@link ToolUseBlockStart} class
    */
-  @Nonnull public ConverseOutput message( @Nullable final ConverseRequestAssistantMessage message) {
-    this.message = message;
+  @Nonnull public ToolUseBlockStart toolUseId( @Nonnull final String toolUseId) {
+    this.toolUseId = toolUseId;
     return this;
   }
 
   /**
-   * Get message
-   * @return message  The message of this {@link ConverseOutput} instance.
+   * Unique identifier for this tool invocation
+   * @return toolUseId  The toolUseId of this {@link ToolUseBlockStart} instance.
    */
   @Nonnull
-  public ConverseRequestAssistantMessage getMessage() {
-    return message;
+  public String getToolUseId() {
+    return toolUseId;
   }
 
   /**
-   * Set the message of this {@link ConverseOutput} instance.
+   * Set the toolUseId of this {@link ToolUseBlockStart} instance.
    *
-   * @param message  The message of this {@link ConverseOutput}
+   * @param toolUseId  Unique identifier for this tool invocation
    */
-  public void setMessage( @Nullable final ConverseRequestAssistantMessage message) {
-    this.message = message;
+  public void setToolUseId( @Nonnull final String toolUseId) {
+    this.toolUseId = toolUseId;
   }
 
   /**
-   * Get the names of the unrecognizable properties of the {@link ConverseOutput}.
+   * Set the name of this {@link ToolUseBlockStart} instance and return the same instance.
+   *
+   * @param name  Name of the tool being invoked
+   * @return The same instance of this {@link ToolUseBlockStart} class
+   */
+  @Nonnull public ToolUseBlockStart name( @Nonnull final String name) {
+    this.name = name;
+    return this;
+  }
+
+  /**
+   * Name of the tool being invoked
+   * @return name  The name of this {@link ToolUseBlockStart} instance.
+   */
+  @Nonnull
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * Set the name of this {@link ToolUseBlockStart} instance.
+   *
+   * @param name  Name of the tool being invoked
+   */
+  public void setName( @Nonnull final String name) {
+    this.name = name;
+  }
+
+  /**
+   * Get the names of the unrecognizable properties of the {@link ToolUseBlockStart}.
    * @return The set of properties names
    */
   @JsonIgnore
@@ -88,7 +119,7 @@ public class ConverseOutput
   }
 
   /**
-   * Get the value of an unrecognizable property of this {@link ConverseOutput} instance.
+   * Get the value of an unrecognizable property of this {@link ToolUseBlockStart} instance.
    * @deprecated Use {@link #toMap()} instead.
    * @param name  The name of the property
    * @return The value of the property
@@ -98,13 +129,13 @@ public class ConverseOutput
   @Deprecated
   public Object getCustomField( @Nonnull final String name ) throws NoSuchElementException {
     if( !cloudSdkCustomFields.containsKey(name) ) {
-        throw new NoSuchElementException("ConverseOutput has no field with name '" + name + "'.");
+        throw new NoSuchElementException("ToolUseBlockStart has no field with name '" + name + "'.");
     }
     return cloudSdkCustomFields.get(name);
   }
 
   /**
-   * Get the value of all properties of this {@link ConverseOutput} instance including unrecognized properties.
+   * Get the value of all properties of this {@link ToolUseBlockStart} instance including unrecognized properties.
    *
    * @return The map of all properties
    */
@@ -113,12 +144,13 @@ public class ConverseOutput
   public Map<String, Object> toMap()
   {
     final Map<String, Object> declaredFields = new LinkedHashMap<>(cloudSdkCustomFields);
-    if( message != null ) declaredFields.put("message", message);
+    if( toolUseId != null ) declaredFields.put("toolUseId", toolUseId);
+    if( name != null ) declaredFields.put("name", name);
     return declaredFields;
   }
 
   /**
-   * Set an unrecognizable property of this {@link ConverseOutput} instance. If the map previously contained a mapping
+   * Set an unrecognizable property of this {@link ToolUseBlockStart} instance. If the map previously contained a mapping
    * for the key, the old value is replaced by the specified value.
    * @param customFieldName The name of the property
    * @param customFieldValue The value of the property
@@ -138,21 +170,23 @@ public class ConverseOutput
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    final ConverseOutput converseOutput = (ConverseOutput) o;
-    return Objects.equals(this.cloudSdkCustomFields, converseOutput.cloudSdkCustomFields) &&
-        Objects.equals(this.message, converseOutput.message);
+    final ToolUseBlockStart toolUseBlockStart = (ToolUseBlockStart) o;
+    return Objects.equals(this.cloudSdkCustomFields, toolUseBlockStart.cloudSdkCustomFields) &&
+        Objects.equals(this.toolUseId, toolUseBlockStart.toolUseId) &&
+        Objects.equals(this.name, toolUseBlockStart.name);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(message, cloudSdkCustomFields);
+    return Objects.hash(toolUseId, name, cloudSdkCustomFields);
   }
 
   @Override
   @Nonnull public String toString() {
     final StringBuilder sb = new StringBuilder();
-    sb.append("class ConverseOutput {\n");
-    sb.append("    message: ").append(toIndentedString(message)).append("\n");
+    sb.append("class ToolUseBlockStart {\n");
+    sb.append("    toolUseId: ").append(toIndentedString(toolUseId)).append("\n");
+    sb.append("    name: ").append(toIndentedString(name)).append("\n");
     cloudSdkCustomFields.forEach((k,v) -> sb.append("    ").append(k).append(": ").append(toIndentedString(v)).append("\n"));
     sb.append("}");
     return sb.toString();

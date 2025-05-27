@@ -24,10 +24,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import customer.aireport.service.SAPAICore.claude.generated.model.ContentBlock;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -37,24 +33,24 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * ConverseRequestAssistantMessage
+ * Initial event containing message role and metadata
  */
 
 @Beta// CHECKSTYLE:OFF
-public class ConverseRequestAssistantMessage implements ConverseMessage 
+public class MessageStartEvent 
 // CHECKSTYLE:ON
 {
   /**
-   * Gets or Sets role
+   * Role of the responding entity
    */
   public enum RoleEnum {
     /**
-    * The ASSISTANT option of this ConverseRequestAssistantMessage
+    * The ASSISTANT option of this MessageStartEvent
     */
     ASSISTANT("assistant"),
     
     /**
-    * The UNKNOWN_DEFAULT_OPEN_API option of this ConverseRequestAssistantMessage
+    * The UNKNOWN_DEFAULT_OPEN_API option of this MessageStartEvent
     */
     UNKNOWN_DEFAULT_OPEN_API("unknown_default_open_api");
 
@@ -85,7 +81,7 @@ public class ConverseRequestAssistantMessage implements ConverseMessage
     /**
     * Get the enum value from a String value
     * @param value The String value
-    * @return The enum value of type ConverseRequestAssistantMessage
+    * @return The enum value of type MessageStartEvent
     */
     @JsonCreator
     @Nonnull public static RoleEnum fromValue(@Nonnull final String value) {
@@ -101,27 +97,24 @@ public class ConverseRequestAssistantMessage implements ConverseMessage
   @JsonProperty("role")
   private RoleEnum role;
 
-  @JsonProperty("content")
-  private List<ContentBlock> content = new ArrayList<>();
-
   @JsonAnySetter
   @JsonAnyGetter
   private final Map<String, Object> cloudSdkCustomFields = new LinkedHashMap<>();
 
   /**
-   * Set the role of this {@link ConverseRequestAssistantMessage} instance and return the same instance.
+   * Set the role of this {@link MessageStartEvent} instance and return the same instance.
    *
-   * @param role  The role of this {@link ConverseRequestAssistantMessage}
-   * @return The same instance of this {@link ConverseRequestAssistantMessage} class
+   * @param role  Role of the responding entity
+   * @return The same instance of this {@link MessageStartEvent} class
    */
-  @Nonnull public ConverseRequestAssistantMessage role( @Nonnull final RoleEnum role) {
+  @Nonnull public MessageStartEvent role( @Nonnull final RoleEnum role) {
     this.role = role;
     return this;
   }
 
   /**
-   * Get role
-   * @return role  The role of this {@link ConverseRequestAssistantMessage} instance.
+   * Role of the responding entity
+   * @return role  The role of this {@link MessageStartEvent} instance.
    */
   @Nonnull
   public RoleEnum getRole() {
@@ -129,57 +122,16 @@ public class ConverseRequestAssistantMessage implements ConverseMessage
   }
 
   /**
-   * Set the role of this {@link ConverseRequestAssistantMessage} instance.
+   * Set the role of this {@link MessageStartEvent} instance.
    *
-   * @param role  The role of this {@link ConverseRequestAssistantMessage}
+   * @param role  Role of the responding entity
    */
   public void setRole( @Nonnull final RoleEnum role) {
     this.role = role;
   }
 
   /**
-   * Set the content of this {@link ConverseRequestAssistantMessage} instance and return the same instance.
-   *
-   * @param content  The contents of the user message. 
-   * @return The same instance of this {@link ConverseRequestAssistantMessage} class
-   */
-  @Nonnull public ConverseRequestAssistantMessage content( @Nonnull final List<ContentBlock> content) {
-    this.content = content;
-    return this;
-  }
-  /**
-   * Add one content instance to this {@link ConverseRequestAssistantMessage}.
-   * @param contentItem The content that should be added
-   * @return The same instance of type {@link ConverseRequestAssistantMessage}
-   */
-  @Nonnull public ConverseRequestAssistantMessage addContentItem( @Nonnull final ContentBlock contentItem) {
-    if (this.content == null) {
-      this.content = new ArrayList<>();
-    }
-    this.content.add(contentItem);
-    return this;
-  }
-
-  /**
-   * The contents of the user message. 
-   * @return content  The content of this {@link ConverseRequestAssistantMessage} instance.
-   */
-  @Nonnull
-  public List<ContentBlock> getContent() {
-    return content;
-  }
-
-  /**
-   * Set the content of this {@link ConverseRequestAssistantMessage} instance.
-   *
-   * @param content  The contents of the user message. 
-   */
-  public void setContent( @Nonnull final List<ContentBlock> content) {
-    this.content = content;
-  }
-
-  /**
-   * Get the names of the unrecognizable properties of the {@link ConverseRequestAssistantMessage}.
+   * Get the names of the unrecognizable properties of the {@link MessageStartEvent}.
    * @return The set of properties names
    */
   @JsonIgnore
@@ -189,7 +141,7 @@ public class ConverseRequestAssistantMessage implements ConverseMessage
   }
 
   /**
-   * Get the value of an unrecognizable property of this {@link ConverseRequestAssistantMessage} instance.
+   * Get the value of an unrecognizable property of this {@link MessageStartEvent} instance.
    * @deprecated Use {@link #toMap()} instead.
    * @param name  The name of the property
    * @return The value of the property
@@ -199,13 +151,13 @@ public class ConverseRequestAssistantMessage implements ConverseMessage
   @Deprecated
   public Object getCustomField( @Nonnull final String name ) throws NoSuchElementException {
     if( !cloudSdkCustomFields.containsKey(name) ) {
-        throw new NoSuchElementException("ConverseRequestAssistantMessage has no field with name '" + name + "'.");
+        throw new NoSuchElementException("MessageStartEvent has no field with name '" + name + "'.");
     }
     return cloudSdkCustomFields.get(name);
   }
 
   /**
-   * Get the value of all properties of this {@link ConverseRequestAssistantMessage} instance including unrecognized properties.
+   * Get the value of all properties of this {@link MessageStartEvent} instance including unrecognized properties.
    *
    * @return The map of all properties
    */
@@ -215,12 +167,11 @@ public class ConverseRequestAssistantMessage implements ConverseMessage
   {
     final Map<String, Object> declaredFields = new LinkedHashMap<>(cloudSdkCustomFields);
     if( role != null ) declaredFields.put("role", role);
-    if( content != null ) declaredFields.put("content", content);
     return declaredFields;
   }
 
   /**
-   * Set an unrecognizable property of this {@link ConverseRequestAssistantMessage} instance. If the map previously contained a mapping
+   * Set an unrecognizable property of this {@link MessageStartEvent} instance. If the map previously contained a mapping
    * for the key, the old value is replaced by the specified value.
    * @param customFieldName The name of the property
    * @param customFieldValue The value of the property
@@ -240,23 +191,21 @@ public class ConverseRequestAssistantMessage implements ConverseMessage
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    final ConverseRequestAssistantMessage converseRequestAssistantMessage = (ConverseRequestAssistantMessage) o;
-    return Objects.equals(this.cloudSdkCustomFields, converseRequestAssistantMessage.cloudSdkCustomFields) &&
-        Objects.equals(this.role, converseRequestAssistantMessage.role) &&
-        Objects.equals(this.content, converseRequestAssistantMessage.content);
+    final MessageStartEvent messageStartEvent = (MessageStartEvent) o;
+    return Objects.equals(this.cloudSdkCustomFields, messageStartEvent.cloudSdkCustomFields) &&
+        Objects.equals(this.role, messageStartEvent.role);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(role, content, cloudSdkCustomFields);
+    return Objects.hash(role, cloudSdkCustomFields);
   }
 
   @Override
   @Nonnull public String toString() {
     final StringBuilder sb = new StringBuilder();
-    sb.append("class ConverseRequestAssistantMessage {\n");
+    sb.append("class MessageStartEvent {\n");
     sb.append("    role: ").append(toIndentedString(role)).append("\n");
-    sb.append("    content: ").append(toIndentedString(content)).append("\n");
     cloudSdkCustomFields.forEach((k,v) -> sb.append("    ").append(k).append(": ").append(toIndentedString(v)).append("\n"));
     sb.append("}");
     return sb.toString();

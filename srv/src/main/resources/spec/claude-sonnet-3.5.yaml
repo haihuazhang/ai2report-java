@@ -96,6 +96,44 @@ paths:
           $ref: "#/components/responses/BadRequest"
         '429':
           $ref: "#/components/responses/TooManyRequests"
+  /model/anthropic.claude-v3/converse-stream:
+    post:
+      summary: Stream conversation with Claude model
+      operationId: converseStreamClaude
+      x-amazon-apigateway-integration:
+        type: aws_proxy
+        httpMethod: POST
+        uri: arn:aws:bedrock:${region}::/model/anthropic.claude-v3/converse-stream
+      parameters:
+        - name: accept
+          in: header
+          required: true
+          schema:
+            type: string
+            enum: [application/vnd.amazon.eventstream]
+        - name: contentType
+          in: header
+          required: true
+          schema:
+            type: string
+            enum: [application/json]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConverseStreamRequest"
+      responses:
+        '200':
+          description: Successful streaming conversation
+          content:
+            application/vnd.amazon.eventstream:
+              schema:
+                $ref: "#/components/schemas/ConverseStreamResponse"
+        '400':
+          $ref: "#/components/responses/BadRequest"
+        '429':
+          $ref: "#/components/responses/TooManyRequests"
 
 components:
   schemas:
@@ -1043,6 +1081,8 @@ components:
               properties:
                 invokedModelId:
                   type: string
+                  description: The actual model ID that was invoked
+                  example: "anthropic.claude-3-sonnet-20240229-v1:0"
         usage:
           type: object
           properties:
@@ -1358,6 +1398,419 @@ components:
         - name
       additionalProperties: false
       x-model-support: "Anthropic Claude 3 only"  
+
+    ConverseStreamRequest:
+      type: object
+      description: |
+        Request schema for streaming conversations with Claude models.
+        Identical to ConverseRequest but enables real-time response streaming.
+      allOf:
+        - $ref: "#/components/schemas/ConverseRequest"
+      examples:
+        basic_stream:
+          value:
+            messages:
+              - role: "user"
+                content:
+                  - text: "Tell me a story about space exploration"
+            inferenceConfig:
+              maxTokens: 2048
+              temperature: 0.7
+        tool_enabled_stream:
+          value:
+            messages:
+              - role: "user"
+                content:
+                  - text: "What's the weather like in Tokyo?"
+            toolConfig:
+              tools:
+                - toolSpec:
+                    name: "get_weather"
+                    description: "Get current weather information"
+                    inputSchema:
+                      json:
+                        type: "object"
+                        properties:
+                          location:
+                            type: "string"
+                          unit:
+                            type: "string"
+                            enum: ["celsius", "fahrenheit"]
+                        required: ["location"]
+              toolChoice:
+                auto: {}
+
+    ConverseStreamResponse:
+      type: object
+      description: |
+        Server-sent event stream response for streaming conversations.
+        Each event contains partial response data as it becomes available.
+      properties:
+        messageStart:
+          $ref: '#/components/schemas/MessageStartEvent'
+          description: Initial message metadata
+        contentBlockStart:
+          $ref: '#/components/schemas/ContentBlockStartEvent'
+          description: Start of a content block
+        contentBlockDelta:
+          $ref: '#/components/schemas/ContentBlockDeltaEvent'
+          description: Incremental content update
+        contentBlockStop:
+          $ref: '#/components/schemas/ContentBlockStopEvent'
+          description: End of a content block
+        messageStop:
+          $ref: '#/components/schemas/MessageStopEvent'
+          description: Final message completion with metadata
+        metadata:
+          $ref: '#/components/schemas/StreamMetadataEvent'
+          description: Additional response metadata
+        internalServerException:
+          $ref: '#/components/schemas/InternalServerException'
+          description: Server error event
+        modelStreamErrorException:
+          $ref: '#/components/schemas/ModelStreamErrorException'
+          description: Model-specific error event
+        serviceUnavailableException:
+          $ref: '#/components/schemas/ServiceUnavailableException'
+          description: Service unavailable error event
+        throttlingException:
+          $ref: '#/components/schemas/ThrottlingException'
+          description: Rate limiting error event
+        validationException:
+          $ref: '#/components/schemas/ValidationException'
+          description: Request validation error event
+      oneOf:
+        - required: [messageStart]
+        - required: [contentBlockStart]
+        - required: [contentBlockDelta]
+        - required: [contentBlockStop]
+        - required: [messageStop]
+        - required: [metadata]
+        - required: [internalServerException]
+        - required: [modelStreamErrorException]
+        - required: [serviceUnavailableException]
+        - required: [throttlingException]
+        - required: [validationException]
+      additionalProperties: false
+
+    MessageStartEvent:
+      type: object
+      description: Initial event containing message role and metadata
+      properties:
+        role:
+          type: string
+          enum: [assistant]
+          description: Role of the responding entity
+      required:
+        - role
+      additionalProperties: false
+
+    ContentBlockStartEvent:
+      type: object
+      description: Signals the beginning of a new content block
+      properties:
+        start:
+          $ref: '#/components/schemas/ContentBlockStart'
+          description: Content block initialization data
+        contentBlockIndex:
+          type: integer
+          minimum: 0
+          description: Zero-based index of this content block
+      required:
+        - start
+        - contentBlockIndex
+      additionalProperties: false
+
+    ContentBlockStart:
+      type: object
+      description: |
+        Initialization data for a streaming content block.
+        IMPORTANT: This is a UNION type - only one member can be specified.
+      properties:
+        toolUse:
+          $ref: '#/components/schemas/ToolUseBlockStart'
+          description: Tool invocation initialization
+        text:
+          type: object
+          maxProperties: 0
+          description: Text content initialization (empty object)
+      oneOf:
+        - required: [toolUse]
+        - required: [text]
+      additionalProperties: false
+
+    ToolUseBlockStart:
+      type: object
+      description: Initial metadata for tool usage
+      properties:
+        toolUseId:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: '^[a-zA-Z0-9_-]+$'
+          description: Unique identifier for this tool invocation
+        name:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: '^[a-zA-Z0-9_-]+$'
+          description: Name of the tool being invoked
+      required:
+        - toolUseId
+        - name
+      additionalProperties: false
+
+    ContentBlockDeltaEvent:
+      type: object
+      description: Incremental content updates as they stream
+      properties:
+        delta:
+          $ref: '#/components/schemas/ContentBlockDelta'
+          description: The incremental content change
+        contentBlockIndex:
+          type: integer
+          minimum: 0
+          description: Index of the content block being updated
+      required:
+        - delta
+        - contentBlockIndex
+      additionalProperties: false
+
+    ContentBlockDelta:
+      type: object
+      description: |
+        Incremental content change data.
+        IMPORTANT: This is a UNION type - only one member can be specified.
+      properties:
+        text:
+          type: string
+          description: |
+            The text fragment being streamed.
+            Concatenate all fragments to build complete response.
+          examples:
+            token_fragment:
+              value: " exploration"
+            sentence_start:
+              value: "The spacecraft slowly approached"
+        toolUse:
+          $ref: '#/components/schemas/ToolUseBlockDelta'
+          description: Tool usage data increment
+      oneOf:
+        - required: [text]
+        - required: [toolUse]
+      additionalProperties: false
+
+    ToolUseBlockDelta:
+      type: object
+      description: Incremental tool input data
+      properties:
+        input:
+          type: string
+          description: |
+            Partial JSON input data for the tool.
+            Concatenate all fragments to build complete input object.
+          examples:
+            json_fragment:
+              value: '{"location": "Tok'
+            json_continuation:
+              value: 'yo", "unit": "celsius"}'
+      required:
+        - input
+      additionalProperties: false
+
+    ContentBlockStopEvent:
+      type: object
+      description: Signals completion of a content block
+      properties:
+        contentBlockIndex:
+          type: integer
+          minimum: 0
+          description: Index of the completed content block
+      required:
+        - contentBlockIndex
+      additionalProperties: false
+
+    MessageStopEvent:
+      type: object
+      description: Final event with complete response metadata
+      properties:
+        stopReason:
+          type: string
+          enum: [end_turn, tool_use, max_tokens, stop_sequence, guardrail_intervened, content_filtered]
+          description: Reason why the message generation stopped
+        additionalModelResponseFields:
+          type: object
+          additionalProperties: true
+          description: Model-specific response fields
+      required:
+        - stopReason
+      additionalProperties: false
+
+    StreamMetadataEvent:
+      type: object
+      description: Additional metadata about the streaming response
+      properties:
+        usage:
+          $ref: '#/components/schemas/ConverseStreamUsage'
+          description: Token usage statistics
+        metrics:
+          $ref: '#/components/schemas/ConverseStreamMetrics'
+          description: Performance metrics
+        performanceConfig:
+          type: object
+          description: Performance configuration information
+          properties:
+            latency:
+              type: string
+              enum: [streaming]
+              description: Latency performance mode
+        trace:
+          $ref: '#/components/schemas/ConverseStreamTrace'
+          description: Execution trace information
+      additionalProperties: false
+
+    ConverseStreamUsage:
+      type: object
+      description: Token usage statistics for streaming response
+      properties:
+        inputTokens:
+          type: number
+          minimum: 0
+          description: Number of tokens in the input
+        outputTokens:
+          type: number
+          minimum: 0
+          description: Number of tokens generated so far
+        totalTokens:
+          type: number
+          minimum: 0
+          description: Total tokens processed
+        cacheReadInputTokens:
+          type: number
+          minimum: 0
+          description: Tokens read from cache
+        cacheWriteInputTokens:
+          type: number
+          minimum: 0
+          description: Tokens written to cache
+      additionalProperties: false
+
+    ConverseStreamMetrics:
+      type: object
+      description: Performance metrics for streaming response
+      properties:
+        latencyMs:
+          type: number
+          minimum: 0
+          description: Response latency in milliseconds
+      additionalProperties: false
+
+    ConverseStreamTrace:
+      type: object
+      description: Execution trace for streaming response
+      properties:
+        guardrail:
+          $ref: '#/components/schemas/ConverseStreamTraceGuardrail'
+          description: Guardrail evaluation trace
+        promptRouter:
+          type: object
+          description: Prompt routing information
+          properties:
+            invokedModelId:
+              type: string
+              description: The actual model ID that was invoked
+              example: "anthropic.claude-3-sonnet-20240229-v1:0"
+          additionalProperties: false
+      additionalProperties: false
+
+    ConverseStreamTraceGuardrail:
+      type: object
+      description: Guardrail trace information for streaming
+      properties:
+        actionReason:
+          type: string
+          description: Reason for guardrail action
+        inputAssessment:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/Assessment"
+          description: Input content assessment results
+        modelOutput:
+          type: array
+          items:
+            type: string
+          description: Model output segments
+        outputAssessments:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: "#/components/schemas/Assessment"
+          description: Output content assessment results
+      additionalProperties: false
+
+    # Error event schemas
+    InternalServerException:
+      type: object
+      description: Internal server error during streaming
+      properties:
+        message:
+          type: string
+          description: Error description
+      required:
+        - message
+      additionalProperties: false
+
+    ModelStreamErrorException:
+      type: object
+      description: Model-specific error during streaming
+      properties:
+        message:
+          type: string
+          description: Error description
+        originalStatusCode:
+          type: integer
+          description: Original HTTP status code
+        originalMessage:
+          type: string
+          description: Original error message
+      required:
+        - message
+      additionalProperties: false
+
+    ThrottlingException:
+      type: object
+      description: Rate limiting error during streaming
+      properties:
+        message:
+          type: string
+          description: Throttling error description
+      required:
+        - message
+      additionalProperties: false
+
+    ValidationException:
+      type: object
+      description: Request validation error during streaming
+      properties:
+        message:
+          type: string
+          description: Validation error description
+      required:
+        - message
+      additionalProperties: false
+
+    ServiceUnavailableException:
+      type: object
+      description: Service unavailable error during streaming
+      properties:
+        message:
+          type: string
+          description: Service unavailable error description
+      required:
+        - message
+      additionalProperties: false
+
   responses:
     BadRequest:
       description: Invalid request parameters

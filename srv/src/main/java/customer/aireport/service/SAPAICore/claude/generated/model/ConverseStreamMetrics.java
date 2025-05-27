@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import customer.aireport.service.SAPAICore.claude.generated.model.ConverseRequestAssistantMessage;
+import java.math.BigDecimal;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -34,51 +34,54 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Output container for Converse API responses. IMPORTANT: This is a UNION type - currently only supports &#39;message&#39;. 
+ * Performance metrics for streaming response
  */
 
 @Beta// CHECKSTYLE:OFF
-public class ConverseOutput 
+public class ConverseStreamMetrics 
 // CHECKSTYLE:ON
 {
-  @JsonProperty("message")
-  private ConverseRequestAssistantMessage message;
+  @JsonProperty("latencyMs")
+  private BigDecimal latencyMs;
 
   @JsonAnySetter
   @JsonAnyGetter
   private final Map<String, Object> cloudSdkCustomFields = new LinkedHashMap<>();
 
   /**
-   * Set the message of this {@link ConverseOutput} instance and return the same instance.
+   * Set the latencyMs of this {@link ConverseStreamMetrics} instance and return the same instance.
    *
-   * @param message  The message of this {@link ConverseOutput}
-   * @return The same instance of this {@link ConverseOutput} class
+   * @param latencyMs  Response latency in milliseconds
+   * Minimum: 0
+   * @return The same instance of this {@link ConverseStreamMetrics} class
    */
-  @Nonnull public ConverseOutput message( @Nullable final ConverseRequestAssistantMessage message) {
-    this.message = message;
+  @Nonnull public ConverseStreamMetrics latencyMs( @Nullable final BigDecimal latencyMs) {
+    this.latencyMs = latencyMs;
     return this;
   }
 
   /**
-   * Get message
-   * @return message  The message of this {@link ConverseOutput} instance.
+   * Response latency in milliseconds
+   * minimum: 0
+   * @return latencyMs  The latencyMs of this {@link ConverseStreamMetrics} instance.
    */
   @Nonnull
-  public ConverseRequestAssistantMessage getMessage() {
-    return message;
+  public BigDecimal getLatencyMs() {
+    return latencyMs;
   }
 
   /**
-   * Set the message of this {@link ConverseOutput} instance.
+   * Set the latencyMs of this {@link ConverseStreamMetrics} instance.
    *
-   * @param message  The message of this {@link ConverseOutput}
+   * @param latencyMs  Response latency in milliseconds
+   * Minimum: 0
    */
-  public void setMessage( @Nullable final ConverseRequestAssistantMessage message) {
-    this.message = message;
+  public void setLatencyMs( @Nullable final BigDecimal latencyMs) {
+    this.latencyMs = latencyMs;
   }
 
   /**
-   * Get the names of the unrecognizable properties of the {@link ConverseOutput}.
+   * Get the names of the unrecognizable properties of the {@link ConverseStreamMetrics}.
    * @return The set of properties names
    */
   @JsonIgnore
@@ -88,7 +91,7 @@ public class ConverseOutput
   }
 
   /**
-   * Get the value of an unrecognizable property of this {@link ConverseOutput} instance.
+   * Get the value of an unrecognizable property of this {@link ConverseStreamMetrics} instance.
    * @deprecated Use {@link #toMap()} instead.
    * @param name  The name of the property
    * @return The value of the property
@@ -98,13 +101,13 @@ public class ConverseOutput
   @Deprecated
   public Object getCustomField( @Nonnull final String name ) throws NoSuchElementException {
     if( !cloudSdkCustomFields.containsKey(name) ) {
-        throw new NoSuchElementException("ConverseOutput has no field with name '" + name + "'.");
+        throw new NoSuchElementException("ConverseStreamMetrics has no field with name '" + name + "'.");
     }
     return cloudSdkCustomFields.get(name);
   }
 
   /**
-   * Get the value of all properties of this {@link ConverseOutput} instance including unrecognized properties.
+   * Get the value of all properties of this {@link ConverseStreamMetrics} instance including unrecognized properties.
    *
    * @return The map of all properties
    */
@@ -113,12 +116,12 @@ public class ConverseOutput
   public Map<String, Object> toMap()
   {
     final Map<String, Object> declaredFields = new LinkedHashMap<>(cloudSdkCustomFields);
-    if( message != null ) declaredFields.put("message", message);
+    if( latencyMs != null ) declaredFields.put("latencyMs", latencyMs);
     return declaredFields;
   }
 
   /**
-   * Set an unrecognizable property of this {@link ConverseOutput} instance. If the map previously contained a mapping
+   * Set an unrecognizable property of this {@link ConverseStreamMetrics} instance. If the map previously contained a mapping
    * for the key, the old value is replaced by the specified value.
    * @param customFieldName The name of the property
    * @param customFieldValue The value of the property
@@ -138,21 +141,21 @@ public class ConverseOutput
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    final ConverseOutput converseOutput = (ConverseOutput) o;
-    return Objects.equals(this.cloudSdkCustomFields, converseOutput.cloudSdkCustomFields) &&
-        Objects.equals(this.message, converseOutput.message);
+    final ConverseStreamMetrics converseStreamMetrics = (ConverseStreamMetrics) o;
+    return Objects.equals(this.cloudSdkCustomFields, converseStreamMetrics.cloudSdkCustomFields) &&
+        Objects.equals(this.latencyMs, converseStreamMetrics.latencyMs);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(message, cloudSdkCustomFields);
+    return Objects.hash(latencyMs, cloudSdkCustomFields);
   }
 
   @Override
   @Nonnull public String toString() {
     final StringBuilder sb = new StringBuilder();
-    sb.append("class ConverseOutput {\n");
-    sb.append("    message: ").append(toIndentedString(message)).append("\n");
+    sb.append("class ConverseStreamMetrics {\n");
+    sb.append("    latencyMs: ").append(toIndentedString(latencyMs)).append("\n");
     cloudSdkCustomFields.forEach((k,v) -> sb.append("    ").append(k).append(": ").append(toIndentedString(v)).append("\n"));
     sb.append("}");
     return sb.toString();

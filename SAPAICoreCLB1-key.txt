@@ -1,0 +1,12 @@
+{
+  "serviceurls": {
+    "AI_API_URL": "https://api.ai.prod.eu-central-1.aws.ml.hana.ondemand.com"
+  },
+  "appname": "4ba914fb-04d8-406b-ac7c-42a33bcc8f89!b549118|aicore!b540",
+  "clientid": "sb-4ba914fb-04d8-406b-ac7c-42a33bcc8f89!b549118|aicore!b540",
+  "clientsecret": "30c733f4-1d27-4891-9633-c3125e0296a6$59d5zVVBHoXVGk_T-A5CAhelitpx5XkOYImEmubfp0w=",
+  "identityzone": "genai-europe-aws-16rxv3mh",
+  "identityzoneid": "9963ad8b-ff66-4a99-9e1f-413a1b34420e",
+  "url": "https://genai-europe-aws-16rxv3mh.authentication.eu10.hana.ondemand.com",
+  "credential-type": "binding-secret"
+}

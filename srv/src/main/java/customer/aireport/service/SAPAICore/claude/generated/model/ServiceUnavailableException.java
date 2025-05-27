@@ -24,7 +24,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import customer.aireport.service.SAPAICore.claude.generated.model.ConverseRequestAssistantMessage;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -34,51 +33,51 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Output container for Converse API responses. IMPORTANT: This is a UNION type - currently only supports &#39;message&#39;. 
+ * Service unavailable error during streaming
  */
 
 @Beta// CHECKSTYLE:OFF
-public class ConverseOutput 
+public class ServiceUnavailableException 
 // CHECKSTYLE:ON
 {
   @JsonProperty("message")
-  private ConverseRequestAssistantMessage message;
+  private String message;
 
   @JsonAnySetter
   @JsonAnyGetter
   private final Map<String, Object> cloudSdkCustomFields = new LinkedHashMap<>();
 
   /**
-   * Set the message of this {@link ConverseOutput} instance and return the same instance.
+   * Set the message of this {@link ServiceUnavailableException} instance and return the same instance.
    *
-   * @param message  The message of this {@link ConverseOutput}
-   * @return The same instance of this {@link ConverseOutput} class
+   * @param message  Service unavailable error description
+   * @return The same instance of this {@link ServiceUnavailableException} class
    */
-  @Nonnull public ConverseOutput message( @Nullable final ConverseRequestAssistantMessage message) {
+  @Nonnull public ServiceUnavailableException message( @Nonnull final String message) {
     this.message = message;
     return this;
   }
 
   /**
-   * Get message
-   * @return message  The message of this {@link ConverseOutput} instance.
+   * Service unavailable error description
+   * @return message  The message of this {@link ServiceUnavailableException} instance.
    */
   @Nonnull
-  public ConverseRequestAssistantMessage getMessage() {
+  public String getMessage() {
     return message;
   }
 
   /**
-   * Set the message of this {@link ConverseOutput} instance.
+   * Set the message of this {@link ServiceUnavailableException} instance.
    *
-   * @param message  The message of this {@link ConverseOutput}
+   * @param message  Service unavailable error description
    */
-  public void setMessage( @Nullable final ConverseRequestAssistantMessage message) {
+  public void setMessage( @Nonnull final String message) {
     this.message = message;
   }
 
   /**
-   * Get the names of the unrecognizable properties of the {@link ConverseOutput}.
+   * Get the names of the unrecognizable properties of the {@link ServiceUnavailableException}.
    * @return The set of properties names
    */
   @JsonIgnore
@@ -88,7 +87,7 @@ public class ConverseOutput
   }
 
   /**
-   * Get the value of an unrecognizable property of this {@link ConverseOutput} instance.
+   * Get the value of an unrecognizable property of this {@link ServiceUnavailableException} instance.
    * @deprecated Use {@link #toMap()} instead.
    * @param name  The name of the property
    * @return The value of the property
@@ -98,13 +97,13 @@ public class ConverseOutput
   @Deprecated
   public Object getCustomField( @Nonnull final String name ) throws NoSuchElementException {
     if( !cloudSdkCustomFields.containsKey(name) ) {
-        throw new NoSuchElementException("ConverseOutput has no field with name '" + name + "'.");
+        throw new NoSuchElementException("ServiceUnavailableException has no field with name '" + name + "'.");
     }
     return cloudSdkCustomFields.get(name);
   }
 
   /**
-   * Get the value of all properties of this {@link ConverseOutput} instance including unrecognized properties.
+   * Get the value of all properties of this {@link ServiceUnavailableException} instance including unrecognized properties.
    *
    * @return The map of all properties
    */
@@ -118,7 +117,7 @@ public class ConverseOutput
   }
 
   /**
-   * Set an unrecognizable property of this {@link ConverseOutput} instance. If the map previously contained a mapping
+   * Set an unrecognizable property of this {@link ServiceUnavailableException} instance. If the map previously contained a mapping
    * for the key, the old value is replaced by the specified value.
    * @param customFieldName The name of the property
    * @param customFieldValue The value of the property
@@ -138,9 +137,9 @@ public class ConverseOutput
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    final ConverseOutput converseOutput = (ConverseOutput) o;
-    return Objects.equals(this.cloudSdkCustomFields, converseOutput.cloudSdkCustomFields) &&
-        Objects.equals(this.message, converseOutput.message);
+    final ServiceUnavailableException serviceUnavailableException = (ServiceUnavailableException) o;
+    return Objects.equals(this.cloudSdkCustomFields, serviceUnavailableException.cloudSdkCustomFields) &&
+        Objects.equals(this.message, serviceUnavailableException.message);
   }
 
   @Override
@@ -151,7 +150,7 @@ public class ConverseOutput
   @Override
   @Nonnull public String toString() {
     final StringBuilder sb = new StringBuilder();
-    sb.append("class ConverseOutput {\n");
+    sb.append("class ServiceUnavailableException {\n");
     sb.append("    message: ").append(toIndentedString(message)).append("\n");
     cloudSdkCustomFields.forEach((k,v) -> sb.append("    ").append(k).append(": ").append(toIndentedString(v)).append("\n"));
     sb.append("}");

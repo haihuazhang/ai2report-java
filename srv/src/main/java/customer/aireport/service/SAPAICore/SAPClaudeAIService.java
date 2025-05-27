@@ -1,18 +1,25 @@
 package customer.aireport.service.SAPAICore;
 
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 import javax.annotation.Nonnull;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import com.sap.ai.sdk.core.AiCoreService;
-
+import com.sap.ai.sdk.foundationmodels.openai.OpenAiClient;
+import com.sap.ai.sdk.foundationmodels.openai.model.OpenAiChatCompletionParameters;
+import com.sap.ai.sdk.foundationmodels.openai.model.OpenAiUsage;
 import com.sap.cloud.sdk.cloudplatform.connectivity.Destination;
 import com.sap.cloud.sdk.cloudplatform.connectivity.DestinationAccessor;
 
@@ -48,38 +55,39 @@ import customer.aireport.service.SAPAICore.claude.generated.model.ConverseRespon
 import customer.aireport.service.SAPAICore.claude.generated.model.ConverseTool;
 import customer.aireport.service.SAPAICore.claude.generated.model.ConverseToolChoice;
 import customer.aireport.service.SAPAICore.claude.generated.model.SpecificToolChoice;
+import customer.aireport.service.SAPAICore.claude.model.ClaudeAIChatCompletionDelta;
 import customer.aireport.util.ConfigUtils;
 import customer.aireport.util.JsonUtils;
 
 @Service
 public class SAPClaudeAIService implements AIServiceI {
-    private final ClaudeAiModel DEFAULT_MODEL = ClaudeAiModel.CLAUDE_3_7_SONNET;
-    private final AIProperties aiProperties;
-    private final AIServiceKeysConfig aiServiceKeys;
-    private final SAPClaudeAIMessageFactory messageFactory;
-    private final AIResponseHelper aiResponseHelper;
-    private final ConfigUtils configUtils;
-    private final JsonUtils jsonUtils;
-    private final AIResponseHandlerFactory aiResponseHandlerFactory;
+        private final ClaudeAiModel DEFAULT_MODEL = ClaudeAiModel.CLAUDE_3_7_SONNET;
+        private final AIProperties aiProperties;
+        private final AIServiceKeysConfig aiServiceKeys;
+        private final SAPClaudeAIMessageFactory messageFactory;
+        private final AIResponseHelper aiResponseHelper;
+        private final ConfigUtils configUtils;
+        private final JsonUtils jsonUtils;
+        private final AIResponseHandlerFactory aiResponseHandlerFactory;
 
-    public SAPClaudeAIService(
-            AIProperties aiProperties,
-            AIServiceKeysConfig aiServiceKeys,
-            SAPClaudeAIMessageFactory messageFactory,
-            AIResponseHelper aiResponseHelper,
-            ConfigUtils configUtils,
-            JsonUtils jsonUtils,
-            AIResponseHandlerFactory aiResponseHandlerFactory) {
-        this.aiProperties = aiProperties;
-        this.aiServiceKeys = aiServiceKeys;
-        this.messageFactory = messageFactory;
-        this.aiResponseHelper = aiResponseHelper;
-        this.configUtils = configUtils;
-        this.jsonUtils = jsonUtils;
-        this.aiResponseHandlerFactory = aiResponseHandlerFactory;
-    }
+        public SAPClaudeAIService(
+                        AIProperties aiProperties,
+                        AIServiceKeysConfig aiServiceKeys,
+                        SAPClaudeAIMessageFactory messageFactory,
+                        AIResponseHelper aiResponseHelper,
+                        ConfigUtils configUtils,
+                        JsonUtils jsonUtils,
+                        AIResponseHandlerFactory aiResponseHandlerFactory) {
+                this.aiProperties = aiProperties;
+                this.aiServiceKeys = aiServiceKeys;
+                this.messageFactory = messageFactory;
+                this.aiResponseHelper = aiResponseHelper;
+                this.configUtils = configUtils;
+                this.jsonUtils = jsonUtils;
+                this.aiResponseHandlerFactory = aiResponseHandlerFactory;
+        }
 
-    public ClaudeAiClient getAiClientbyModelUsingBTPDestination(@Nonnull ClaudeAiModel foundationModel) {
+        public ClaudeAiClient getAiClientbyModelUsingBTPDestination(@Nonnull ClaudeAiModel foundationModel) {
                 // build api destination
                 Destination destination = DestinationAccessor.getDestination(aiServiceKeys.getAiCoreDestination());
                 AiCoreService aiCoreService = new AiCoreService().withBaseDestination(destination.asHttp());
@@ -118,7 +126,8 @@ public class SAPClaudeAIService implements AIServiceI {
                 // Set tool config
                 ConverseRequestToolConfig toolConfig = new ConverseRequestToolConfig();
                 toolConfig.addToolsItem(tool);
-                toolConfig.setToolChoice(new ConverseToolChoice().tool(new SpecificToolChoice().name(tool.getToolSpec().getName())));
+                toolConfig.setToolChoice(new ConverseToolChoice()
+                                .tool(new SpecificToolChoice().name(tool.getToolSpec().getName())));
                 request.setToolConfig(toolConfig);
 
                 // Set system message if provided
@@ -163,9 +172,11 @@ public class SAPClaudeAIService implements AIServiceI {
                                 .filter(msg -> !AIConstants.Roles.SYSTEM.equals(msg.role()))
                                 .forEach(msg -> {
                                         if (AIConstants.Roles.USER.equals(msg.role())) {
-                                                request.addMessagesItem(messageFactory.createUserMessage(msg.message()));
+                                                request.addMessagesItem(
+                                                                messageFactory.createUserMessage(msg.message()));
                                         } else if (AIConstants.Roles.ASSISTANT.equals(msg.role())) {
-                                                request.addMessagesItem(messageFactory.createAssistantMessage(msg.message()));
+                                                request.addMessagesItem(
+                                                                messageFactory.createAssistantMessage(msg.message()));
                                         } else {
                                                 throw new BusinessException(AIConstants.Messages.UNEXPECTED_ROLE +
                                                                 msg.role());
@@ -289,6 +300,89 @@ public class SAPClaudeAIService implements AIServiceI {
         @Override
         public SseEmitter callAIforStream(List<CommonAIMessage> messages, Reports report, StreamChatRequest request) {
                 // TODO Auto-generated method stub
-                throw new UnsupportedOperationException("Unimplemented method 'callAIforStream'");
+                // throw new UnsupportedOperationException("Unimplemented method
+                // 'callAIforStream'");
+                final ExecutorService executor = Executors.newCachedThreadPool();
+                SecurityContext securityContext = SecurityContextHolder.getContext();
+                // final var totalUsage = new AtomicReference<OpenAiUsage>();
+                SseEmitter emitter = new SseEmitter(20 * 60 * 1000L); // 3 minutes timeout
+                executor.execute(() -> {
+                        try {
+                                // Set the security context in the new thread
+                                SecurityContextHolder.setContext(securityContext);
+                                // Get existing records and report
+
+                                // Stream AI completion
+
+                                this.streamAICompletion(
+                                                messages,
+                                                report,
+                                                request.getContent(),
+                                                new EntityInfo(request.getId(), request.getIsActiveEntity()))
+                                                .forEach(delta -> {
+                                                        // final var usage = delta.getUsage();
+                                                        // totalUsage.compareAndExchange(null, usage);
+                                                        AIServiceI.send(emitter, delta.getDeltaContent());
+                                                });
+
+                        } finally {
+                                // Clear the security context
+                                SecurityContextHolder.clearContext();
+
+                                // AIServiceI.send(emitter, "-----Total Usage-----" + totalUsage.get());
+                                // Complete the emitter after streaming
+                                emitter.complete();
+                        }
+
+                });
+
+                return emitter;
+        }
+
+        public Stream<ClaudeAIChatCompletionDelta> streamAICompletion(
+                        List<CommonAIMessage> messages,
+                        Reports report,
+                        String userContent,
+                        EntityInfo entityInfo) {
+
+                ConverseRequest request = new ConverseRequest();
+
+                // Set inference config
+                ConverseRequestInferenceConfig inferenceConfig = new ConverseRequestInferenceConfig()
+                                .maxTokens(aiServiceKeys.getClaudeMaxTokens())
+                                .temperature(new BigDecimal("0.7"));
+                request.setInferenceConfig(inferenceConfig);
+
+                // Extract system message if present
+                String systemMessage = messages.stream()
+                                .filter(msg -> AIConstants.Roles.SYSTEM.equals(msg.role()))
+                                .map(CommonAIMessage::message)
+                                .findFirst()
+                                .orElse(null);
+
+                if (systemMessage != null) {
+                        request.addSystemItem(messageFactory.createSystemBlock(systemMessage));
+                }
+
+                // Add other messages (user and assistant)
+                messages.stream()
+                                .filter(msg -> !AIConstants.Roles.SYSTEM.equals(msg.role()))
+                                .forEach(msg -> {
+                                        if (AIConstants.Roles.USER.equals(msg.role())) {
+                                                request.addMessagesItem(
+                                                                messageFactory.createUserMessage(msg.message()));
+                                        } else if (AIConstants.Roles.ASSISTANT.equals(msg.role())) {
+                                                request.addMessagesItem(
+                                                                messageFactory.createAssistantMessage(msg.message()));
+                                        } else {
+                                                throw new BusinessException(AIConstants.Messages.UNEXPECTED_ROLE +
+                                                                msg.role());
+                                        }
+                                });
+
+                // Call OpenAI API with streaming
+                ClaudeAiClient aiClient = getAiClientbyModelUsingBTPDestination(DEFAULT_MODEL);
+                return aiClient.streamChatCompletionDeltas(request);
+
         }
 }

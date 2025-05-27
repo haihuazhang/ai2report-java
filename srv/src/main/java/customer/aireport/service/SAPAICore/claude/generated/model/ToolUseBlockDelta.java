@@ -24,7 +24,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import customer.aireport.service.SAPAICore.claude.generated.model.ConverseRequestAssistantMessage;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -34,51 +33,51 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Output container for Converse API responses. IMPORTANT: This is a UNION type - currently only supports &#39;message&#39;. 
+ * Incremental tool input data
  */
 
 @Beta// CHECKSTYLE:OFF
-public class ConverseOutput 
+public class ToolUseBlockDelta 
 // CHECKSTYLE:ON
 {
-  @JsonProperty("message")
-  private ConverseRequestAssistantMessage message;
+  @JsonProperty("input")
+  private String input;
 
   @JsonAnySetter
   @JsonAnyGetter
   private final Map<String, Object> cloudSdkCustomFields = new LinkedHashMap<>();
 
   /**
-   * Set the message of this {@link ConverseOutput} instance and return the same instance.
+   * Set the input of this {@link ToolUseBlockDelta} instance and return the same instance.
    *
-   * @param message  The message of this {@link ConverseOutput}
-   * @return The same instance of this {@link ConverseOutput} class
+   * @param input  Partial JSON input data for the tool. Concatenate all fragments to build complete input object. 
+   * @return The same instance of this {@link ToolUseBlockDelta} class
    */
-  @Nonnull public ConverseOutput message( @Nullable final ConverseRequestAssistantMessage message) {
-    this.message = message;
+  @Nonnull public ToolUseBlockDelta input( @Nonnull final String input) {
+    this.input = input;
     return this;
   }
 
   /**
-   * Get message
-   * @return message  The message of this {@link ConverseOutput} instance.
+   * Partial JSON input data for the tool. Concatenate all fragments to build complete input object. 
+   * @return input  The input of this {@link ToolUseBlockDelta} instance.
    */
   @Nonnull
-  public ConverseRequestAssistantMessage getMessage() {
-    return message;
+  public String getInput() {
+    return input;
   }
 
   /**
-   * Set the message of this {@link ConverseOutput} instance.
+   * Set the input of this {@link ToolUseBlockDelta} instance.
    *
-   * @param message  The message of this {@link ConverseOutput}
+   * @param input  Partial JSON input data for the tool. Concatenate all fragments to build complete input object. 
    */
-  public void setMessage( @Nullable final ConverseRequestAssistantMessage message) {
-    this.message = message;
+  public void setInput( @Nonnull final String input) {
+    this.input = input;
   }
 
   /**
-   * Get the names of the unrecognizable properties of the {@link ConverseOutput}.
+   * Get the names of the unrecognizable properties of the {@link ToolUseBlockDelta}.
    * @return The set of properties names
    */
   @JsonIgnore
@@ -88,7 +87,7 @@ public class ConverseOutput
   }
 
   /**
-   * Get the value of an unrecognizable property of this {@link ConverseOutput} instance.
+   * Get the value of an unrecognizable property of this {@link ToolUseBlockDelta} instance.
    * @deprecated Use {@link #toMap()} instead.
    * @param name  The name of the property
    * @return The value of the property
@@ -98,13 +97,13 @@ public class ConverseOutput
   @Deprecated
   public Object getCustomField( @Nonnull final String name ) throws NoSuchElementException {
     if( !cloudSdkCustomFields.containsKey(name) ) {
-        throw new NoSuchElementException("ConverseOutput has no field with name '" + name + "'.");
+        throw new NoSuchElementException("ToolUseBlockDelta has no field with name '" + name + "'.");
     }
     return cloudSdkCustomFields.get(name);
   }
 
   /**
-   * Get the value of all properties of this {@link ConverseOutput} instance including unrecognized properties.
+   * Get the value of all properties of this {@link ToolUseBlockDelta} instance including unrecognized properties.
    *
    * @return The map of all properties
    */
@@ -113,12 +112,12 @@ public class ConverseOutput
   public Map<String, Object> toMap()
   {
     final Map<String, Object> declaredFields = new LinkedHashMap<>(cloudSdkCustomFields);
-    if( message != null ) declaredFields.put("message", message);
+    if( input != null ) declaredFields.put("input", input);
     return declaredFields;
   }
 
   /**
-   * Set an unrecognizable property of this {@link ConverseOutput} instance. If the map previously contained a mapping
+   * Set an unrecognizable property of this {@link ToolUseBlockDelta} instance. If the map previously contained a mapping
    * for the key, the old value is replaced by the specified value.
    * @param customFieldName The name of the property
    * @param customFieldValue The value of the property
@@ -138,21 +137,21 @@ public class ConverseOutput
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    final ConverseOutput converseOutput = (ConverseOutput) o;
-    return Objects.equals(this.cloudSdkCustomFields, converseOutput.cloudSdkCustomFields) &&
-        Objects.equals(this.message, converseOutput.message);
+    final ToolUseBlockDelta toolUseBlockDelta = (ToolUseBlockDelta) o;
+    return Objects.equals(this.cloudSdkCustomFields, toolUseBlockDelta.cloudSdkCustomFields) &&
+        Objects.equals(this.input, toolUseBlockDelta.input);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(message, cloudSdkCustomFields);
+    return Objects.hash(input, cloudSdkCustomFields);
   }
 
   @Override
   @Nonnull public String toString() {
     final StringBuilder sb = new StringBuilder();
-    sb.append("class ConverseOutput {\n");
-    sb.append("    message: ").append(toIndentedString(message)).append("\n");
+    sb.append("class ToolUseBlockDelta {\n");
+    sb.append("    input: ").append(toIndentedString(input)).append("\n");
     cloudSdkCustomFields.forEach((k,v) -> sb.append("    ").append(k).append(": ").append(toIndentedString(v)).append("\n"));
     sb.append("}");
     return sb.toString();

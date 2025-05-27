@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import customer.aireport.service.SAPAICore.claude.generated.model.ConverseRequestAssistantMessage;
+import customer.aireport.service.SAPAICore.claude.generated.model.ContentBlockStart;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -34,51 +34,86 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Output container for Converse API responses. IMPORTANT: This is a UNION type - currently only supports &#39;message&#39;. 
+ * Signals the beginning of a new content block
  */
 
 @Beta// CHECKSTYLE:OFF
-public class ConverseOutput 
+public class ContentBlockStartEvent 
 // CHECKSTYLE:ON
 {
-  @JsonProperty("message")
-  private ConverseRequestAssistantMessage message;
+  @JsonProperty("start")
+  private ContentBlockStart start;
+
+  @JsonProperty("contentBlockIndex")
+  private Integer contentBlockIndex;
 
   @JsonAnySetter
   @JsonAnyGetter
   private final Map<String, Object> cloudSdkCustomFields = new LinkedHashMap<>();
 
   /**
-   * Set the message of this {@link ConverseOutput} instance and return the same instance.
+   * Set the start of this {@link ContentBlockStartEvent} instance and return the same instance.
    *
-   * @param message  The message of this {@link ConverseOutput}
-   * @return The same instance of this {@link ConverseOutput} class
+   * @param start  The start of this {@link ContentBlockStartEvent}
+   * @return The same instance of this {@link ContentBlockStartEvent} class
    */
-  @Nonnull public ConverseOutput message( @Nullable final ConverseRequestAssistantMessage message) {
-    this.message = message;
+  @Nonnull public ContentBlockStartEvent start( @Nullable final ContentBlockStart start) {
+    this.start = start;
     return this;
   }
 
   /**
-   * Get message
-   * @return message  The message of this {@link ConverseOutput} instance.
+   * Get start
+   * @return start  The start of this {@link ContentBlockStartEvent} instance.
+   */
+  @Nullable
+  public ContentBlockStart getStart() {
+    return start;
+  }
+
+  /**
+   * Set the start of this {@link ContentBlockStartEvent} instance.
+   *
+   * @param start  The start of this {@link ContentBlockStartEvent}
+   */
+  public void setStart( @Nullable final ContentBlockStart start) {
+    this.start = start;
+  }
+
+  /**
+   * Set the contentBlockIndex of this {@link ContentBlockStartEvent} instance and return the same instance.
+   *
+   * @param contentBlockIndex  Zero-based index of this content block
+   * Minimum: 0
+   * @return The same instance of this {@link ContentBlockStartEvent} class
+   */
+  @Nonnull public ContentBlockStartEvent contentBlockIndex( @Nonnull final Integer contentBlockIndex) {
+    this.contentBlockIndex = contentBlockIndex;
+    return this;
+  }
+
+  /**
+   * Zero-based index of this content block
+   * minimum: 0
+   * @return contentBlockIndex  The contentBlockIndex of this {@link ContentBlockStartEvent} instance.
    */
   @Nonnull
-  public ConverseRequestAssistantMessage getMessage() {
-    return message;
+  public Integer getContentBlockIndex() {
+    return contentBlockIndex;
   }
 
   /**
-   * Set the message of this {@link ConverseOutput} instance.
+   * Set the contentBlockIndex of this {@link ContentBlockStartEvent} instance.
    *
-   * @param message  The message of this {@link ConverseOutput}
+   * @param contentBlockIndex  Zero-based index of this content block
+   * Minimum: 0
    */
-  public void setMessage( @Nullable final ConverseRequestAssistantMessage message) {
-    this.message = message;
+  public void setContentBlockIndex( @Nonnull final Integer contentBlockIndex) {
+    this.contentBlockIndex = contentBlockIndex;
   }
 
   /**
-   * Get the names of the unrecognizable properties of the {@link ConverseOutput}.
+   * Get the names of the unrecognizable properties of the {@link ContentBlockStartEvent}.
    * @return The set of properties names
    */
   @JsonIgnore
@@ -88,7 +123,7 @@ public class ConverseOutput
   }
 
   /**
-   * Get the value of an unrecognizable property of this {@link ConverseOutput} instance.
+   * Get the value of an unrecognizable property of this {@link ContentBlockStartEvent} instance.
    * @deprecated Use {@link #toMap()} instead.
    * @param name  The name of the property
    * @return The value of the property
@@ -98,13 +133,13 @@ public class ConverseOutput
   @Deprecated
   public Object getCustomField( @Nonnull final String name ) throws NoSuchElementException {
     if( !cloudSdkCustomFields.containsKey(name) ) {
-        throw new NoSuchElementException("ConverseOutput has no field with name '" + name + "'.");
+        throw new NoSuchElementException("ContentBlockStartEvent has no field with name '" + name + "'.");
     }
     return cloudSdkCustomFields.get(name);
   }
 
   /**
-   * Get the value of all properties of this {@link ConverseOutput} instance including unrecognized properties.
+   * Get the value of all properties of this {@link ContentBlockStartEvent} instance including unrecognized properties.
    *
    * @return The map of all properties
    */
@@ -113,12 +148,13 @@ public class ConverseOutput
   public Map<String, Object> toMap()
   {
     final Map<String, Object> declaredFields = new LinkedHashMap<>(cloudSdkCustomFields);
-    if( message != null ) declaredFields.put("message", message);
+    if( start != null ) declaredFields.put("start", start);
+    if( contentBlockIndex != null ) declaredFields.put("contentBlockIndex", contentBlockIndex);
     return declaredFields;
   }
 
   /**
-   * Set an unrecognizable property of this {@link ConverseOutput} instance. If the map previously contained a mapping
+   * Set an unrecognizable property of this {@link ContentBlockStartEvent} instance. If the map previously contained a mapping
    * for the key, the old value is replaced by the specified value.
    * @param customFieldName The name of the property
    * @param customFieldValue The value of the property
@@ -138,21 +174,23 @@ public class ConverseOutput
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    final ConverseOutput converseOutput = (ConverseOutput) o;
-    return Objects.equals(this.cloudSdkCustomFields, converseOutput.cloudSdkCustomFields) &&
-        Objects.equals(this.message, converseOutput.message);
+    final ContentBlockStartEvent contentBlockStartEvent = (ContentBlockStartEvent) o;
+    return Objects.equals(this.cloudSdkCustomFields, contentBlockStartEvent.cloudSdkCustomFields) &&
+        Objects.equals(this.start, contentBlockStartEvent.start) &&
+        Objects.equals(this.contentBlockIndex, contentBlockStartEvent.contentBlockIndex);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(message, cloudSdkCustomFields);
+    return Objects.hash(start, contentBlockIndex, cloudSdkCustomFields);
   }
 
   @Override
   @Nonnull public String toString() {
     final StringBuilder sb = new StringBuilder();
-    sb.append("class ConverseOutput {\n");
-    sb.append("    message: ").append(toIndentedString(message)).append("\n");
+    sb.append("class ContentBlockStartEvent {\n");
+    sb.append("    start: ").append(toIndentedString(start)).append("\n");
+    sb.append("    contentBlockIndex: ").append(toIndentedString(contentBlockIndex)).append("\n");
     cloudSdkCustomFields.forEach((k,v) -> sb.append("    ").append(k).append(": ").append(toIndentedString(v)).append("\n"));
     sb.append("}");
     return sb.toString();

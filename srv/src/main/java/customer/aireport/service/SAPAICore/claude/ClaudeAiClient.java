@@ -11,6 +11,7 @@ import com.sap.ai.sdk.core.DeploymentResolutionException;
 import com.sap.ai.sdk.core.common.ClientResponseHandler;
 import com.sap.ai.sdk.core.common.ClientStreamingHandler;
 import com.sap.ai.sdk.core.common.StreamedDelta;
+// import customer.aireport.service.SAPAICore.claude.model.StreamedDelta;
 
 import customer.aireport.service.SAPAICore.claude.generated.model.ContentBlock;
 import customer.aireport.service.SAPAICore.claude.generated.model.ConverseRequest;
@@ -29,6 +30,7 @@ import customer.aireport.service.SAPAICore.claude.generated.model.MessageRequest
 import customer.aireport.service.SAPAICore.claude.generated.model.RequestUserMessage;
 import customer.aireport.service.SAPAICore.claude.generated.model.RequestUserMessageContent;
 import customer.aireport.service.SAPAICore.claude.generated.model.SystemContentBlock;
+import customer.aireport.service.SAPAICore.claude.model.ClaudeAIChatCompletionDelta;
 
 import com.sap.cloud.sdk.cloudplatform.connectivity.ApacheHttpClient5Accessor;
 // import com.sap.cloud.sdk.cloudplatform.connectivity.DefaultHttpDestination;
@@ -60,7 +62,7 @@ public final class ClaudeAiClient {
   static {
     ObjectMapper mapper = getDefaultObjectMapper();
     mapper.configOverride(Map.class)
-          .setInclude(JsonInclude.Value.construct(JsonInclude.Include.NON_EMPTY, null));
+        .setInclude(JsonInclude.Value.construct(JsonInclude.Include.NON_EMPTY, null));
     JACKSON = mapper;
   }
 
@@ -170,7 +172,7 @@ public final class ClaudeAiClient {
   @Nonnull
   public InvokeResponse chatCompletionWithPresetPromptInvoke(@Nonnull final String prompt)
       throws ClaudeAiClientException {
-        
+
     final InvokeRequest request = new InvokeRequest();
     if (systemPrompt != null) {
       request.setSystem(systemPrompt);
@@ -441,6 +443,13 @@ public final class ClaudeAiClient {
     }
   }
 
+  @Beta
+  @Nonnull
+  public Stream<ClaudeAIChatCompletionDelta> streamChatCompletionDeltas(
+      @Nonnull final ConverseRequest request) throws ClaudeAiClientException {
+    return executeStream("/converse-stream", request, ClaudeAIChatCompletionDelta.class);
+  }
+
   // /**
   // * Get a vector representation of a given request that can be easily consumed
   // by machine learning
@@ -504,15 +513,6 @@ public final class ClaudeAiClient {
     return executeRequest(request, responseType);
   }
 
-  // @Nonnull
-  // private <D extends StreamedDelta> Stream<D> executeStream(
-  // @Nonnull final String path,
-  // @Nonnull final Object payload,
-  // @Nonnull final Class<D> deltaType) {
-  // final var request = new HttpPost(path);
-  // serializeAndSetHttpEntity(request, payload);
-  // return streamRequest(request, deltaType);
-  // }
 
   private void serializeAndSetHttpEntity(
       @Nonnull final BasicClassicHttpRequest request, @Nonnull final Object payload) {

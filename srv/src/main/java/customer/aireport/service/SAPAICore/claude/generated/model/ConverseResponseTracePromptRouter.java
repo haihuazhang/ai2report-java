@@ -50,7 +50,7 @@ public class ConverseResponseTracePromptRouter
   /**
    * Set the invokedModelId of this {@link ConverseResponseTracePromptRouter} instance and return the same instance.
    *
-   * @param invokedModelId  The invokedModelId of this {@link ConverseResponseTracePromptRouter}
+   * @param invokedModelId  The actual model ID that was invoked
    * @return The same instance of this {@link ConverseResponseTracePromptRouter} class
    */
   @Nonnull public ConverseResponseTracePromptRouter invokedModelId( @Nullable final String invokedModelId) {
@@ -59,7 +59,7 @@ public class ConverseResponseTracePromptRouter
   }
 
   /**
-   * Get invokedModelId
+   * The actual model ID that was invoked
    * @return invokedModelId  The invokedModelId of this {@link ConverseResponseTracePromptRouter} instance.
    */
   @Nonnull
@@ -70,7 +70,7 @@ public class ConverseResponseTracePromptRouter
   /**
    * Set the invokedModelId of this {@link ConverseResponseTracePromptRouter} instance.
    *
-   * @param invokedModelId  The invokedModelId of this {@link ConverseResponseTracePromptRouter}
+   * @param invokedModelId  The actual model ID that was invoked
    */
   public void setInvokedModelId( @Nullable final String invokedModelId) {
     this.invokedModelId = invokedModelId;

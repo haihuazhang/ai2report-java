@@ -27,6 +27,7 @@ import customer.aireport.helper.ChatHelper;
 import customer.aireport.model.CommonAIMessage;
 import customer.aireport.model.EntityInfo;
 import customer.aireport.model.StreamChatRequest;
+import customer.aireport.resolver.AIServiceResolver;
 import customer.aireport.service.EntityService;
 import customer.aireport.service.SAPAICore.SAPOpenAIService;
 import customer.aireport.util.ConfigUtils;
@@ -39,8 +40,8 @@ import cds.gen.chatservice.Reports;
 @RequestMapping("/api/chat")
 public class ChatCompletionWithStreamController {
 
-    @Autowired
-    private SAPOpenAIService sapOpenAIService;
+    // @Autowired
+    // private SAPOpenAIService sapOpenAIService;
 
     @Autowired
     private ConfigUtils configUtils;
@@ -60,13 +61,16 @@ public class ChatCompletionWithStreamController {
     @Autowired
     private ChatHelper chatHelper;
 
-    /* 
+    @Autowired
+    private AIServiceResolver aiServiceResolver;
+
+    /*
      * Stream Chat Completion with Stream API
      * 
      */
-    @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE )
-    public SseEmitter streamChatCompletion(@RequestBody StreamChatRequest request,HttpServletResponse response) {
-        
+    @PostMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+    public SseEmitter streamChatCompletion(@RequestBody StreamChatRequest request, HttpServletResponse response) {
+
         // Set Cache-Control header
         // To disable compression of the response by SAP Approuter
         response.setHeader("Cache-Control", "no-transform");
@@ -100,7 +104,7 @@ public class ChatCompletionWithStreamController {
             chatHelper.handleExistingChat(request.getContent(), commonAIMessages, records);
         }
 
-        return sapOpenAIService.callAIforStream(
+        return aiServiceResolver.getActiveAIService().callAIforStream(
                 commonAIMessages,
                 report, request);
 

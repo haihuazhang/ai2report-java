@@ -24,7 +24,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import customer.aireport.service.SAPAICore.claude.generated.model.ConverseRequestAssistantMessage;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -34,51 +33,105 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Output container for Converse API responses. IMPORTANT: This is a UNION type - currently only supports &#39;message&#39;. 
+ * Performance configuration information
  */
 
 @Beta// CHECKSTYLE:OFF
-public class ConverseOutput 
+public class StreamMetadataEventPerformanceConfig 
 // CHECKSTYLE:ON
 {
-  @JsonProperty("message")
-  private ConverseRequestAssistantMessage message;
+  /**
+   * Latency performance mode
+   */
+  public enum LatencyEnum {
+    /**
+    * The STREAMING option of this StreamMetadataEventPerformanceConfig
+    */
+    STREAMING("streaming"),
+    
+    /**
+    * The UNKNOWN_DEFAULT_OPEN_API option of this StreamMetadataEventPerformanceConfig
+    */
+    UNKNOWN_DEFAULT_OPEN_API("unknown_default_open_api");
+
+    private String value;
+
+    LatencyEnum(String value) {
+      this.value = value;
+    }
+
+    /**
+    * Get the value of the enum
+    * @return The enum value
+    */
+    @JsonValue
+    @Nonnull public String getValue() {
+      return value;
+    }
+
+    /**
+    * Get the String value of the enum value.
+    * @return The enum value as String
+    */
+    @Override
+    @Nonnull public String toString() {
+      return String.valueOf(value);
+    }
+
+    /**
+    * Get the enum value from a String value
+    * @param value The String value
+    * @return The enum value of type StreamMetadataEventPerformanceConfig
+    */
+    @JsonCreator
+    @Nonnull public static LatencyEnum fromValue(@Nonnull final String value) {
+      for (LatencyEnum b : LatencyEnum.values()) {
+        if (b.value.equals(value)) {
+          return b;
+        }
+      }
+      return UNKNOWN_DEFAULT_OPEN_API;
+    }
+  }
+
+  @JsonProperty("latency")
+  private LatencyEnum latency;
 
   @JsonAnySetter
   @JsonAnyGetter
   private final Map<String, Object> cloudSdkCustomFields = new LinkedHashMap<>();
 
   /**
-   * Set the message of this {@link ConverseOutput} instance and return the same instance.
+   * Set the latency of this {@link StreamMetadataEventPerformanceConfig} instance and return the same instance.
    *
-   * @param message  The message of this {@link ConverseOutput}
-   * @return The same instance of this {@link ConverseOutput} class
+   * @param latency  Latency performance mode
+   * @return The same instance of this {@link StreamMetadataEventPerformanceConfig} class
    */
-  @Nonnull public ConverseOutput message( @Nullable final ConverseRequestAssistantMessage message) {
-    this.message = message;
+  @Nonnull public StreamMetadataEventPerformanceConfig latency( @Nullable final LatencyEnum latency) {
+    this.latency = latency;
     return this;
   }
 
   /**
-   * Get message
-   * @return message  The message of this {@link ConverseOutput} instance.
+   * Latency performance mode
+   * @return latency  The latency of this {@link StreamMetadataEventPerformanceConfig} instance.
    */
   @Nonnull
-  public ConverseRequestAssistantMessage getMessage() {
-    return message;
+  public LatencyEnum getLatency() {
+    return latency;
   }
 
   /**
-   * Set the message of this {@link ConverseOutput} instance.
+   * Set the latency of this {@link StreamMetadataEventPerformanceConfig} instance.
    *
-   * @param message  The message of this {@link ConverseOutput}
+   * @param latency  Latency performance mode
    */
-  public void setMessage( @Nullable final ConverseRequestAssistantMessage message) {
-    this.message = message;
+  public void setLatency( @Nullable final LatencyEnum latency) {
+    this.latency = latency;
   }
 
   /**
-   * Get the names of the unrecognizable properties of the {@link ConverseOutput}.
+   * Get the names of the unrecognizable properties of the {@link StreamMetadataEventPerformanceConfig}.
    * @return The set of properties names
    */
   @JsonIgnore
@@ -88,7 +141,7 @@ public class ConverseOutput
   }
 
   /**
-   * Get the value of an unrecognizable property of this {@link ConverseOutput} instance.
+   * Get the value of an unrecognizable property of this {@link StreamMetadataEventPerformanceConfig} instance.
    * @deprecated Use {@link #toMap()} instead.
    * @param name  The name of the property
    * @return The value of the property
@@ -98,13 +151,13 @@ public class ConverseOutput
   @Deprecated
   public Object getCustomField( @Nonnull final String name ) throws NoSuchElementException {
     if( !cloudSdkCustomFields.containsKey(name) ) {
-        throw new NoSuchElementException("ConverseOutput has no field with name '" + name + "'.");
+        throw new NoSuchElementException("StreamMetadataEventPerformanceConfig has no field with name '" + name + "'.");
     }
     return cloudSdkCustomFields.get(name);
   }
 
   /**
-   * Get the value of all properties of this {@link ConverseOutput} instance including unrecognized properties.
+   * Get the value of all properties of this {@link StreamMetadataEventPerformanceConfig} instance including unrecognized properties.
    *
    * @return The map of all properties
    */
@@ -113,12 +166,12 @@ public class ConverseOutput
   public Map<String, Object> toMap()
   {
     final Map<String, Object> declaredFields = new LinkedHashMap<>(cloudSdkCustomFields);
-    if( message != null ) declaredFields.put("message", message);
+    if( latency != null ) declaredFields.put("latency", latency);
     return declaredFields;
   }
 
   /**
-   * Set an unrecognizable property of this {@link ConverseOutput} instance. If the map previously contained a mapping
+   * Set an unrecognizable property of this {@link StreamMetadataEventPerformanceConfig} instance. If the map previously contained a mapping
    * for the key, the old value is replaced by the specified value.
    * @param customFieldName The name of the property
    * @param customFieldValue The value of the property
@@ -138,21 +191,21 @@ public class ConverseOutput
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    final ConverseOutput converseOutput = (ConverseOutput) o;
-    return Objects.equals(this.cloudSdkCustomFields, converseOutput.cloudSdkCustomFields) &&
-        Objects.equals(this.message, converseOutput.message);
+    final StreamMetadataEventPerformanceConfig streamMetadataEventPerformanceConfig = (StreamMetadataEventPerformanceConfig) o;
+    return Objects.equals(this.cloudSdkCustomFields, streamMetadataEventPerformanceConfig.cloudSdkCustomFields) &&
+        Objects.equals(this.latency, streamMetadataEventPerformanceConfig.latency);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(message, cloudSdkCustomFields);
+    return Objects.hash(latency, cloudSdkCustomFields);
   }
 
   @Override
   @Nonnull public String toString() {
     final StringBuilder sb = new StringBuilder();
-    sb.append("class ConverseOutput {\n");
-    sb.append("    message: ").append(toIndentedString(message)).append("\n");
+    sb.append("class StreamMetadataEventPerformanceConfig {\n");
+    sb.append("    latency: ").append(toIndentedString(latency)).append("\n");
     cloudSdkCustomFields.forEach((k,v) -> sb.append("    ").append(k).append(": ").append(toIndentedString(v)).append("\n"));
     sb.append("}");
     return sb.toString();

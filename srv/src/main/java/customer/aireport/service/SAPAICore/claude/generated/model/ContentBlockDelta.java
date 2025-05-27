@@ -24,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.fasterxml.jackson.annotation.JsonValue;
-import customer.aireport.service.SAPAICore.claude.generated.model.ConverseRequestAssistantMessage;
+import customer.aireport.service.SAPAICore.claude.generated.model.ToolUseBlockDelta;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -34,51 +34,83 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Output container for Converse API responses. IMPORTANT: This is a UNION type - currently only supports &#39;message&#39;. 
+ * Incremental content change data. IMPORTANT: This is a UNION type - only one member can be specified. 
  */
 
 @Beta// CHECKSTYLE:OFF
-public class ConverseOutput 
+public class ContentBlockDelta 
 // CHECKSTYLE:ON
 {
-  @JsonProperty("message")
-  private ConverseRequestAssistantMessage message;
+  @JsonProperty("text")
+  private String text;
+
+  @JsonProperty("toolUse")
+  private ToolUseBlockDelta toolUse;
 
   @JsonAnySetter
   @JsonAnyGetter
   private final Map<String, Object> cloudSdkCustomFields = new LinkedHashMap<>();
 
   /**
-   * Set the message of this {@link ConverseOutput} instance and return the same instance.
+   * Set the text of this {@link ContentBlockDelta} instance and return the same instance.
    *
-   * @param message  The message of this {@link ConverseOutput}
-   * @return The same instance of this {@link ConverseOutput} class
+   * @param text  The text fragment being streamed. Concatenate all fragments to build complete response. 
+   * @return The same instance of this {@link ContentBlockDelta} class
    */
-  @Nonnull public ConverseOutput message( @Nullable final ConverseRequestAssistantMessage message) {
-    this.message = message;
+  @Nonnull public ContentBlockDelta text( @Nullable final String text) {
+    this.text = text;
     return this;
   }
 
   /**
-   * Get message
-   * @return message  The message of this {@link ConverseOutput} instance.
+   * The text fragment being streamed. Concatenate all fragments to build complete response. 
+   * @return text  The text of this {@link ContentBlockDelta} instance.
    */
   @Nonnull
-  public ConverseRequestAssistantMessage getMessage() {
-    return message;
+  public String getText() {
+    return text;
   }
 
   /**
-   * Set the message of this {@link ConverseOutput} instance.
+   * Set the text of this {@link ContentBlockDelta} instance.
    *
-   * @param message  The message of this {@link ConverseOutput}
+   * @param text  The text fragment being streamed. Concatenate all fragments to build complete response. 
    */
-  public void setMessage( @Nullable final ConverseRequestAssistantMessage message) {
-    this.message = message;
+  public void setText( @Nullable final String text) {
+    this.text = text;
   }
 
   /**
-   * Get the names of the unrecognizable properties of the {@link ConverseOutput}.
+   * Set the toolUse of this {@link ContentBlockDelta} instance and return the same instance.
+   *
+   * @param toolUse  The toolUse of this {@link ContentBlockDelta}
+   * @return The same instance of this {@link ContentBlockDelta} class
+   */
+  @Nonnull public ContentBlockDelta toolUse( @Nullable final ToolUseBlockDelta toolUse) {
+    this.toolUse = toolUse;
+    return this;
+  }
+
+  /**
+   * Get toolUse
+   * @return toolUse  The toolUse of this {@link ContentBlockDelta} instance.
+   */
+  @Nonnull
+  public ToolUseBlockDelta getToolUse() {
+    return toolUse;
+  }
+
+  /**
+   * Set the toolUse of this {@link ContentBlockDelta} instance.
+   *
+   * @param toolUse  The toolUse of this {@link ContentBlockDelta}
+   */
+  public void setToolUse( @Nullable final ToolUseBlockDelta toolUse) {
+    this.toolUse = toolUse;
+  }
+
+  /**
+   * Get the names of the unrecognizable properties of the {@link ContentBlockDelta}.
    * @return The set of properties names
    */
   @JsonIgnore
@@ -88,7 +120,7 @@ public class ConverseOutput
   }
 
   /**
-   * Get the value of an unrecognizable property of this {@link ConverseOutput} instance.
+   * Get the value of an unrecognizable property of this {@link ContentBlockDelta} instance.
    * @deprecated Use {@link #toMap()} instead.
    * @param name  The name of the property
    * @return The value of the property
@@ -98,13 +130,13 @@ public class ConverseOutput
   @Deprecated
   public Object getCustomField( @Nonnull final String name ) throws NoSuchElementException {
     if( !cloudSdkCustomFields.containsKey(name) ) {
-        throw new NoSuchElementException("ConverseOutput has no field with name '" + name + "'.");
+        throw new NoSuchElementException("ContentBlockDelta has no field with name '" + name + "'.");
     }
     return cloudSdkCustomFields.get(name);
   }
 
   /**
-   * Get the value of all properties of this {@link ConverseOutput} instance including unrecognized properties.
+   * Get the value of all properties of this {@link ContentBlockDelta} instance including unrecognized properties.
    *
    * @return The map of all properties
    */
@@ -113,12 +145,13 @@ public class ConverseOutput
   public Map<String, Object> toMap()
   {
     final Map<String, Object> declaredFields = new LinkedHashMap<>(cloudSdkCustomFields);
-    if( message != null ) declaredFields.put("message", message);
+    if( text != null ) declaredFields.put("text", text);
+    if( toolUse != null ) declaredFields.put("toolUse", toolUse);
     return declaredFields;
   }
 
   /**
-   * Set an unrecognizable property of this {@link ConverseOutput} instance. If the map previously contained a mapping
+   * Set an unrecognizable property of this {@link ContentBlockDelta} instance. If the map previously contained a mapping
    * for the key, the old value is replaced by the specified value.
    * @param customFieldName The name of the property
    * @param customFieldValue The value of the property
@@ -138,21 +171,23 @@ public class ConverseOutput
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    final ConverseOutput converseOutput = (ConverseOutput) o;
-    return Objects.equals(this.cloudSdkCustomFields, converseOutput.cloudSdkCustomFields) &&
-        Objects.equals(this.message, converseOutput.message);
+    final ContentBlockDelta contentBlockDelta = (ContentBlockDelta) o;
+    return Objects.equals(this.cloudSdkCustomFields, contentBlockDelta.cloudSdkCustomFields) &&
+        Objects.equals(this.text, contentBlockDelta.text) &&
+        Objects.equals(this.toolUse, contentBlockDelta.toolUse);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(message, cloudSdkCustomFields);
+    return Objects.hash(text, toolUse, cloudSdkCustomFields);
   }
 
   @Override
   @Nonnull public String toString() {
     final StringBuilder sb = new StringBuilder();
-    sb.append("class ConverseOutput {\n");
-    sb.append("    message: ").append(toIndentedString(message)).append("\n");
+    sb.append("class ContentBlockDelta {\n");
+    sb.append("    text: ").append(toIndentedString(text)).append("\n");
+    sb.append("    toolUse: ").append(toIndentedString(toolUse)).append("\n");
     cloudSdkCustomFields.forEach((k,v) -> sb.append("    ").append(k).append(": ").append(toIndentedString(v)).append("\n"));
     sb.append("}");
     return sb.toString();

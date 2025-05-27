@@ -66,10 +66,10 @@ sap.ui.define([
                 }
             }).catch(function (error) {
                 console.error("Error posting message:", error);
-                if (streaming) {
-                    // delete the temporary chat record context for user
-                    tempUserContext.delete();
-                }
+                // if (streaming) {
+                // delete the temporary chat record context for user
+                tempUserContext.delete();
+                // }
             });
         },
         // 处理非流式完成回复的异步方法
